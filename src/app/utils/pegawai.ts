@@ -1,0 +1,22 @@
+export const AVAILABLE_PEGAWAI = [
+  { nama: "Wahid Hasyim", nip: "198202082005021002", pangkat: "Penata Tk. I / III.d", jabatan: "Kepala Bidang Koperasi Dan Umkm" },
+  { nama: "Irwan Suprianto", nip: "199509012022031013", pangkat: "Penata Muda / III.a", jabatan: "Pengembang Kewirausahaan Ahli Pertama" },
+  { nama: "Rahmawati", nip: "199511302022032030", pangkat: "Penata Muda / III.a", jabatan: "Pengembang Kewirausahaan Ahli Pertama" },
+  { nama: "Wenry Adeputra", nip: "199106272023211019", pangkat: "IX", jabatan: "Pengawas Koperasi Ahli Pertama" },
+  { nama: "Rijal Rasyidin", nip: "199201242023211018", pangkat: "IX", jabatan: "Pengawas Koperasi Ahli Pertama" },
+  { nama: "Deny Cahyadi", nip: "199706102025211001", pangkat: "IX", jabatan: "Penata Layanan Operasional" },
+  { nama: "Annisa Apriani", nip: "199904282025212020", pangkat: "V", jabatan: "Pengadministrasi Perkantoran" },
+  { nama: "Darwis Iskandar", nip: "197206132007011023", pangkat: "Pengatur Tk. I / II.b", jabatan: "Operator Layanan Operasional" },
+  { nama: "Rachmat Arianto", nip: "197701182008011015", pangkat: "Penata / III.c", jabatan: "Pengolah Data Dan Informasi" },
+  { nama: "Noveria Devy Irmawanti", nip: "198211232011012004", pangkat: "Penata Tk. I / III.d", jabatan: "Pengawas Koperasi Ahli Muda" },
+  { nama: "Sitti Halimatussa'diyah Badar", nip: "198703282025212003", pangkat: "IX", jabatan: "Penata Layanan Operasional" },
+  { nama: "Marlina", nip: "198804082022032007", pangkat: "Penata Muda / III.a", jabatan: "Pengembang Kewirausahaan Ahli Pertama" },
+  { nama: "Evita Tiara Jayanti", nip: "199704262023212014", pangkat: "IX", jabatan: "Pengawas Koperasi Ahli Pertama" },
+  { nama: "Fauziani Nur Maulidianti", nip: "199707112023212021", pangkat: "IX", jabatan: "Pengawas Koperasi Ahli Pertama" },
+  { nama: "Nova Dwi Sapta Nain Seven", nip: "199711272022031009", pangkat: "Penata Muda / III.a", jabatan: "Pengembang Kewirausahaan Ahli Pertama" },
+  { nama: "Hidayat Sorang", nip: "198704082009041002", pangkat: "Penata Tk. I / III.d", jabatan: "Perencana Ahli Muda" },
+  { nama: "Muhammad Sulaiman", nip: "197406202007011015", pangkat: "Penata Muda / III.a", jabatan: "Staf Keuangan" },
+  { nama: "Agus Susanto", nip: "196908032000121006", pangkat: "Penata Muda / III.a", jabatan: "Staf Keuangan" },
+  { nama: "Muri Asdanu", nip: "MuriAsdanu", pangkat: "-", jabatan: "Sopir" },
+  { nama: "Muhammad Fadli", nip: "MuhammadFadli", pangkat: "-", jabatan: "Sopir SKPD" }
+];

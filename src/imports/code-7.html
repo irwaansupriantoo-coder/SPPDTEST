@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="light" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Data Pelaku Perjalanan - SIM Perjalanan Dinas Berau</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#92cfee",
+              "tertiary-fixed": "#ffddbb",
+              "tertiary-container": "#7b4f16",
+              "inverse-surface": "#2d3133",
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#004d66",
+              "on-tertiary-container": "#ffc484",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e6e8ea",
+              "primary-fixed": "#c0e8ff",
+              "on-secondary-fixed": "#071e28",
+              "inverse-on-surface": "#eff1f3",
+              "on-surface": "#191c1e",
+              "surface-dim": "#d8dadc",
+              "on-background": "#191c1e",
+              "on-primary-fixed": "#001e2b",
+              "surface": "#f7f9fb",
+              "secondary": "#4c616d",
+              "surface-tint": "#236580",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#cfe6f4",
+              "on-secondary-container": "#526773",
+              "on-primary-container": "#9bd7f7",
+              "primary-fixed-dim": "#92cfee",
+              "primary": "#00475e",
+              "background": "#f7f9fb",
+              "on-error-container": "#93000a",
+              "surface-container": "#eceef0",
+              "on-primary": "#ffffff",
+              "error": "#ba1a1a",
+              "outline": "#70787d",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e0e3e5",
+              "on-secondary-fixed-variant": "#344a55",
+              "secondary-container": "#cfe6f4",
+              "surface-variant": "#e0e3e5",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#40484d",
+              "primary-container": "#1a5f7a",
+              "surface-container-low": "#f2f4f6",
+              "tertiary": "#5f3800",
+              "tertiary-fixed-dim": "#f7bb78",
+              "on-tertiary-fixed": "#2b1700",
+              "secondary-fixed-dim": "#b3cad7",
+              "outline-variant": "#c0c8cd",
+              "on-tertiary-fixed-variant": "#663e04"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f7f9fb;
+      }
+    </style>
+</head>
+<body class="text-on-surface min-h-screen">
+<!-- Top Navigation Bar from SCREEN_25 -->
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/70 backdrop-blur-xl z-50 text-cyan-900 font-inter antialiased border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-bold tracking-tight text-cyan-950">SIM Perjalanan Dinas Berau</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-slate-100 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+<div class="text-right hidden md:block">
+<p class="text-sm font-bold text-on-surface leading-none">Andi Setiawan</p>
+<p class="text-xs text-slate-500">NIP. 19850412 201001 1 002</p>
+</div>
+<button class="hover:bg-slate-100 transition-colors rounded-full p-0.5">
+<span class="material-symbols-outlined text-4xl">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex">
+<!-- Side Navigation Bar from SCREEN_25 -->
+<aside class="fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-40">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div>
+<h2 class="font-black text-cyan-900 leading-tight uppercase text-xs tracking-wider">DISKOPERINDAG</h2>
+<p class="text-[10px] text-slate-500 font-medium">Kabupaten Berau</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white text-cyan-700 shadow-sm rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">description</span>
+                    Pengajuan
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+                    Laporan (SPJ)
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined">payments</span>
+                    Data Anggaran
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined">help_center</span>
+                    Panduan
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Pengaturan
+                </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10">
+<button class="flex items-center gap-3 w-full px-3 py-2.5 text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm">
+<span class="material-symbols-outlined">logout</span>
+                    Log Keluar
+                </button>
+</div>
+</aside>
+<!-- Main Content with Modal -->
+<main class="ml-64 pt-20 p-8 flex-grow bg-surface relative min-h-screen">
+<!-- Background Content (Blurred) -->
+<div class="filter blur-sm pointer-events-none">
+<header class="mb-10">
+<p class="text-secondary font-semibold uppercase tracking-[0.15em] text-[10px] mb-2">Manajemen Laporan</p>
+<h2 class="text-4xl font-bold tracking-tight text-primary mb-1">Daftar Perjalanan Dinas</h2>
+<p class="text-on-surface-variant max-w-2xl">Pilih perjalanan dinas untuk melengkapi laporan pertanggungjawaban perorangan maupun kolektif.</p>
+</header>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/10 h-96"></div>
+</div>
+<!-- Modal Backdrop -->
+<div class="fixed inset-0 z-[60] bg-on-surface/30 backdrop-blur-md flex items-center justify-center p-4">
+<!-- Dialog Box: Data Pelaku Perjalanan -->
+<section class="bg-surface-container-lowest w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+<!-- Dialog Header -->
+<div class="px-8 py-6 bg-surface-container-low flex justify-between items-start border-b border-outline-variant/10">
+<div>
+<h2 class="text-xl font-bold text-primary mb-1">Data Pelaku Perjalanan - Luar Daerah</h2>
+<p class="text-sm text-on-surface-variant">Berikut adalah daftar pelaksana perjalanan dinas. Mohon lengkapi laporan perorangan.</p>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Dialog Body -->
+<div class="flex-grow overflow-y-auto px-8 py-6">
+<table class="w-full text-left border-separate border-spacing-y-4">
+<thead>
+<tr class="text-[11px] font-black uppercase tracking-widest text-secondary">
+<th class="px-4 pb-2">Nama Pelaksana</th>
+<th class="px-4 pb-2">NIP</th>
+<th class="px-4 pb-2">Status Laporan</th>
+<th class="px-4 pb-2 text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1: Sudah Lengkap -->
+<tr class="group hover:bg-surface-container-low/50 transition-all duration-200">
+<td class="px-4 py-5 bg-surface-container-low/30 first:rounded-l-xl">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">AH</div>
+<span class="font-bold text-on-surface">Agus Hariyadi, S.E.</span>
+</div>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 font-medium text-on-surface-variant">198504122010011005</td>
+<td class="px-4 py-5 bg-surface-container-low/30">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                            Sudah Lengkap
+                                        </span>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 last:rounded-r-xl text-right">
+<button class="text-primary font-bold hover:underline inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-base">edit_note</span>
+                                            Edit Laporan
+                                        </button>
+</td>
+</tr>
+<!-- Row 2: Belum Lengkap -->
+<tr class="group hover:bg-surface-container-low/50 transition-all duration-200">
+<td class="px-4 py-5 bg-surface-container-low/30 first:rounded-l-xl border-l-4 border-error/50">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-error/10 flex items-center justify-center text-error font-bold text-xs">RM</div>
+<span class="font-bold text-on-surface">Ratna Mutu, M.Si.</span>
+</div>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 font-medium text-on-surface-variant">197811022005012002</td>
+<td class="px-4 py-5 bg-surface-container-low/30">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container text-xs font-bold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">pending</span>
+                                            Belum Lengkap
+                                        </span>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 last:rounded-r-xl text-right">
+<button class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-on-primary text-xs font-bold rounded-md hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+                                            Lengkapi Laporan Perorangan
+                                        </button>
+</td>
+</tr>
+<!-- Row 3: Belum Lengkap -->
+<tr class="group hover:bg-surface-container-low/50 transition-all duration-200">
+<td class="px-4 py-5 bg-surface-container-low/30 first:rounded-l-xl border-l-4 border-error/50">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-secondary/10 flex items-center justify-center text-secondary font-bold text-xs">BP</div>
+<span class="font-bold text-on-surface">Bambang Pamungkas</span>
+</div>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 font-medium text-on-surface-variant">199201152020121001</td>
+<td class="px-4 py-5 bg-surface-container-low/30">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error-container text-on-error-container text-xs font-bold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">pending</span>
+                                            Belum Lengkap
+                                        </span>
+</td>
+<td class="px-4 py-5 bg-surface-container-low/30 last:rounded-r-xl text-right">
+<button class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-on-primary text-xs font-bold rounded-md hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm">history_edu</span>
+                                            Lengkapi Laporan Perorangan
+                                        </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Dialog Footer -->
+<div class="px-8 py-6 bg-surface-container flex justify-between items-center border-t border-outline-variant/10">
+<div class="flex items-center gap-2 text-on-surface-variant text-xs font-medium">
+<span class="material-symbols-outlined text-error text-lg">info</span>
+<span>2 dari 3 pelaksana belum melengkapi laporan.</span>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 rounded-lg border border-outline-variant text-on-surface font-bold text-sm hover:bg-slate-50 transition-colors">
+                                Tutup
+                            </button>
+<button class="px-6 py-2.5 rounded-lg bg-slate-200 text-slate-400 font-bold text-sm cursor-not-allowed flex items-center gap-2" disabled="">
+<span class="material-symbols-outlined text-sm">send</span>
+                                Submit Laporan Kolektif
+                            </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

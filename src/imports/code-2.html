@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#70787d",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-container-high": "#e6e8ea",
+                    "primary": "#00475e",
+                    "inverse-primary": "#92cfee",
+                    "on-secondary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-surface": "#191c1e",
+                    "inverse-surface": "#2d3133",
+                    "surface-container": "#eceef0",
+                    "on-primary-fixed-variant": "#004d66",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-primary": "#ffffff",
+                    "tertiary-fixed": "#ffddbb",
+                    "tertiary": "#5f3800",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary-fixed": "#2b1700",
+                    "on-surface-variant": "#40484d",
+                    "tertiary-container": "#7b4f16",
+                    "surface-bright": "#f7f9fb",
+                    "secondary": "#4c616d",
+                    "outline-variant": "#c0c8cd",
+                    "on-background": "#191c1e",
+                    "on-tertiary-fixed-variant": "#663e04",
+                    "on-error": "#ffffff",
+                    "secondary-fixed-dim": "#b3cad7",
+                    "primary-container": "#1a5f7a",
+                    "on-secondary-fixed-variant": "#344a55",
+                    "on-secondary-container": "#526773",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#236580",
+                    "secondary-fixed": "#cfe6f4",
+                    "secondary-container": "#cfe6f4",
+                    "on-tertiary-container": "#ffc484",
+                    "on-secondary-fixed": "#071e28",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001e2b",
+                    "tertiary-fixed-dim": "#f7bb78",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e0e3e5",
+                    "primary-fixed-dim": "#92cfee",
+                    "primary-fixed": "#c0e8ff",
+                    "on-primary-container": "#9bd7f7",
+                    "surface-dim": "#d8dadc",
+                    "surface": "#f7f9fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c0c8cd;
+            border-radius: 10px;
+        }
+        .editorial-shadow {
+            box-shadow: 0 16px 32px -12px rgba(25, 28, 30, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<aside class="fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 dark:bg-slate-950 text-cyan-800 dark:text-cyan-400 text-sm font-medium Inter docked left-0 h-full w-64 z-40">
+<div class="mb-8 px-2 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h2 class="font-black text-cyan-900 dark:text-cyan-100 text-base leading-tight">Diskoperindag</h2>
+<p class="text-[10px] text-slate-500 uppercase tracking-wider">Kabupaten Berau</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-cyan-600 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-900 text-cyan-700 dark:text-cyan-300 shadow-sm rounded-lg transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Pengajuan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-cyan-600 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+<span>Laporan (SPJ)</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-cyan-600 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Data Anggaran</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-cyan-600 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+<span>Panduan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-cyan-600 hover:bg-white/50 dark:hover:bg-slate-800/50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span>Pengaturan</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200 pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:text-error transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Log Keluar</span>
+</a>
+</div>
+</aside>
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl text-cyan-900 dark:text-cyan-100 font-inter antialiased docked full-width top-0 z-50">
+<h1 class="text-xl font-bold tracking-tight text-cyan-950 dark:text-white">SIM Perjalanan Dinas Berau</h1>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-full scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors rounded-full scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<main class="pl-64 pt-16 min-h-screen bg-surface">
+<div class="p-10 max-w-6xl mx-auto">
+<header class="mb-10">
+<span class="text-xs font-semibold text-primary uppercase tracking-widest mb-2 block">Formulir Digital</span>
+<h2 class="text-4xl font-bold text-on-surface tracking-tight">Form Pengajuan</h2>
+<p class="text-secondary mt-2">Lengkapi data perjalanan dinas untuk memproses surat perintah.</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<div class="md:col-span-8 bg-surface-container-lowest p-8 rounded-xl editorial-shadow">
+<div class="grid grid-cols-2 gap-6">
+<div class="col-span-2">
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Nama Pelaksana</label>
+<div class="bg-surface-container-highest p-4 rounded-md flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="person">person</span>
+<span class="text-on-surface font-medium">Ahmad Faisal</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tujuan Perjalanan</label>
+<div class="bg-surface-container-highest p-4 rounded-md flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="location_on">location_on</span>
+<span class="text-on-surface font-medium">Samarinda</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Tanggal Pelaksanaan</label>
+<div class="bg-surface-container-highest p-4 rounded-md flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+<span class="text-on-surface font-medium">20-23 Nov 2024</span>
+</div>
+</div>
+</div>
+</div>
+<div class="md:col-span-4 space-y-6">
+<div class="bg-primary-container p-6 rounded-xl text-white">
+<h3 class="font-bold text-lg mb-2">Status Anggaran</h3>
+<p class="text-sm text-on-primary-container mb-4">Anggaran tersedia untuk perjalanan dinas ini.</p>
+<div class="w-full bg-primary h-2 rounded-full overflow-hidden">
+<div class="bg-inverse-primary w-3/4 h-full"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h3 class="font-bold text-on-surface mb-2">Instruksi</h3>
+<ul class="text-sm text-secondary space-y-2">
+<li class="flex gap-2"><span class="material-symbols-outlined text-xs leading-none" data-icon="check_circle">check_circle</span> Unggah SPT Tahunan</li>
+<li class="flex gap-2"><span class="material-symbols-outlined text-xs leading-none" data-icon="check_circle">check_circle</span> Konfirmasi Transportasi</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</main>
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-on-surface/40 backdrop-blur-sm p-4">
+<div class="bg-surface-container-lowest w-full max-w-[95vw] lg:max-w-7xl max-h-[95vh] rounded-2xl flex flex-col editorial-shadow overflow-hidden">
+<header class="px-8 py-6 flex justify-between items-center bg-white border-b border-surface-container-high">
+<div>
+<h2 class="text-2xl font-bold text-on-surface tracking-tight">Review Rincian Pengajuan</h2>
+<p class="text-sm text-secondary">Verifikasi data personil dan rincian perjalanan sebelum submit.</p>
+</div>
+<button class="text-secondary hover:text-on-surface transition-colors p-2 rounded-full hover:bg-surface-container-low">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</header>
+<div class="flex-1 overflow-y-auto p-6 lg:p-8 bg-surface-container-low">
+<div class="mb-8 bg-white p-6 rounded-xl shadow-sm border border-outline-variant/30">
+<h3 class="text-[10px] font-bold text-primary uppercase tracking-widest mb-3">Maksud Perjalanan</h3>
+<p class="text-on-surface text-lg font-medium leading-relaxed">
+                    Koordinasi dan konsultasi terkait Pengembangan Usaha Mikro di Kantor Dinas Perindustrian, Perdagangan, Koperasi dan UKM Provinsi Kalimantan Timur.
+                </p>
+</div>
+<div class="min-w-[1200px] bg-white rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 border-b border-outline-variant/30">
+<tr>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Nama / NIP</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Pangkat/Gol</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Jabatan</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Alat Angkut</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Tipe</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Rute</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Durasi</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest">Jadwal</th>
+<th class="px-4 py-4 text-[10px] font-bold text-primary uppercase tracking-widest text-right">Est. Uang Harian</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-4 py-5">
+<div class="font-bold text-on-surface">Ahmad Faisal</div>
+<div class="text-[11px] text-secondary">19820512 201001 1 012</div>
+</td>
+<td class="px-4 py-5 text-sm text-on-surface-variant">Penata Muda / III.a</td>
+<td class="px-4 py-5 text-sm text-on-surface-variant">Staf Analis</td>
+<td class="px-4 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="directions_car">directions_car</span>
+<span class="text-sm">Kend. Dinas</span>
+</div>
+</td>
+<td class="px-4 py-5">
+<span class="px-2 py-1 bg-cyan-100 text-cyan-800 text-[10px] font-bold rounded uppercase">Luar Daerah</span>
+</td>
+<td class="px-4 py-5">
+<div class="text-xs space-y-1">
+<div class="flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-secondary"></span> Tj. Redeb</div>
+<div class="flex items-center gap-1 font-semibold text-primary"><span class="material-symbols-outlined text-[10px]" data-icon="arrow_forward">arrow_forward</span> Samarinda</div>
+</div>
+</td>
+<td class="px-4 py-5 text-sm font-medium">4 Hari</td>
+<td class="px-4 py-5">
+<div class="text-xs">
+<div class="text-on-surface">20 Nov 2024</div>
+<div class="text-secondary">s/d 23 Nov 2024</div>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<div class="font-bold text-primary">Rp 1.720.000</div>
+<div class="text-[9px] text-secondary mt-1 tracking-tight">430.000 x 4 hari</div>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="px-4 py-5">
+<div class="font-bold text-on-surface">Siti Aminah</div>
+<div class="text-[11px] text-secondary">19880915 201503 2 005</div>
+</td>
+<td class="px-4 py-5 text-sm text-on-surface-variant">Penata / III.c</td>
+<td class="px-4 py-5 text-sm text-on-surface-variant">Kepala Seksi</td>
+<td class="px-4 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="flight">flight</span>
+<span class="text-sm">Pesawat</span>
+</div>
+</td>
+<td class="px-4 py-5">
+<span class="px-2 py-1 bg-cyan-100 text-cyan-800 text-[10px] font-bold rounded uppercase">Luar Daerah</span>
+</td>
+<td class="px-4 py-5">
+<div class="text-xs space-y-1">
+<div class="flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-secondary"></span> Tj. Redeb</div>
+<div class="flex items-center gap-1 font-semibold text-primary"><span class="material-symbols-outlined text-[10px]" data-icon="arrow_forward">arrow_forward</span> Samarinda</div>
+</div>
+</td>
+<td class="px-4 py-5 text-sm font-medium">4 Hari</td>
+<td class="px-4 py-5">
+<div class="text-xs">
+<div class="text-on-surface">20 Nov 2024</div>
+<div class="text-secondary">s/d 23 Nov 2024</div>
+</div>
+</td>
+<td class="px-4 py-5 text-right">
+<div class="font-bold text-primary">Rp 1.720.000</div>
+<div class="text-[9px] text-secondary mt-1 tracking-tight">430.000 x 4 hari</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-6 flex flex-col lg:flex-row gap-4">
+<div class="flex-1 p-5 bg-tertiary-fixed/30 rounded-xl border border-tertiary/20 flex gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="info">info</span>
+<p class="text-xs text-on-tertiary-fixed-variant leading-relaxed">
+                        Estimasi uang harian dihitung berdasarkan standar biaya masukan (SBM) yang berlaku untuk kategori perjalanan <strong>Luar Daerah</strong> (Rp 430.000/hari). Pastikan rute, durasi, dan personil sudah sesuai dengan surat tugas sebelum melakukan submit.
+                    </p>
+</div>
+<div class="lg:w-80 p-5 bg-primary rounded-xl editorial-shadow text-white flex flex-col justify-center">
+<div class="text-[10px] font-bold text-white/70 uppercase tracking-widest mb-1">Total Anggaran Personel</div>
+<div class="flex items-baseline gap-1">
+<span class="text-sm font-medium opacity-80">Rp</span>
+<span class="text-3xl font-black">3.440.000</span>
+</div>
+<div class="text-[10px] font-medium text-white/60 mt-1">2 Personil x Rp 1.720.000</div>
+</div>
+</div>
+</div>
+<footer class="px-8 py-6 bg-white flex flex-col sm:flex-row justify-between items-center border-t border-surface-container-high gap-4">
+<button class="text-secondary font-semibold px-4 py-2 hover:text-on-surface transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                Kembali Edit
+            </button>
+<div class="flex items-center gap-4">
+<button class="px-6 py-3 text-primary border border-primary/20 font-bold rounded-xl flex items-center gap-2 hover:bg-primary/5 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-xl" data-icon="print">print</span>
+                    Cetak Draft
+                </button>
+<button class="px-8 py-3 bg-primary text-white font-bold rounded-xl flex items-center gap-2 editorial-shadow hover:bg-primary-container transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined text-xl" data-icon="send">send</span>
+                    Submit Pengajuan
+                </button>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

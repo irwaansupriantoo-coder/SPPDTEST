@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Login - SIM Perjalanan Dinas Berau</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#92cfee",
+              "tertiary-fixed": "#ffddbb",
+              "tertiary-container": "#7b4f16",
+              "inverse-surface": "#2d3133",
+              "on-error": "#ffffff",
+              "on-primary-fixed-variant": "#004d66",
+              "on-tertiary-container": "#ffc484",
+              "on-tertiary": "#ffffff",
+              "surface-container-high": "#e6e8ea",
+              "primary-fixed": "#c0e8ff",
+              "on-secondary-fixed": "#071e28",
+              "inverse-on-surface": "#eff1f3",
+              "on-surface": "#191c1e",
+              "surface-dim": "#d8dadc",
+              "on-background": "#191c1e",
+              "on-primary-fixed": "#001e2b",
+              "surface": "#f7f9fb",
+              "secondary": "#4c616d",
+              "surface-tint": "#236580",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#cfe6f4",
+              "on-secondary-container": "#526773",
+              "on-primary-container": "#9bd7f7",
+              "primary-fixed-dim": "#92cfee",
+              "primary": "#00475e",
+              "background": "#f7f9fb",
+              "on-error-container": "#93000a",
+              "surface-container": "#eceef0",
+              "on-primary": "#ffffff",
+              "error": "#ba1a1a",
+              "outline": "#70787d",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-highest": "#e0e3e5",
+              "on-secondary-fixed-variant": "#344a55",
+              "secondary-container": "#cfe6f4",
+              "surface-variant": "#e0e3e5",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#40484d",
+              "primary-container": "#1a5f7a",
+              "surface-container-low": "#f2f4f6",
+              "tertiary": "#5f3800",
+              "tertiary-fixed-dim": "#f7bb78",
+              "on-tertiary-fixed": "#2b1700",
+              "secondary-fixed-dim": "#b3cad7",
+              "outline-variant": "#c0c8cd",
+              "on-tertiary-fixed-variant": "#663e04"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .bg-hero-overlay {
+            background: linear-gradient(135deg, rgba(0, 71, 94, 0.85) 0%, rgba(26, 95, 122, 0.75) 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-body bg-surface text-on-surface antialiased min-h-screen flex items-center justify-center relative overflow-hidden">
+<!-- Background Layer -->
+<div class="fixed inset-0 z-0">
+<img alt="Kabupaten Berau Landscape" class="w-full h-full object-cover" data-alt="wide panoramic view of the coastline and tropical landscape of Berau district at dawn with soft atmospheric blue lighting" src="https://lh3.googleusercontent.com/aida/ADBb0uhvyaemZ57JoKs-LZB2o35iGhtaGyPdYp3FDWuN6gOwTtG-4A3Mo5r9r8ys46HEZ30Y1FXX5rAyuxd0eHGEEAPivTR43XYYn3JfgaugZ1KxzUgZcknj0ITuVb3zrgtYUCiR4S8rbElKfFVnYTHjzEqsR_M440lWGjJkiB3OOZm6wYGMOBrgSjEbMfsVvigLwRHtiMO3ktbLHSTxf7yvkj82ZPiuj6NE2CfGv42fgVapAHdfXlxu658FdaFF3CM8WbeYAQ80Xe_7AQ"/>
+<div class="absolute inset-0 bg-hero-overlay"></div>
+</div>
+<!-- Centered Login Container -->
+<main class="relative z-10 w-full max-w-7xl px-6 flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24">
+<!-- Left Side: Narrative/Branding -->
+<div class="hidden lg:flex flex-col space-y-10 text-white max-w-xl">
+<div class="flex items-center space-x-5">
+<div class="bg-white p-4 rounded-2xl shadow-xl">
+<img alt="Logo Kabupaten Berau" class="h-20 w-auto" data-alt="Official seal logo of Kabupaten Berau" src="https://lh3.googleusercontent.com/aida/ADBb0uhX5L4hIcPEi0PvU5eZ8si0WvI92lyN7oa1EiZhAmEVFeq9zj1C5P94pfNcoRWDkaRaa7uSSobHnCoXoVftas54o2ULuCmMNrIfSp2P-QvN-UtOsHNm_Z-IMa2wwwN_xczuUoYhBNw51GD4tSLzIW2c6vOaj_Y15wYwvJqU5JnNweaShhMmjmkRg2LnUgW1wh200S5ePapxir3AQLrwJaODVWZGsnQBTNTuvWQMyx_n-_9Luy8jplqSmqbbNGrspt0Oj5QO1-svP0Q"/>
+</div>
+<div>
+<h2 class="text-2xl font-bold tracking-tight opacity-90">DISKOPERINDAG</h2>
+<p class="text-sm font-semibold tracking-widest uppercase opacity-70">Kabupaten Berau</p>
+</div>
+</div>
+<div class="space-y-6">
+<h1 class="text-7xl font-black tracking-tighter leading-none">Pemerintah <br/> <span class="text-on-primary-container">Kabupaten Berau</span></h1>
+<p class="text-xl opacity-80 font-medium leading-relaxed max-w-md">
+                    Sistem Informasi Manajemen Perjalanan Dinas untuk transparansi dan efisiensi birokrasi Pemerintah Kabupaten Berau.
+                </p>
+</div>
+<!-- Stats -->
+<div class="flex items-center space-x-12 pt-4">
+<div>
+<span class="block text-4xl font-bold tracking-tighter">100%</span>
+<span class="block text-[0.6875rem] font-bold uppercase tracking-widest opacity-60">Digital Workflow</span>
+</div>
+<div class="h-12 w-px bg-white/20"></div>
+<div>
+<span class="block text-4xl font-bold tracking-tighter">Real-time</span>
+<span class="block text-[0.6875rem] font-bold uppercase tracking-widest opacity-60">Budget Tracking</span>
+</div>
+</div>
+</div>
+<!-- Right Side: The Login Card -->
+<div class="w-full max-w-md">
+<div class="glass-panel w-full p-10 lg:p-12 rounded-[2.5rem] shadow-2xl ring-1 ring-white/20">
+<!-- Branding for all screen sizes -->
+<div class="flex flex-col items-center mb-10">
+<div class="lg:hidden mb-6 bg-white p-3 rounded-xl shadow-lg">
+<img alt="Logo Kabupaten Berau" class="h-14" data-alt="Logo of Diskoperindag Berau" src="https://lh3.googleusercontent.com/aida/ADBb0uhX5L4hIcPEi0PvU5eZ8si0WvI92lyN7oa1EiZhAmEVFeq9zj1C5P94pfNcoRWDkaRaa7uSSobHnCoXoVftas54o2ULuCmMNrIfSp2P-QvN-UtOsHNm_Z-IMa2wwwN_xczuUoYhBNw51GD4tSLzIW2c6vOaj_Y15wYwvJqU5JnNweaShhMmjmkRg2LnUgW1wh200S5ePapxir3AQLrwJaODVWZGsnQBTNTuvWQMyx_n-_9Luy8jplqSmqbbNGrspt0Oj5QO1-svP0Q"/>
+</div>
+<h3 class="text-2xl font-extrabold text-on-surface tracking-tight text-center leading-tight">Selamat Datang di SIM Perjalanan Dinas</h3>
+<p class="text-on-surface-variant text-sm font-medium mt-2 text-center">Silakan masuk untuk melanjutkan</p>
+</div>
+<form class="space-y-6">
+<!-- NIP Input -->
+<div class="space-y-2">
+<label class="block text-[0.6875rem] font-bold text-secondary uppercase tracking-widest px-1" for="nip">Nomor Induk Pegawai (NIP)</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+</div>
+<input class="block w-full pl-11 pr-4 py-4 bg-surface-container-highest border-none rounded-xl text-on-surface placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20 transition-all font-medium" id="nip" name="nip" placeholder="19xxxxxxxxxxxxxx" type="text"/>
+<div class="absolute bottom-0 left-4 right-4 h-0.5 bg-transparent group-focus-within:bg-primary transition-all duration-300"></div>
+</div>
+</div>
+<!-- Password Input -->
+<div class="space-y-2">
+<div class="flex justify-between items-center px-1">
+<label class="block text-[0.6875rem] font-bold text-secondary uppercase tracking-widest" for="password">Kata Sandi</label>
+<a class="text-[0.6875rem] font-bold text-primary uppercase tracking-widest hover:underline transition-all" href="#">Lupa?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+</div>
+<input class="block w-full pl-11 pr-4 py-4 bg-surface-container-highest border-none rounded-xl text-on-surface placeholder:text-outline-variant focus:ring-2 focus:ring-primary/20 transition-all font-medium" id="password" name="password" placeholder="••••••••••••" type="password"/>
+<div class="absolute bottom-0 left-4 right-4 h-0.5 bg-transparent group-focus-within:bg-primary transition-all duration-300"></div>
+</div>
+</div>
+<!-- Visual Logic Indicator -->
+<div class="flex items-center space-x-3 p-4 bg-primary/5 rounded-xl border border-primary/10">
+<span class="material-symbols-outlined text-primary text-[20px]">info</span>
+<p class="text-[11px] text-primary/80 font-medium leading-tight">
+                            Akses modul dan wewenang (Role) akan ditentukan secara otomatis berdasarkan NIP Anda.
+                        </p>
+</div>
+<!-- Login Button -->
+<button class="w-full py-4 bg-gradient-to-br from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center space-x-2" type="submit">
+<span class="tracking-wide">Masuk</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</form>
+<!-- Footer Links -->
+<div class="mt-10 pt-6 border-t border-outline-variant/30 text-center">
+<p class="text-[0.6875rem] text-outline font-medium uppercase tracking-widest">
+                        © 2024 Diskoperindag Kabupaten Berau
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Decorative Subtle Effects -->
+<div class="absolute top-0 right-0 w-1/2 h-full overflow-hidden opacity-10 pointer-events-none">
+<div class="absolute -top-48 -right-48 w-[40rem] h-[40rem] bg-primary rounded-full blur-[150px]"></div>
+</div>
+<div class="absolute bottom-0 left-0 w-1/3 h-full overflow-hidden opacity-5 pointer-events-none">
+<div class="absolute -bottom-48 -left-48 w-[30rem] h-[30rem] bg-white rounded-full blur-[120px]"></div>
+</div>
+</body></html>

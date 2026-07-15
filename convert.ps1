@@ -1,0 +1,1 @@
+$excel = New-Object -ComObject Excel.Application; $wb = $excel.Workbooks.Open("a:\IRWAN\SPPD\Rincian Perjalanan Dinas Luar Daerah.xls"); $wb.SaveAs("a:\IRWAN\SPPD\public\Rincian Perjalanan Dinas Luar Daerah.xlsx", 51); $wb.Close(); $excel.Quit();

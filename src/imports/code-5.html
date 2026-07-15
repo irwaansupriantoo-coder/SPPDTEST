@@ -1,0 +1,408 @@
+<html class="light" lang="id"><head></head><body class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">```html
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Daftar Laporan SPJ - SIMPERDIN Berau</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#663e04",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c0c8cd",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#001e2b",
+                        "inverse-primary": "#92cfee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#cfe6f4",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#70787d",
+                        "primary-container": "#1a5f7a",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#c0e8ff",
+                        "tertiary": "#5f3800",
+                        "surface": "#f7f9fb",
+                        "primary": "#00475e",
+                        "on-primary-container": "#9bd7f7",
+                        "surface-container": "#eceef0",
+                        "on-tertiary-container": "#ffc484",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#071e28",
+                        "tertiary-fixed-dim": "#f7bb78",
+                        "tertiary-container": "#7b4f16",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#2b1700",
+                        "secondary-fixed": "#cfe6f4",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#526773",
+                        "tertiary-fixed": "#ffddbb",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#344a55",
+                        "surface-tint": "#236580",
+                        "secondary-fixed-dim": "#b3cad7",
+                        "primary-fixed-dim": "#92cfee",
+                        "on-surface-variant": "#40484d",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#4c616d",
+                        "on-primary-fixed-variant": "#004d66",
+                        "inverse-surface": "#2d3133"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #c0c8cd; border-radius: 10px; }
+    </style>
+<!-- Top Navigation Bar (Updated to match SCREEN_11) -->
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/70 backdrop-blur-xl z-50 text-cyan-900 font-inter antialiased border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-bold tracking-tight text-cyan-950">SIM Perjalanan Dinas Berau</h1>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 rounded-full hover:bg-slate-100 transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-outline-variant/20">
+<div class="text-right hidden md:block">
+<p class="text-sm font-bold text-on-surface leading-none">Andi Setiawan</p>
+<p class="text-xs text-slate-500 mt-1">NIP. 19850412 201001 1 002</p>
+</div>
+<button class="hover:bg-slate-100 transition-colors rounded-full p-0.5">
+<span class="material-symbols-outlined text-4xl text-slate-400" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Side Navigation Bar -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-50 py-4 px-4 pt-20 z-40 border-r border-outline-variant/10">
+<div class="flex items-center gap-3 px-2 mb-8 mt-4">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined" data-icon="corporate_fare" style="font-variation-settings: 'FILL' 1;">corporate_fare</span>
+</div>
+<div>
+<h2 class="font-black text-cyan-900 leading-tight uppercase text-xs tracking-wider">Diskoperindag</h2>
+<p class="text-[10px] text-slate-500 font-medium">Kabupaten Berau</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+                Pengajuan
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white text-cyan-700 shadow-sm rounded-lg transition-all duration-200 ease-in-out font-medium text-sm border-l-4 border-primary" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+                Laporan (SPJ)
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                Data Anggaran
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="help_center">help_center</span>
+                Panduan
+            </a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-600 hover:text-cyan-600 hover:bg-white/50 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Pengaturan
+            </a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant/10">
+<button class="flex items-center gap-3 w-full px-3 py-2.5 text-error hover:bg-error-container/20 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                Log Keluar
+            </button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 min-h-screen pt-16">
+<!-- Content Body -->
+<section class="p-8 pt-12 space-y-10">
+<!-- Page Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<h3 class="text-3xl md:text-4xl font-bold text-primary tracking-tight font-headline">Laporan Perjalanan Dinas (SPJ)</h3>
+<p class="text-on-surface-variant mt-3 text-lg font-light leading-relaxed">Kelola dan lengkapi laporan realisasi biaya operasional perjalanan dinas untuk efisiensi administrasi keuangan daerah.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-5 py-2.5 bg-surface-container-high text-on-surface font-semibold rounded-xl text-sm flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="file_download">file_download</span>
+                        Export Rekap
+                    </button>
+</div>
+</div>
+<!-- Tonal Sectioning for Controls -->
+<div class="bg-surface-container-low p-6 rounded-2xl flex flex-col lg:flex-row gap-6 items-center">
+<div class="w-full lg:w-1/3">
+<label class="block text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-2">Pilih Tipe Perjalanan</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border-none rounded-xl py-3.5 px-5 pr-12 text-on-surface font-medium shadow-sm focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option selected="">Laporan Perjalanan Dinas Dalam Daerah</option>
+<option>Laporan Perjalanan Dinas Luar Daerah</option>
+</select>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 material-symbols-outlined text-primary pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<div class="hidden lg:block h-12 w-px bg-outline-variant/30"></div>
+<div class="w-full lg:flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10 flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+</div>
+<div>
+<p class="text-xs font-semibold text-on-surface-variant">Belum SPJ</p>
+<p class="text-lg font-bold text-primary">12 Berkas</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10 flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+</div>
+<div>
+<p class="text-xs font-semibold text-on-surface-variant">Menunggu Verifikasi</p>
+<p class="text-lg font-bold text-tertiary">05 Berkas</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-outline-variant/10 flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="text-xs font-semibold text-on-surface-variant">Selesai/Cair</p>
+<p class="text-lg font-bold text-secondary">48 Berkas</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Dynamic Table Section -->
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden border border-outline-variant/5">
+<!-- Search & Filters -->
+<div class="p-6 border-b border-surface-container-high flex flex-col md:flex-row justify-between items-center gap-4">
+<h4 class="text-lg font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+                        Daftar Antrian Laporan
+                    </h4>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<div class="relative flex-1 md:w-80">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-[20px]" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all" placeholder="Cari No. SPT atau Kota Tujuan..." type="text"/>
+</div>
+<button class="p-2.5 bg-surface-container-low rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Table Content -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">No. SPT</th>
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">No. SPPD</th>
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Pembuat Laporan</th>
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider">Kota Tujuan</th>
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-right">Total Anggaran</th>
+<th class="px-6 py-4 text-label-sm font-bold text-on-surface-variant uppercase tracking-wider text-center">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high">
+<!-- Row 1 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 font-semibold text-primary">090/0412/SPT-I/2023</td>
+<td class="px-6 py-5 text-on-surface-variant">094/0521/SPPD/2023</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Budi Sudarsono, SE</p>
+<p class="text-xs text-on-surface-variant font-medium">NIP. 19780512 200501 1 004</p>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="location_on">location_on</span>
+<span class="font-medium">Talisayan</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-on-surface">Rp 2.450.000</td>
+<td class="px-6 py-5 text-center">
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container shadow-sm transition-all active:scale-95 flex items-center gap-2 mx-auto">
+<span class="material-symbols-outlined text-xs" data-icon="post_add">post_add</span>
+                                        Buat Laporan
+                                    </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 font-semibold text-primary">090/0528/SPT-I/2023</td>
+<td class="px-6 py-5 text-on-surface-variant">094/0632/SPPD/2023</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Siti Aminah, M.Si</p>
+<p class="text-xs text-on-surface-variant font-medium">NIP. 19821004 200902 2 001</p>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="location_on">location_on</span>
+<span class="font-medium">Biduk-Biduk</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-on-surface">Rp 3.120.000</td>
+<td class="px-6 py-5 text-center">
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container shadow-sm transition-all active:scale-95 flex items-center gap-2 mx-auto">
+<span class="material-symbols-outlined text-xs" data-icon="post_add">post_add</span>
+                                        Buat Laporan
+                                    </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 font-semibold text-primary">090/0615/SPT-I/2023</td>
+<td class="px-6 py-5 text-on-surface-variant">094/0745/SPPD/2023</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Andi Wijaya, ST</p>
+<p class="text-xs text-on-surface-variant font-medium">NIP. 19881122 201201 1 002</p>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="location_on">location_on</span>
+<span class="font-medium">Pulau Derawan</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-on-surface">Rp 1.850.000</td>
+<td class="px-6 py-5 text-center">
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container shadow-sm transition-all active:scale-95 flex items-center gap-2 mx-auto">
+<span class="material-symbols-outlined text-xs" data-icon="post_add">post_add</span>
+                                        Buat Laporan
+                                    </button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-primary/5 transition-colors group">
+<td class="px-6 py-5 font-semibold text-primary">090/0730/SPT-I/2023</td>
+<td class="px-6 py-5 text-on-surface-variant">094/0860/SPPD/2023</td>
+<td class="px-6 py-5">
+<p class="font-bold text-on-surface">Eka Putri, SE</p>
+<p class="text-xs text-on-surface-variant font-medium">NIP. 19910405 201503 2 005</p>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="location_on">location_on</span>
+<span class="font-medium">Maratua</span>
+</div>
+</td>
+<td class="px-6 py-5 text-right font-bold text-on-surface">Rp 4.200.000</td>
+<td class="px-6 py-5 text-center">
+<button class="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-container shadow-sm transition-all active:scale-95 flex items-center gap-2 mx-auto">
+<span class="material-symbols-outlined text-xs" data-icon="post_add">post_add</span>
+                                        Buat Laporan
+                                    </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Foot -->
+<div class="p-6 border-t border-surface-container-high flex flex-col sm:flex-row justify-between items-center gap-4">
+<p class="text-xs text-on-surface-variant font-medium">Menampilkan 1-4 dari 12 data perjalanan dalam daerah</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface-variant font-bold text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface-variant font-bold text-xs">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bento Info Cards (Supporting Metadata) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10 flex gap-5 items-start">
+<div class="w-12 h-12 bg-primary/10 rounded-2xl flex-shrink-0 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="info">info</span>
+</div>
+<div>
+<h5 class="font-bold text-primary mb-1">Panduan Pengisian</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Pastikan semua struk belanja dan boarding pass diunggah dalam format PDF atau JPEG berkualitas tinggi.</p>
+<a class="text-xs font-bold text-primary mt-3 inline-block hover:underline" href="#">Unduh PDF Panduan</a>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10 flex gap-5 items-start">
+<div class="w-12 h-12 bg-tertiary/10 rounded-2xl flex-shrink-0 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<div>
+<h5 class="font-bold text-tertiary mb-1">Batas Waktu (Deadline)</h5>
+<p class="text-sm text-on-surface-variant leading-relaxed">Laporan SPJ wajib diselesaikan maksimal 5 hari kerja setelah perjalanan dinas berakhir sesuai Perda No. 12.</p>
+</div>
+</div>
+<div class="md:col-span-2 lg:col-span-1 bg-gradient-to-br from-primary to-primary-container p-6 rounded-2xl shadow-lg relative overflow-hidden text-white">
+<div class="relative z-10">
+<h5 class="font-bold mb-2">Butuh Bantuan Teknis?</h5>
+<p class="text-sm opacity-90 leading-relaxed mb-4">Hubungi tim IT BPKAD atau Admin Diskoperindag jika Anda mengalami kendala saat mengunggah berkas.</p>
+<button class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl text-xs font-bold hover:bg-white/30 transition-all">Kontak Support</button>
+</div>
+<!-- Decorative Background Icon -->
+<span class="material-symbols-outlined absolute -bottom-6 -right-6 text-[120px] opacity-10 rotate-12" data-icon="support_agent">support_agent</span>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="px-8 py-6 text-center">
+<p class="text-xs text-on-surface-variant font-medium">© 2023 Dinas Koperasi, Perindustrian, dan Perdagangan Kabupaten Berau. Versi 2.1.0-Admin</p>
+</footer>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-low backdrop-blur-lg px-4 py-2 flex justify-around items-center z-50 border-t border-outline-variant/10 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center p-2 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-[10px] font-bold mt-1">Beranda</span>
+</a>
+<a class="flex flex-col items-center p-2 text-primary" href="#">
+<span class="material-symbols-outlined font-bold" data-icon="description">description</span>
+<span class="text-[10px] font-bold mt-1">Laporan</span>
+</a>
+<div class="relative -top-5">
+<button class="bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center border-4 border-surface">
+<span class="material-symbols-outlined text-[28px]" data-icon="add">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center p-2 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="text-[10px] font-bold mt-1">Riwayat</span>
+</a>
+<a class="flex flex-col items-center p-2 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold mt-1">Profil</span>
+</a>
+</nav>
+```</body></html>

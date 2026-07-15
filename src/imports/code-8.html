@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-background": "#191c1e",
+                        "on-tertiary-fixed-variant": "#663e04",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#c0c8cd",
+                        "error-container": "#ffdad6",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed": "#001e2b",
+                        "inverse-primary": "#92cfee",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#cfe6f4",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#70787d",
+                        "primary-container": "#1a5f7a",
+                        "inverse-on-surface": "#eff1f3",
+                        "primary-fixed": "#c0e8ff",
+                        "tertiary": "#5f3800",
+                        "surface": "#f7f9fb",
+                        "primary": "#00475e",
+                        "on-primary-container": "#9bd7f7",
+                        "surface-container": "#eceef0",
+                        "on-tertiary-container": "#ffc484",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#071e28",
+                        "tertiary-fixed-dim": "#f7bb78",
+                        "tertiary-container": "#7b4f16",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#2b1700",
+                        "secondary-fixed": "#cfe6f4",
+                        "background": "#f7f9fb",
+                        "surface-dim": "#d8dadc",
+                        "surface-bright": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#526773",
+                        "tertiary-fixed": "#ffddbb",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#344a55",
+                        "surface-tint": "#236580",
+                        "secondary-fixed-dim": "#b3cad7",
+                        "primary-fixed-dim": "#92cfee",
+                        "on-surface-variant": "#40484d",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#4c616d",
+                        "on-primary-fixed-variant": "#004d66",
+                        "inverse-surface": "#2d3133"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- Top Navigation Anchor -->
+<nav class="bg-slate-50/70 backdrop-blur-xl text-cyan-900 font-inter text-sm font-medium docked full-width top-0 sticky z-50 flex justify-between items-center w-full px-8 py-3">
+<div class="text-xl font-bold tracking-tight text-cyan-950">SIMPERDIN Berau</div>
+<div class="flex items-center gap-6">
+<span class="text-slate-500 hover:bg-slate-200/50 transition-colors p-2 rounded-lg cursor-pointer material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="text-slate-500 hover:bg-slate-200/50 transition-colors p-2 rounded-lg cursor-pointer material-symbols-outlined" data-icon="help">help</span>
+<div class="flex items-center gap-3 ml-4 bg-surface-container-low px-3 py-1 rounded-full">
+<div class="w-8 h-8 rounded-full overflow-hidden">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="Close-up professional portrait of a government official in a formal suit against a neutral office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClwOEr1jbyKjXnYXPYV2WGCjVJIXMciiDOfa4RK76_fm3UP6-jc0ltdIPO4iKuC3iq3onyrbnh0saeMHjIUvIWPeCKnZ66H3DoxD7z2FQ7w97UMRjxPw6wyiKV2n8H7ssoOg-u-HnW87ZdVPXajcFC20Us9htNPn3RlO8-QrddxR-N26o48oJ3RbX1GCbg9589zWUuJUhx75zfihYZUEVN431iEPetR7iUjvID05R-a6QL9TKiOzJxZBXKySvQhLJBacXMF-Njapi7"/>
+</div>
+<span class="font-semibold text-cyan-950">Ahmad Fauzi</span>
+</div>
+</div>
+</nav>
+<div class="flex min-h-screen">
+<!-- Sidebar Shell -->
+<aside class="bg-slate-100 h-screen w-64 fixed left-0 top-0 flex flex-col h-full py-6 px-4 z-40">
+<div class="mb-10 px-4">
+<h1 class="text-lg font-black text-cyan-950">SIMPERDIN</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Kabupaten Berau</p>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200 ease-in-out rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-700 font-bold border-r-4 border-cyan-700 bg-cyan-50/50 transition-all duration-200 ease-in-out rounded-l-xl" href="#">
+<span class="material-symbols-outlined" data-icon="flight_takeoff">flight_takeoff</span>
+<span class="font-medium">Perjalanan Dinas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200 ease-in-out rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-medium">Laporan SPJ</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200 ease-in-out rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-medium">Riwayat</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 transition-all duration-200 ease-in-out rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-medium">Pengaturan</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-slate-200 pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-error transition-all duration-200 ease-in-out rounded-xl" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-medium">Keluar</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-64 flex-1 p-10 bg-surface">
+<!-- Modal Overlay Backdrop -->
+<div class="fixed inset-0 z-[60] flex items-center justify-center bg-on-surface/20 backdrop-blur-sm p-4 md:p-8">
+<!-- Dialog Box: The Monolith -->
+<div class="bg-surface-container-lowest w-full max-w-4xl max-h-[921px] overflow-hidden rounded-xl shadow-2xl flex flex-col relative">
+<!-- Dialog Header -->
+<header class="p-8 pb-4 flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Draft Laporan</span>
+</div>
+<h2 class="text-2xl font-bold text-on-surface tracking-tight">Detail Laporan: <span class="text-primary">Budi Santoso, S.T.</span></h2>
+<p class="text-sm text-secondary mt-1">Lengkapi rincian biaya riil untuk verifikasi administrasi SPJ.</p>
+</div>
+<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors">
+<span class="material-symbols-outlined text-outline" data-icon="close">close</span>
+</button>
+</header>
+<!-- Scrollable Form Area -->
+<div class="flex-1 overflow-y-auto p-8 pt-2 space-y-8">
+<!-- Global Travel Duration -->
+<div class="bg-primary/5 border border-primary/10 p-5 rounded-xl flex items-center justify-between">
+<div>
+<h4 class="text-sm font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="calendar_today">calendar_today</span>
+                                    Durasi Perjalanan
+                                </h4>
+<p class="text-xs text-secondary">Tentukan jumlah hari untuk kalkulasi otomatis</p>
+</div>
+<div class="flex items-center gap-3">
+<input class="w-24 bg-surface-container-lowest border-primary/20 rounded-lg text-lg font-bold text-primary text-center focus:ring-primary focus:border-primary" placeholder="Hari" required="" type="number" value="4"/>
+<span class="text-sm font-semibold text-secondary">Hari</span>
+</div>
+</div>
+<!-- Primary Expenses Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Section: Uang Harian -->
+<div class="bg-surface-container-low p-6 rounded-xl border border-transparent hover:border-outline-variant transition-all">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-primary-container text-on-primary-container rounded-lg">
+<span class="material-symbols-outlined text-sm" data-icon="payments">payments</span>
+</div>
+<h3 class="font-semibold text-on-surface tracking-tight">Uang Harian</h3>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Kalkulasi Otomatis</label>
+<div class="flex items-center gap-2">
+<input class="w-full bg-surface-container-highest/50 border-none rounded-md text-sm font-medium text-secondary" readonly="" type="text" value="Rp 430.000"/>
+<span class="text-secondary">x</span>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-md text-sm font-bold text-primary">4 Hari</div>
+</div>
+</div>
+<div class="pt-2 border-t border-outline-variant/30">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Total Estimasi</label>
+<p class="text-lg font-bold text-primary tracking-tight">Rp 1.720.000</p>
+</div>
+</div>
+</div>
+<!-- Section: Biaya Hotel -->
+<div class="bg-surface-container-low p-6 rounded-xl border border-transparent hover:border-outline-variant transition-all">
+<div class="flex items-center gap-3 mb-4">
+<div class="p-2 bg-tertiary-container text-on-tertiary-container rounded-lg">
+<span class="material-symbols-outlined text-sm" data-icon="hotel">hotel</span>
+</div>
+<h3 class="font-semibold text-on-surface tracking-tight">Biaya Hotel</h3>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Standard Biaya / Malam</label>
+<div class="flex items-center gap-2">
+<div class="relative flex-1">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-lowest border-outline-variant/30 rounded-md text-sm font-medium focus:ring-2 focus:ring-primary placeholder:text-outline/40" placeholder="Nominal" type="text" value="750.000"/>
+</div>
+<div class="bg-surface-container-highest px-3 py-1.5 rounded-md text-sm font-bold text-tertiary">3 Malam</div>
+</div>
+</div>
+<div class="relative group">
+<div class="flex items-center justify-center w-full h-16 border-2 border-dashed border-outline-variant rounded-xl group-hover:border-primary transition-colors bg-surface-container-lowest">
+<div class="text-center flex items-center gap-2">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-base" data-icon="cloud_upload">cloud_upload</span>
+<p class="text-[10px] font-bold text-outline uppercase">Upload Bill Hotel</p>
+</div>
+</div>
+<input class="absolute inset-0 opacity-0 cursor-pointer" type="file"/>
+</div>
+<div class="pt-2 border-t border-outline-variant/30">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Total Biaya Hotel</label>
+<p class="text-lg font-bold text-tertiary tracking-tight">Rp 2.250.000</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Fitur Opsional -->
+<div>
+<div class="flex items-center gap-4 mb-6">
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-secondary">Fitur Opsional</h3>
+<div class="h-px flex-1 bg-surface-container-highest"></div>
+</div>
+<div class="space-y-4">
+<!-- Option: Sewa Kendaraan (UPDATED) -->
+<div class="flex items-start gap-4 p-5 bg-surface rounded-xl border border-primary/20 hover:shadow-sm transition-all ring-1 ring-primary/10">
+<input checked="" class="mt-1 w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all" type="checkbox"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-semibold text-on-surface text-sm">Sewa Kendaraan</p>
+<p class="text-xs text-secondary">Transportasi lokal di lokasi dinas</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-primary uppercase">Subtotal</p>
+<p class="text-sm font-bold text-primary">Rp 1.000.000</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Harga Sewa / Hari</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-low border-none rounded-md text-sm focus:ring-2 focus:ring-primary" type="text" value="500.000"/>
+</div>
+</div>
+<div>
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Lama Sewa (Hari)</label>
+<div class="relative">
+<input class="w-full bg-surface-container-low border-none rounded-md text-sm focus:ring-2 focus:ring-primary pr-10" type="number" value="2"/>
+<span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Hari</span>
+</div>
+</div>
+<div class="flex items-center h-10">
+<button class="w-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-primary border border-primary/20 px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+                                                    Upload Bukti Sewa
+                                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Option: Pesawat Terbang (NEW) -->
+<div class="flex items-start gap-4 p-5 bg-surface rounded-xl border border-outline-variant/20 hover:shadow-sm transition-all">
+<input checked="" class="mt-1 w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all" type="checkbox"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-semibold text-on-surface text-sm">Pesawat Terbang</p>
+<p class="text-xs text-secondary">Tiket Pesawat Keberangkatan &amp; Kepulangan</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] font-bold text-primary uppercase">Total Tiket</p>
+<p class="text-sm font-bold text-primary">Rp 2.450.000</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+<div class="md:col-span-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Harga Pergi</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-low border-none rounded-md text-sm focus:ring-2 focus:ring-primary" type="text" value="1.200.000"/>
+</div>
+</div>
+<div class="md:col-span-1">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Harga Pulang</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-low border-none rounded-md text-sm focus:ring-2 focus:ring-primary" type="text" value="1.250.000"/>
+</div>
+</div>
+<div class="md:col-span-2 flex items-center h-10">
+<button class="w-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-primary border border-primary/20 px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+                                                    Upload Lampiran
+                                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Option: Kereta Api (NEW) -->
+<div class="flex items-start gap-4 p-5 bg-surface rounded-xl border border-outline-variant/20 hover:shadow-sm transition-all">
+<input class="mt-1 w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all" type="checkbox"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-semibold text-on-surface text-sm">Kereta Api</p>
+<p class="text-xs text-secondary">Tiket perjalanan antar kota</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+<div class="md:col-span-2">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Harga Tiket Kereta Api</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-low border-none rounded-md text-sm focus:ring-2 focus:ring-primary" placeholder="Nominal" type="text"/>
+</div>
+</div>
+<div class="md:col-span-1 flex items-center h-10">
+<button class="w-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-primary border border-primary/20 px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+                                                    Upload Lampiran
+                                                </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Option: Biaya Tol (NEW) -->
+<div class="flex items-start gap-4 p-5 bg-surface rounded-xl border border-outline-variant/20 hover:shadow-sm transition-all">
+<input checked="" class="mt-1 w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary transition-all" type="checkbox"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="font-semibold text-on-surface text-sm">Biaya Tol</p>
+<p class="text-xs text-secondary">E-Toll &amp; Struk Fisik</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+<div class="md:col-span-2">
+<label class="block text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Total Biaya Tol</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-outline">Rp</span>
+<input class="pl-10 w-full bg-surface-container-low border-none rounded-md text-sm font-semibold focus:ring-2 focus:ring-primary" type="text" value="125.000"/>
+</div>
+</div>
+<div class="md:col-span-1 flex items-center h-10">
+<button class="w-full flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider text-primary border border-primary/20 px-4 py-2 rounded-lg hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="upload_file">upload_file</span>
+                                                    Upload Lampiran
+                                                </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section: Total Akumulasi Biaya -->
+<div class="mt-12 pt-8 border-t-2 border-primary/10">
+<div class="bg-primary-container/10 p-6 rounded-xl border border-primary/20">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-sm font-bold uppercase tracking-[0.2em] text-primary">Total Akumulasi Biaya</h3>
+<span class="material-symbols-outlined text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="space-y-3 mb-6">
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Uang Harian (4 Hari)</span>
+<span class="font-medium text-on-surface">Rp 1.720.000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Biaya Hotel (3 Malam)</span>
+<span class="font-medium text-on-surface">Rp 2.250.000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Sewa Kendaraan (2 Hari)</span>
+<span class="font-medium text-on-surface">Rp 1.000.000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Tiket Pesawat (PP)</span>
+<span class="font-medium text-on-surface">Rp 2.450.000</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Biaya Tol</span>
+<span class="font-medium text-on-surface">Rp 125.000</span>
+</div>
+</div>
+<div class="pt-4 border-t border-primary/20 flex justify-between items-end">
+<div>
+<p class="text-[10px] font-bold text-primary uppercase tracking-widest">Total Keseluruhan</p>
+<p class="text-3xl font-black text-primary tracking-tighter">Rp 7.545.000</p>
+</div>
+<div class="text-right">
+<p class="text-[10px] italic text-secondary">*Terhitung berdasarkan komponen yang dipilih</p>
+</div>
+</div>
+</div>
+</div></div>
+<!-- Sticky Footer Actions -->
+<footer class="p-8 border-t border-surface-container-high bg-surface-container-lowest flex items-center justify-between">
+<button class="text-sm font-semibold text-secondary hover:text-primary transition-colors flex items-center gap-2 group">
+<span class="material-symbols-outlined text-lg group-hover:-translate-x-1 transition-transform" data-icon="arrow_back">arrow_back</span>
+                            Kembali
+                        </button>
+<div class="flex items-center gap-4">
+<button class="px-6 py-2.5 text-sm font-bold text-on-surface-variant hover:bg-surface-container-high border border-outline-variant rounded-xl transition-all">
+                                Reset
+                            </button>
+<button class="px-8 py-2.5 text-sm font-bold text-on-primary bg-gradient-to-br from-primary to-primary-container rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+                                Simpan &amp; Kembali
+                            </button>
+</div>
+</footer>
+</div>
+</div>
+<!-- Page Background Mockup Content (Blurred) -->
+<div class="opacity-30 pointer-events-none filter blur-sm">
+<div class="mb-8">
+<h1 class="text-3xl font-black text-on-surface">Data Pelaku Perjalanan</h1>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div class="h-40 bg-surface-container-highest rounded-xl"></div>
+<div class="h-40 bg-surface-container-highest rounded-xl"></div>
+<div class="h-40 bg-surface-container-highest rounded-xl"></div>
+</div>
+<div class="mt-8 space-y-4">
+<div class="h-12 bg-surface-container-highest rounded-lg w-full"></div>
+<div class="h-12 bg-surface-container-highest rounded-lg w-full"></div>
+<div class="h-12 bg-surface-container-highest rounded-lg w-full"></div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
