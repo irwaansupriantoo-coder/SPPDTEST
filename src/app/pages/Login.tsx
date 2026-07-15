@@ -148,16 +148,10 @@ export default function Login() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm mb-6 border border-gray-100">
-            <svg className="h-16 w-16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 5L10 20V45C10 65 25 82 50 95C75 82 90 65 90 45V20L50 5Z" fill="#00475e" />
-              <path d="M50 15L20 27V45C20 60 32 73 50 83C68 73 80 60 80 45V27L50 15Z" fill="#FFD700" />
-              <path d="M50 35L53 44H62L55 50L58 59L50 53L42 59L45 50L38 44H47L50 35Z" fill="#00475e" />
-              <rect x="35" y="65" width="30" height="2" fill="#FFD700" rx="1" />
-              <rect x="40" y="70" width="20" height="2" fill="#FFD700" rx="1" />
-            </svg>
+            <img src="/logo-berau-1.png" alt="Logo Kabupaten Berau" className="h-20 w-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">SIM Perjalanan Dinas</h1>
-          <p className="text-[#c0e8ff] font-medium">Diskoperindag Kabupaten Berau</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#00475e] mb-2">SIM Perjalanan Dinas</h1>
+          <p className="text-[#00475e] font-medium">Diskoperindag Kabupaten Berau</p>
         </div>
 
         {/* Card */}
@@ -227,7 +221,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-sm text-[#4c616d] mt-8 font-medium">
-          &copy; 2024 Diskoperindag Kabupaten Berau
+          &copy; 2026 Diskoperindag Kabupaten Berau
         </p>
       </div>
     </div>
