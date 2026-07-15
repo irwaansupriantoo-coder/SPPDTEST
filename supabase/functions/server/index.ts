@@ -228,7 +228,20 @@ app.put("/anggaran", async (c) => {
   // Selalu update KV juga
   const kvKey = type === "Dalam Daerah" ? "anggaran:dalam_daerah" : "anggaran:luar_daerah";
   await kv.set(kvKey, JSON.stringify({ total, used }));
+  return c.json({ success: true });
+});
 
+// Endpoint untuk menyimpan data Sub Kegiatan di KV Store
+app.get("/sub_kegiatan", async (c) => {
+  const data = await kv.get("sub_kegiatan_data");
+  return c.json(data ? JSON.parse(data) : []);
+});
+
+app.put("/sub_kegiatan", async (c) => {
+  const user = await getUser(c.req.header("Authorization"));
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  const data = await c.req.json();
+  await kv.set("sub_kegiatan_data", JSON.stringify(data));
   return c.json({ success: true });
 });
 

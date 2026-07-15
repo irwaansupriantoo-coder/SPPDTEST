@@ -11,7 +11,7 @@ import { Eye, CheckCircle, XCircle, Timer, Database, MapPin, FileText, Clock, Us
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
 import { getStatusPengajuan, getTanggalPersetujuan } from '../utils/statusStore';
-import { SubKegiatan, getSubKegiatanData } from '../utils/anggaranStore';
+import { SubKegiatan, getSubKegiatanData, syncSubKegiatanData } from '../utils/anggaranStore';
 import { SppdPreviewModal } from '../components/SppdPreviewModal';
 import { AVAILABLE_PEGAWAI } from '../utils/pegawai';
 
@@ -60,23 +60,26 @@ const DetailPengurusModal = ({ isOpen, onClose, data }: { isOpen: boolean, onClo
           <Users className="w-5 h-5" /> Detail Pengurus
         </h3>
         <div className="space-y-4">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Pejabat Pelaksana Teknis Kegiatan (PPTK)</p>
-            <p className="font-bold text-slate-800 text-sm">{pptkName}</p>
+          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
+            <h4 className="text-[10px] uppercase font-bold text-blue-600 mb-1">Pejabat Pelaksana Teknis Kegiatan (PPTK)</h4>
+            <p className="font-medium text-[#00475e] text-sm">{pptkName}</p>
+            {data.pptkNip && <p className="text-xs text-slate-500 mt-0.5">NIP: {data.pptkNip}</p>}
           </div>
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Pengelola SPPD</p>
+
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <h4 className="text-[10px] uppercase font-bold text-slate-500 mb-2">Pengelola Data SPPD</h4>
             {pengelolaList.length > 0 ? (
               <ul className="space-y-2">
-                {pengelolaList.map((name, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00475e]"></span>
-                    {name}
+                {pengelolaList.map((nama, idx) => (
+                  <li key={idx} className="text-sm font-medium text-[#191c1e] flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#00475e]"></div>
+                    {nama}
+                    <span className="text-xs text-slate-500 block ml-3.5">NIP: {data.pengelolaNips[idx]}</span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="font-semibold text-slate-500 text-sm">Belum diatur</p>
+              <p className="text-sm text-slate-500 italic">Belum ada pengelola data yang ditugaskan</p>
             )}
           </div>
         </div>
@@ -130,6 +133,7 @@ export default function DashboardKPA() {
 
   useEffect(() => {
     const fetchData = async () => {
+      await syncSubKegiatanData();
       try {
         let pengajuanData: LaporanData[] = [];
         let anggaranRes: AnggaranData | null = null;

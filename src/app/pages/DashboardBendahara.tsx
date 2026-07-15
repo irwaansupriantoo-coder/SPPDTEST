@@ -11,7 +11,8 @@ import {
   updatePagu, 
   assignPPTK, 
   addSubKegiatan, 
-  deleteSubKegiatan 
+  deleteSubKegiatan,
+  syncSubKegiatanData
 } from '../utils/anggaranStore';
 import { apiRequest } from '../utils/supabaseClient';
 import { getStatusPengajuan } from '../utils/statusStore';
@@ -48,6 +49,7 @@ export default function DashboardBendahara() {
   }, []);
 
   const loadData = async () => {
+    await syncSubKegiatanData();
     const baseData = getSubKegiatanData();
     try {
       const res = await apiRequest<{ data: any[] }>('/pengajuan');

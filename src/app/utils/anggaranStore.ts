@@ -114,9 +114,30 @@ export function getSubKegiatanData(): SubKegiatan[] {
   }
 }
 
+import { apiRequest } from './supabaseClient';
+
+export async function syncSubKegiatanData() {
+  if (typeof window === "undefined") return;
+  try {
+    const res = await apiRequest<SubKegiatan[]>('/sub_kegiatan');
+    if (res && Array.isArray(res) && res.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(res));
+      localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
+    }
+  } catch (e) {
+    console.error("Failed to sync sub kegiatan", e);
+  }
+}
+
 export function saveSubKegiatanData(data: SubKegiatan[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  
+  // Fire and forget push to server
+  apiRequest('/sub_kegiatan', { 
+    method: 'PUT', 
+    body: JSON.stringify(data) 
+  }).catch(e => console.error("Gagal push sub kegiatan:", e));
 }
 
 export function getSubKegiatanByPengelola(nip: string): SubKegiatan[] {
