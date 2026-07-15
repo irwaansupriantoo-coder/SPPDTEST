@@ -109,6 +109,7 @@ export async function exportKwitansiLuarDaerah(
     'E9': terbilangStr,
     'E19': totalAnggaran,
     'E10': kalimatMaksud,
+    'E14': `An. ${pelaksana.nama}`,
     'I15': tempatTanggal,
     'I17': '$$$$',
     'I19': pelaksana.nama,

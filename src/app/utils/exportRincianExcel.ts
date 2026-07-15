@@ -67,6 +67,11 @@ export async function exportRincianExcel(
   setCell('B47', pelaksana.nama);
   setCell('B48', pelaksana.pangkatGolongan || 'Penata Muda / III.a');
   setCell('B49', `NIP. ${pelaksana.nip}`);
+  
+  // Custom Cells mapped to Pelaksana based on user request
+  setCell('B11', pelaksana.nama);
+  setCell('D20', pelaksana.nama);
+  setCell('C11', pelaksana.pangkatGolongan || 'Penata Muda / III.a');
 
   // Bendahara
   setCell('H45', '@@');
@@ -162,7 +167,6 @@ export async function exportRincianExcel(
 
   // -- Row 10-11: Biaya Lumpsum --
   setCell('B10', 'Biaya Lumpsum');
-  setCell('C11', `${rincianData.jumlahHari || 0} Hari`);
   setCell('E11', (rincianData.totalUangHarian || 0) / (rincianData.jumlahHari || 1));
   setCell('H11', rincianData.totalUangHarian || 0);
   setCell('I11', `${rincianData.jumlahHari || 0} Hari`);
