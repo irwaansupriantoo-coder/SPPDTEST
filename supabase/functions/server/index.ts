@@ -1,11 +1,9 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
-import { logger } from "npm:hono/logger";
 import { createClient } from "npm:@supabase/supabase-js";
-import * as kv from "./kv_store.tsx";
+import * as kv from "./kv_store.ts";
 
-const app = new Hono();
-app.use("*", logger(console.log));
+const app = new Hono().basePath('/server');
 app.use("/*", cors({
   origin: "*",
   allowHeaders: ["Content-Type", "Authorization"],
@@ -50,10 +48,10 @@ const PEGAWAI_DEFAULT = [
 ];
 
 // ─── HEALTH ───────────────────────────────────────────────────────────────
-app.get("/make-server-e15eeec0/health", (c) => c.json({ status: "ok" }));
+app.get("/health", (c) => c.json({ status: "ok" }));
 
 // ─── AUTH: init-users ─────────────────────────────────────────────────────
-app.post("/make-server-e15eeec0/auth/init-users", async (c) => {
+app.post("/auth/init-users", async (c) => {
   const supabase = db();
   const results = [];
   const useTable = await tableExists("pegawai");
@@ -108,7 +106,7 @@ app.post("/make-server-e15eeec0/auth/init-users", async (c) => {
 });
 
 // ─── AUTH: resolve NIP → email ────────────────────────────────────────────
-app.post("/make-server-e15eeec0/auth/resolve-nip", async (c) => {
+app.post("/auth/resolve-nip", async (c) => {
   try {
     const { nip } = await c.req.json();
     if (!nip) return c.json({ error: "NIP wajib diisi" }, 400);
@@ -131,7 +129,7 @@ app.post("/make-server-e15eeec0/auth/resolve-nip", async (c) => {
     const found = PEGAWAI_DEFAULT.find((p) => p.nip === nip);
     if (found) {
       // Trigger init otomatis
-      await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/make-server-e15eeec0/auth/init-users`, {
+      await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/auth/init-users`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`, "Content-Type": "application/json" },
       }).catch(() => {});
@@ -150,7 +148,7 @@ app.post("/make-server-e15eeec0/auth/resolve-nip", async (c) => {
 });
 
 // Profil pegawai yang sedang login
-app.get("/make-server-e15eeec0/auth/me", async (c) => {
+app.get("/auth/me", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -170,7 +168,7 @@ app.get("/make-server-e15eeec0/auth/me", async (c) => {
 });
 
 // ─── SETUP DB ─────────────────────────────────────────────────────────────
-app.post("/make-server-e15eeec0/setup-db", async (c) => {
+app.post("/setup-db", async (c) => {
   const checks: Record<string, boolean> = {
     pegawai: await tableExists("pegawai"),
     anggaran_perjalanan: await tableExists("anggaran_perjalanan"),
@@ -190,7 +188,7 @@ app.post("/make-server-e15eeec0/setup-db", async (c) => {
 });
 
 // ─── ANGGARAN ─────────────────────────────────────────────────────────────
-app.get("/make-server-e15eeec0/anggaran", async (c) => {
+app.get("/anggaran", async (c) => {
   const tahun = c.req.query("tahun") ?? new Date().getFullYear().toString();
 
   // Coba tabel dulu
@@ -215,7 +213,7 @@ app.get("/make-server-e15eeec0/anggaran", async (c) => {
   });
 });
 
-app.put("/make-server-e15eeec0/anggaran", async (c) => {
+app.put("/anggaran", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -235,7 +233,7 @@ app.put("/make-server-e15eeec0/anggaran", async (c) => {
 });
 
 // ─── PENGAJUAN SPPD ───────────────────────────────────────────────────────
-app.get("/make-server-e15eeec0/pengajuan", async (c) => {
+app.get("/pengajuan", async (c) => {
   const tipe   = c.req.query("tipe");
   const status = c.req.query("status");
   const limit  = parseInt(c.req.query("limit") ?? "50");
@@ -262,7 +260,7 @@ app.get("/make-server-e15eeec0/pengajuan", async (c) => {
   return c.json({ data: data.slice(0, limit), total: data.length });
 });
 
-app.post("/make-server-e15eeec0/pengajuan", async (c) => {
+app.post("/pengajuan", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -300,7 +298,7 @@ app.post("/make-server-e15eeec0/pengajuan", async (c) => {
   return c.json({ success: true, data: record });
 });
 
-app.put("/make-server-e15eeec0/pengajuan/:id", async (c) => {
+app.put("/pengajuan/:id", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -327,7 +325,7 @@ app.put("/make-server-e15eeec0/pengajuan/:id", async (c) => {
   return c.json({ error: "Pengajuan tidak ditemukan" }, 404);
 });
 
-app.delete("/make-server-e15eeec0/pengajuan/:id", async (c) => {
+app.delete("/pengajuan/:id", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
   const id = c.req.param("id");
@@ -337,7 +335,7 @@ app.delete("/make-server-e15eeec0/pengajuan/:id", async (c) => {
 });
 
 // ─── LAPORAN SPPD (SPJ) ───────────────────────────────────────────────────
-app.post("/make-server-e15eeec0/laporan/:pengajuanId", async (c) => {
+app.post("/laporan/:pengajuanId", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -361,7 +359,7 @@ app.post("/make-server-e15eeec0/laporan/:pengajuanId", async (c) => {
   return c.json({ success: true });
 });
 
-app.put("/make-server-e15eeec0/laporan/:pengajuanId/verifikasi", async (c) => {
+app.put("/laporan/:pengajuanId/verifikasi", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
@@ -387,7 +385,7 @@ app.put("/make-server-e15eeec0/laporan/:pengajuanId/verifikasi", async (c) => {
 });
 
 // ─── STATS ────────────────────────────────────────────────────────────────
-app.get("/make-server-e15eeec0/stats", async (c) => {
+app.get("/stats", async (c) => {
   let data: any[] = [];
 
   if (await tableExists("pengajuan_sppd")) {

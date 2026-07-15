@@ -11,8 +11,7 @@ export function getSupabaseClient(): SupabaseClient {
   }
   return window.__sbClient;
 }
-
-export const SERVER_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-e15eeec0`;
+export const SERVER_BASE = `https://${projectId}.supabase.co/functions/v1/server`;
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const supabase = getSupabaseClient();
