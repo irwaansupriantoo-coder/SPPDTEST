@@ -4,6 +4,7 @@ import { Badge, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { getSupabaseClient, apiRequest } from '../utils/supabaseClient';
 import { logActivity } from '../utils/activityStore';
+import { getUserProfile } from '../utils/supabaseDataStore';
 
 const DEMO_ACCOUNTS = [
   { nip: '198202082005021002', password: 'Diskoperindag123', nama: 'Wahid Hasyim', role: 'kpa' },
@@ -75,9 +76,8 @@ export default function Login() {
 
     setIsLoading(true);
 
-    const savedProfilesJson = localStorage.getItem('user_profiles') || '{}';
-    const savedProfiles = JSON.parse(savedProfilesJson);
-    const existingProfile = savedProfiles[nip] || {};
+    // Fetch saved profile from Supabase
+    const existingProfile = await getUserProfile(nip) || {};
 
     const sessionUser = { 
       nama: existingProfile.nama || localUser.nama, 

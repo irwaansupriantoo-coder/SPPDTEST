@@ -5,6 +5,15 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, setStatusPengajuan, getTanggalPersetujuan } from "../utils/statusStore";
 import { getFileFromDB } from "../utils/db";
 import { logActivity } from "../utils/activityStore";
+import {
+  getHiddenSppdIds,
+  addHiddenSppdId,
+  getLaporanStatus,
+  batchGetLaporanStatus,
+  batchGetStatusPengajuan,
+  batchGetTanggalPersetujuan,
+  getAllPengajuan,
+} from "../utils/supabaseDataStore";
 import { SppdPreviewModal } from "../components/SppdPreviewModal";
 import { ApprovalModal } from "../components/ApprovalModal";
 import {
@@ -55,16 +64,25 @@ export default function PersetujuanSPPDKPA() {
   const loadData = useCallback(async () => {
     setIsLoadingData(true);
     try {
-      const { data } = await apiRequest<{ data: LaporanData[] }>('/pengajuan');
+      const data = await getAllPengajuan();
       
-      const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+      const hiddenIds = await getHiddenSppdIds();
 
-      const dataWithStatus = await Promise.all(data
+      const filtered = data.filter((d: any) => {
+        const sppd = d.noSppd || d.no_sppd || '';
+        return sppd.includes('SPPD') && !hiddenIds.includes(sppd);
+      });
+
+      // Batch fetch statuses
+      const noSppdList = filtered.map((d: any) => d.noSppd || d.no_sppd || '');
+      const laporanStatuses = await batchGetLaporanStatus(noSppdList);
+      const statusMap = await batchGetStatusPengajuan(noSppdList);
+      const tanggalMap = await batchGetTanggalPersetujuan(noSppdList);
+
+      const dataWithStatus = await Promise.all(filtered
         .filter((d: any) => {
           const sppd = d.noSppd || d.no_sppd || '';
-          if (!sppd.includes('SPPD') || hiddenIds.includes(sppd)) return false;
-          const storedStatus = localStorage.getItem(`status_laporan_${sppd}`);
-          const spjStatus = storedStatus || d.status || "belum_spj";
+          const spjStatus = laporanStatuses[sppd] || d.status || "belum_spj";
           return spjStatus !== "selesai";
         })
         .map(async (d: any) => {
@@ -72,8 +90,8 @@ export default function PersetujuanSPPDKPA() {
           return {
             ...d,
             noSppd: sppd,
-            statusPengajuan: getStatusPengajuan(sppd),
-            tanggalPersetujuan: getTanggalPersetujuan(sppd),
+            statusPengajuan: statusMap[sppd] || 'Menunggu Persetujuan',
+            tanggalPersetujuan: tanggalMap[sppd] || '',
             sptFileUrl: (await getFileFromDB(`spt_${sppd}`).catch(() => null)) || d.sptFileUrl,
             dasarSuratFileUrl: (await getFileFromDB(`dasar_${sppd}`).catch(() => null)) || d.dasarSuratFileUrl
           };
@@ -124,10 +142,9 @@ export default function PersetujuanSPPDKPA() {
     setAllPengajuan(prev => prev.map(p => p.noSppd === noSppd ? { ...p, statusPengajuan: "Ditolak" } : p));
   };
 
-  const handleDeleteItem = (noSppd: string) => {
+  const handleDeleteItem = async (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
-      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
+      await addHiddenSppdId(noSppd);
       setAllPengajuan(prev => prev.filter(item => item.noSppd !== noSppd));
       toast.success('Data berhasil dihapus permanen.');
     }

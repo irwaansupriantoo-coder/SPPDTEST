@@ -12,6 +12,15 @@ import { getStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
 import {
+  getHiddenSppdIds,
+  addHiddenSppdId,
+  addHiddenSppdIds,
+  setLaporanStatus,
+  batchGetStatusPengajuan,
+  getAllPengajuan,
+} from "../utils/supabaseDataStore";
+import { getSubKegiatanData as getSubKegiatanSync } from "../utils/anggaranStore";
+import {
   FileDown,
   Search,
   Filter,
@@ -107,24 +116,28 @@ export default function PersetujuanSPJPPTK() {
   const loadData = useCallback(async () => {
     setIsLoadingData(true);
     try {
-      const { data } = await apiRequest<{ data: LaporanData[] }>('/pengajuan');
-      const serverDalam = data.filter((d) => d.tipePerjalanan === 'Dalam Daerah');
-      const serverLuar = data.filter((d) => d.tipePerjalanan === 'Luar Daerah');
+      const data = await getAllPengajuan();
+      const serverDalam = data.filter((d: any) => d.tipePerjalanan === 'Dalam Daerah');
+      const serverLuar = data.filter((d: any) => d.tipePerjalanan === 'Luar Daerah');
 
       // Combine server data with mock data (server data first for recency)
       const combinedDalam = [...serverDalam, ...MOCK_DATA_DALAM_DAERAH];
       const combinedLuar = [...serverLuar, ...MOCK_DATA_LUAR_DAERAH];
 
-      const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+      const hiddenIds = await getHiddenSppdIds();
+
+      // Batch fetch statuses
+      const allItems = [...combinedDalam, ...combinedLuar];
+      const noSppdList = allItems.map((d: any) => d.noSppd || d.no_sppd || '');
+      const statusMap = await batchGetStatusPengajuan(noSppdList);
 
       // Filter to only show approved (Disetujui) ones.
-      // Also filter by SPPD-V2 to hide old legacy data
       const isApproved = (item: LaporanData) => {
         if (hiddenIds.includes(item.noSppd)) return false;
         if (!item.noSppd?.includes('SPPD-V2')) return false;
 
-        const status = getStatusPengajuan(item.noSppd);
-        return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id)); // let mock data show
+        const status = statusMap[item.noSppd] || 'Menunggu Persetujuan';
+        return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id));
       };
 
       const hydratedDalam = await Promise.all(combinedDalam.filter(isApproved).map(hydrateLaporanDataAsync));
@@ -156,15 +169,11 @@ export default function PersetujuanSPJPPTK() {
 
   // Filter data based on status and search
   const filteredData = allData.filter((item) => {
-    // Check if the SPJ subKegiatan is assigned to this PPTK
-    const subKegiatanData = typeof window !== 'undefined' ? localStorage.getItem('sppd_sub_kegiatan_data') : null;
+    // Check if the SPJ subKegiatan is assigned to this PPTK (sync check using cached data)
+    const subKegiatanList = getSubKegiatanSync();
     let isOwned = false;
-    if (subKegiatanData && item.subKegiatan) {
-      try {
-        const parsed = JSON.parse(subKegiatanData);
-        // Find if this item.subKegiatan matches any of PPTK's sub kegiatan names
-        isOwned = parsed.some((sk: any) => sk.nama === item.subKegiatan && sk.pptkNip === pptkNip);
-      } catch (e) {}
+    if (subKegiatanList.length > 0 && item.subKegiatan) {
+      isOwned = subKegiatanList.some((sk: any) => sk.nama === item.subKegiatan && sk.pptkNip === pptkNip);
     } else {
       // For mock data backward compatibility
       isOwned = true; 
@@ -310,10 +319,9 @@ export default function PersetujuanSPJPPTK() {
     setIsPreviewOpen(true);
   };
 
-  const handleDeleteItem = (noSppd: string) => {
+  const handleDeleteItem = async (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
-      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
+      await addHiddenSppdId(noSppd);
       setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
       setLuarDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
       toast.success('Data berhasil dihapus permanen.');
@@ -393,11 +401,10 @@ export default function PersetujuanSPJPPTK() {
             <div className="flex gap-3">
               {user?.role === 'admin' && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if(window.confirm('Yakin ingin menghapus semua data persetujuan SPJ secara permanen?')) {
-                      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
                       const newHidden = allData.map(p => p.noSppd);
-                      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, ...newHidden]));
+                      await addHiddenSppdIds(newHidden);
                       setDalamDaerahData([]);
                       setLuarDaerahData([]);
                       toast.success('Semua data persetujuan SPJ berhasil dihapus permanen.');
@@ -870,7 +877,7 @@ export default function PersetujuanSPJPPTK() {
                   else setLuarDaerahData(updateLocal);
                   
                   try {
-                    localStorage.setItem(`status_laporan_${selectedLaporanToReview.noSppd}`, "menunggu_verifikasi_kpa");
+                    await setLaporanStatus(selectedLaporanToReview.noSppd, "menunggu_verifikasi_kpa");
                   } catch(e) {}
 
                   // Optimistically update backend
@@ -935,7 +942,7 @@ export default function PersetujuanSPJPPTK() {
                 Batal
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   toast.error(`SPJ Dikembalikan untuk Perbaikan! Catatan: ${revisiNote || 'Tidak ada catatan'}`);
                   
                   // Catat log aktivitas
@@ -951,7 +958,7 @@ export default function PersetujuanSPJPPTK() {
                   else setLuarDaerahData(updateLocal);
                   
                   try {
-                    localStorage.setItem(`status_laporan_${selectedLaporanToReview.noSppd}`, "perbaikan");
+                    await setLaporanStatus(selectedLaporanToReview.noSppd, "perbaikan");
                   } catch(e) {}
                   
                   setIsRevisiNoteOpen(false);

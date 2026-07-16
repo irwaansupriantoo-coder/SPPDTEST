@@ -93,9 +93,9 @@ export function Sidebar() {
       </nav>
       <div className="mt-auto pt-4 border-t border-slate-200">
         <button
-          onClick={async () => {
+          onClick={() => {
             if (window.confirm('Apakah Anda yakin ingin keluar?')) {
-              await getSupabaseClient().auth.signOut().catch(() => {});
+              getSupabaseClient().auth.signOut().catch(console.error);
               localStorage.removeItem('user');
               localStorage.removeItem('offline_mode');
               window.location.href = '/login';

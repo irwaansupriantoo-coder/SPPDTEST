@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getSupabaseClient } from "../utils/supabaseClient";
 
 export default function ResetPage() {
   const [done, setDone] = useState(false);
@@ -6,6 +7,9 @@ export default function ResetPage() {
   useEffect(() => {
     // Clear all localStorage
     localStorage.clear();
+    
+    // Sign out from Supabase
+    getSupabaseClient().auth.signOut().catch(console.error);
 
     // Clear all sessionStorage
     sessionStorage.clear();

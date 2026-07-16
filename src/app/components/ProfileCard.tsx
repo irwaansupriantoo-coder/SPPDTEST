@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { AVAILABLE_PEGAWAI } from '../utils/pegawai';
 import { X, Upload, Save, User, Hash, Briefcase } from 'lucide-react';
+import { saveUserProfile } from '../utils/supabaseDataStore';
+import { getSubKegiatanData } from '../utils/anggaranStore';
 
 export function ProfileCard() {
   const [user, setUser] = useState<any>(() => {
@@ -62,19 +64,12 @@ export function ProfileCard() {
       setUser(updatedUser);
       setIsModalOpen(false);
 
-      // Persist across logouts
-      try {
-        const savedProfilesJson = localStorage.getItem('user_profiles') || '{}';
-        const savedProfiles = JSON.parse(savedProfilesJson);
-        savedProfiles[updatedUser.nip] = {
-          nama: updatedUser.nama,
-          pangkat: updatedUser.pangkat,
-          profilePicture: updatedUser.profilePicture
-        };
-        localStorage.setItem('user_profiles', JSON.stringify(savedProfiles));
-      } catch (e) {
-        console.error("Failed to save profile persistence", e);
-      }
+      // Persist across logouts to Supabase
+      saveUserProfile(updatedUser.nip, {
+        nama: updatedUser.nama,
+        pangkat: updatedUser.pangkat,
+        profilePicture: updatedUser.profilePicture
+      });
       
       window.dispatchEvent(new Event('user-updated'));
     }
@@ -95,9 +90,8 @@ export function ProfileCard() {
   let pptkName = '-';
   if (user?.role === 'pengelola') {
     try {
-      const stored = localStorage.getItem('sppd_sub_kegiatan_data');
-      if (stored) {
-        const subKegiatans = JSON.parse(stored);
+      const subKegiatans = getSubKegiatanData();
+      if (subKegiatans && subKegiatans.length > 0) {
         const managed = subKegiatans.find((sk: any) => sk.pengelolaNips?.includes(user?.nip));
         if (managed && managed.pptkNip) {
           pptkName = PPTK_MAP[managed.pptkNip] || managed.pptkNip;

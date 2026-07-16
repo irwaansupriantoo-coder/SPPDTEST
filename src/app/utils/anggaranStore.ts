@@ -1,21 +1,18 @@
-export interface SubKegiatan {
-  id: string; // e.g. "2.17.07.2.01.04.5.1.02.04.01.0003 - Sub Kegiatan Pemberdayaan Kelembagaan Potensi dan Pengembangan Usaha Mikro"
-  program: string;
-  kegiatan: string;
-  nama: string;
-  paguDalamDaerah: number;
-  realisasiDalamDaerah: number;
-  paguLuarDaerah: number;
-  realisasiLuarDaerah: number;
-  pengelolaNips: string[];
-  pptkNip: string;
-}
+import {
+  getSubKegiatanData as fetchSubKegiatan,
+  saveSubKegiatanData as persistSubKegiatan,
+  saveOneSubKegiatan,
+  deleteSubKegiatanById,
+} from './supabaseDataStore';
+import type { SubKegiatan } from './supabaseDataStore';
 
-const STORAGE_KEY = "sppd_sub_kegiatan_data";
-const DATA_VERSION_KEY = "sppd_sub_kegiatan_version";
-const CURRENT_VERSION = "v6"; // bumped to force re-seed
+export type { SubKegiatan };
 
-// Default seed data — pptkNip is empty; Bendahara must assign PPTK first
+// In-memory cache for synchronous access (populated on first async load)
+let cachedData: SubKegiatan[] | null = null;
+let loadPromise: Promise<SubKegiatan[]> | null = null;
+
+// Default seed data — used only if Supabase returns empty
 const defaultData: SubKegiatan[] = [
   {
     id: "2.17.07.2.01.04.5.1.02.04.01.0003 - Sub Kegiatan Pemberdayaan Kelembagaan Potensi dan Pengembangan Usaha Mikro",
@@ -91,53 +88,51 @@ const defaultData: SubKegiatan[] = [
   }
 ];
 
-export function getSubKegiatanData(): SubKegiatan[] {
-  if (typeof window === "undefined") return defaultData;
-  
-  const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
-  const stored = localStorage.getItem(STORAGE_KEY);
-  
-  // Force re-seed if version mismatch or no data
-  if (storedVersion !== CURRENT_VERSION || !stored) {
-    saveSubKegiatanData(defaultData);
-    localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
-    return defaultData;
+/**
+ * Async load from Supabase with cache
+ */
+export async function loadSubKegiatanData(): Promise<SubKegiatan[]> {
+  if (cachedData) return cachedData;
+
+  if (!loadPromise) {
+    loadPromise = (async () => {
+      const data = await fetchSubKegiatan();
+      if (data.length > 0) {
+        cachedData = data;
+      } else {
+        // Seed default data to Supabase
+        await persistSubKegiatan(defaultData);
+        cachedData = defaultData;
+      }
+      return cachedData;
+    })();
   }
-  
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    console.error("Failed to parse stored sub kegiatan", e);
-    saveSubKegiatanData(defaultData);
-    localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
-    return defaultData;
-  }
+
+  return loadPromise;
 }
 
-import { apiRequest } from './supabaseClient';
+/**
+ * Synchronous access to cached data. 
+ * Returns defaultData if cache not yet loaded.
+ * Components should prefer loadSubKegiatanData() where possible.
+ */
+export function getSubKegiatanData(): SubKegiatan[] {
+  if (cachedData) return cachedData;
+  // Trigger async load in background
+  loadSubKegiatanData();
+  return defaultData;
+}
 
-export async function syncSubKegiatanData() {
-  if (typeof window === "undefined") return;
-  try {
-    const res = await apiRequest<SubKegiatan[]>('/sub_kegiatan');
-    if (res && Array.isArray(res) && res.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(res));
-      localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
-    }
-  } catch (e) {
-    console.error("Failed to sync sub kegiatan", e);
-  }
+export async function syncSubKegiatanData(): Promise<void> {
+  cachedData = null;
+  loadPromise = null;
+  await loadSubKegiatanData();
 }
 
 export function saveSubKegiatanData(data: SubKegiatan[]) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  
-  // Fire and forget push to server
-  apiRequest('/sub_kegiatan', { 
-    method: 'PUT', 
-    body: JSON.stringify(data) 
-  }).catch(e => console.error("Gagal push sub kegiatan:", e));
+  cachedData = data;
+  // Fire and forget push to Supabase
+  persistSubKegiatan(data).catch(e => console.error("Gagal push sub kegiatan:", e));
 }
 
 export function getSubKegiatanByPengelola(nip: string): SubKegiatan[] {
@@ -171,7 +166,8 @@ export function buildProgramData(subKegiatanList: SubKegiatan[]): Record<string,
 export function addSubKegiatan(newSk: SubKegiatan) {
   const data = getSubKegiatanData();
   data.push(newSk);
-  saveSubKegiatanData(data);
+  cachedData = data;
+  saveOneSubKegiatan(newSk).catch(e => console.error("Gagal add sub kegiatan:", e));
 }
 
 export function updateSubKegiatan(id: string, updatedData: Partial<SubKegiatan>) {
@@ -179,14 +175,15 @@ export function updateSubKegiatan(id: string, updatedData: Partial<SubKegiatan>)
   const index = data.findIndex(sk => sk.id === id);
   if (index !== -1) {
     data[index] = { ...data[index], ...updatedData };
-    saveSubKegiatanData(data);
+    cachedData = data;
+    saveOneSubKegiatan(data[index]).catch(e => console.error("Gagal update sub kegiatan:", e));
   }
 }
 
 export function deleteSubKegiatan(id: string) {
   const data = getSubKegiatanData();
-  const filtered = data.filter(sk => sk.id !== id);
-  saveSubKegiatanData(filtered);
+  cachedData = data.filter(sk => sk.id !== id);
+  deleteSubKegiatanById(id).catch(e => console.error("Gagal delete sub kegiatan:", e));
 }
 
 // Assignment and Budget Operations
@@ -199,7 +196,8 @@ export function updateRealisasi(id: string, amount: number, tipePerjalanan: "Dal
     } else {
       data[index].realisasiLuarDaerah += amount;
     }
-    saveSubKegiatanData(data);
+    cachedData = data;
+    saveOneSubKegiatan(data[index]).catch(e => console.error("Gagal update realisasi:", e));
   }
 }
 
@@ -213,7 +211,8 @@ export function updatePagu(id: string, paguDalamDaerah?: number, paguLuarDaerah?
     if (paguLuarDaerah !== undefined) {
       data[index].paguLuarDaerah = paguLuarDaerah;
     }
-    saveSubKegiatanData(data);
+    cachedData = data;
+    saveOneSubKegiatan(data[index]).catch(e => console.error("Gagal update pagu:", e));
   }
 }
 

@@ -9,6 +9,7 @@ import { exportKwitansiDalamDaerah } from "../utils/exportKwitansiDalamDaerah";
 import { KwitansiPreviewModal } from "./KwitansiPreviewModal";
 import { RincianPreviewModal } from "./RincianPreviewModal";
 import { FilePreviewModal } from "./FilePreviewModal";
+import { getBuktiPembayaran } from "../utils/supabaseDataStore";
 import { get } from 'idb-keyval';
 
 interface VerifikasiDokumenDialogProps {
@@ -31,10 +32,11 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
 
   useEffect(() => {
     if (data?.noSppd) {
-      const stored = localStorage.getItem(`bukti_pembayaran_${data.noSppd}`);
-      if (stored) {
-        setBuktiPembayaran(stored);
-      }
+      getBuktiPembayaran(data.noSppd).then(stored => {
+        if (stored) {
+          setBuktiPembayaran(stored);
+        }
+      });
       
       const checkFiles = async () => {
         const keysToCheck = [

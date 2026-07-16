@@ -2,6 +2,7 @@ import { Bell, User, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useState, useRef, useEffect } from 'react';
 import { logActivity } from '../utils/activityStore';
+import { getSupabaseClient } from '../utils/supabaseClient';
 
 export function Header() {
   const location = useLocation();
@@ -24,15 +25,19 @@ export function Header() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    // Log before removing user
-    if (user) {
-      logActivity('logout', `${user.nama} Logout`, 'Sistem');
+  const handleLogout = async () => {
+    if (window.confirm('Apakah Anda yakin ingin keluar?')) {
+      // Log before removing user
+      if (user) {
+        logActivity('logout', `${user.nama} Logout`, 'Sistem');
+      }
+      // Sign out from Supabase and clear local session
+      await getSupabaseClient().auth.signOut().catch(console.error);
+      // Clear user data from localStorage
+      localStorage.removeItem('user');
+      // Redirect to login
+      navigate('/login');
     }
-    // Clear user data from localStorage
-    localStorage.removeItem('user');
-    // Redirect to login
-    navigate('/login');
   };
 
   return (

@@ -1,9 +1,15 @@
 import { get } from "idb-keyval";
+import {
+  getLaporanStatus,
+  getPelaksanaData,
+  getProgramData,
+  setPelaksanaData,
+} from "./supabaseDataStore";
 
 export const hydrateLaporanDataAsync = async (d: any) => {
   let status = d.status;
   try {
-    const storedStatus = localStorage.getItem(`status_laporan_${d.noSppd}`);
+    const storedStatus = await getLaporanStatus(d.noSppd);
     if (storedStatus) {
       status = storedStatus;
     }
@@ -13,9 +19,9 @@ export const hydrateLaporanDataAsync = async (d: any) => {
   let hydratedTotalAnggaran = d.totalAnggaran;
 
   try {
-    const storedPelaksana = localStorage.getItem(`pelaksana_${d.noSppd}`);
-    if (storedPelaksana) {
-      hydratedPelaksana = JSON.parse(storedPelaksana);
+    const storedPelaksana = await getPelaksanaData(d.noSppd);
+    if (storedPelaksana && storedPelaksana.length > 0) {
+      hydratedPelaksana = storedPelaksana;
       hydratedTotalAnggaran = hydratedPelaksana.reduce(
         (sum: number, p: any) =>
           sum +
@@ -32,7 +38,7 @@ export const hydrateLaporanDataAsync = async (d: any) => {
     }
   } catch (e) {}
 
-  // Async IndexedDB Draft Rescue
+  // Async IndexedDB Draft Rescue (keep idb-keyval for draft data)
   try {
     const draft = await get(`draft_traveler_data_${d.noSppd}`);
     if (draft) {
@@ -73,24 +79,16 @@ export const hydrateLaporanDataAsync = async (d: any) => {
       });
       hydratedTotalAnggaran = total;
       
-      // Patch localStorage for future fast sync loading
-      localStorage.setItem(`pelaksana_${d.noSppd}`, JSON.stringify(hydratedPelaksana));
+      // Sync pelaksana data to Supabase for future loading
+      setPelaksanaData(d.noSppd, hydratedPelaksana).catch(() => {});
     }
   } catch (e) {}
 
   try {
-    const storedDates = localStorage.getItem(`dates_${d.noSppd}`);
-    const storedProgram = localStorage.getItem(`program_${d.noSppd}`);
+    const { program: storedProgram, dates: storedDates } = await getProgramData(d.noSppd);
 
-    let parsedDates = {};
-    let parsedProgram = {};
-
-    if (storedDates) {
-      parsedDates = JSON.parse(storedDates);
-    }
-    if (storedProgram) {
-      parsedProgram = JSON.parse(storedProgram);
-    }
+    const parsedDates = storedDates || {};
+    const parsedProgram = storedProgram || {};
 
     return {
       ...d,

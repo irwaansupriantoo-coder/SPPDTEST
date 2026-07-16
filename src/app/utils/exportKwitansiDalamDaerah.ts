@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { terbilang } from './terbilang.ts';
+import { getKwitansiNumber, setKwitansiNumber } from './supabaseDataStore';
 
 function formatDate(dateString: string | Date) {
   const date = new Date(dateString);
@@ -117,21 +118,21 @@ export async function exportKwitansiDalamDaerah(dataHeader: any, travelersList: 
       if (dataHeader.noSppdList && dataHeader.noSppdList.length > 0) {
         const primarySppd = dataHeader.noSppdList[0];
         const sppdKey = `kwitansi_no_${primarySppd}`;
-        const existingNo = localStorage.getItem(sppdKey);
+        const existingNo = await getKwitansiNumber(sppdKey);
         
         if (existingNo) {
           noKwitansi = existingNo;
         } else {
           const counterKey = `kwitansi_counter_${inisialFix}_${tahun}`;
           // Get current counter, increment
-          let currentCounter = parseInt(localStorage.getItem(counterKey) || '0', 10);
+          let currentCounter = parseInt(await getKwitansiNumber(counterKey) || '0', 10);
           currentCounter += 1;
           
           const incStr = String(currentCounter).padStart(2, '0');
           noKwitansi = `${incStr}/${inisialFix}/K/${tahun}`;
           
-          localStorage.setItem(sppdKey, noKwitansi);
-          localStorage.setItem(counterKey, currentCounter.toString());
+          await setKwitansiNumber(sppdKey, noKwitansi);
+          await setKwitansiNumber(counterKey, currentCounter.toString());
         }
       } else {
         noKwitansi = `01/${inisialFix}/K/${tahun}`;

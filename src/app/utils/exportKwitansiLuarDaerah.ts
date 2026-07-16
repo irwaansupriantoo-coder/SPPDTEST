@@ -1,6 +1,7 @@
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { terbilang } from './terbilang';
+import { getProgramData, getKwitansiNumber, setKwitansiNumber, getAllPengajuan } from './supabaseDataStore';
 
 const BULAN_INDONESIA = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -41,14 +42,9 @@ export async function exportKwitansiLuarDaerah(
   
   const totalAnggaran = totalUangHarian + totalBiayaHotel + totalSewaKendaraan + totalPesawat + totalKeretaApi + totalBiayaTol + totalTaxiBandara + totalRepresentatif;
 
-  let parsedProgram: any = {};
-  let parsedDates: any = {};
-  try {
-    const storedProgram = localStorage.getItem(`program_${sppdData.noSppd}`);
-    if (storedProgram) parsedProgram = JSON.parse(storedProgram);
-    const storedDates = localStorage.getItem(`dates_${sppdData.noSppd}`);
-    if (storedDates) parsedDates = JSON.parse(storedDates);
-  } catch (e) {}
+  const { program, dates } = await getProgramData(sppdData.noSppd);
+  let parsedProgram: any = program || {};
+  let parsedDates: any = dates || {};
 
   const subKegiatanStr = parsedProgram.subKegiatan || sppdData.subKegiatan || 'Sub Kegiatan';
   let inisialSubKegiatan = 'PMKUM';
@@ -62,15 +58,15 @@ export async function exportKwitansiLuarDaerah(
 
   const tahun = new Date().getFullYear();
   const kwitansiKey = `kwitansi_luar_${sppdData.noSppd}_${pelaksana.nip}`;
-  let noKwitansi = localStorage.getItem(kwitansiKey);
+  let noKwitansi = await getKwitansiNumber(kwitansiKey);
   if (!noKwitansi) {
     const counterKey = `kwitansi_counter_${inisialSubKegiatan}_${tahun}`;
-    let currentCounter = parseInt(localStorage.getItem(counterKey) || '0', 10);
+    let currentCounter = parseInt(await getKwitansiNumber(counterKey) || '0', 10);
     currentCounter += 1;
-    localStorage.setItem(counterKey, currentCounter.toString());
+    await setKwitansiNumber(counterKey, currentCounter.toString());
     const incStr = String(currentCounter).padStart(2, '0');
     noKwitansi = `${incStr}/${inisialSubKegiatan}/K/${tahun}`;
-    localStorage.setItem(kwitansiKey, noKwitansi);
+    await setKwitansiNumber(kwitansiKey, noKwitansi);
   }
 
   let kodeRekening = '2.17.07.2.01.04.5.1.02.04.01.0003';
@@ -84,10 +80,9 @@ export async function exportKwitansiLuarDaerah(
 
   let mockKeperluan = '';
   try {
-    const mockData = localStorage.getItem('mock_pengajuan');
+    const mockData = await getAllPengajuan();
     if (mockData) {
-      const parsedMock = JSON.parse(mockData);
-      const matched = parsedMock.find((m: any) => m.noSppd === sppdData.noSppd);
+      const matched = mockData.find((m: any) => (m.noSppd || m.no_sppd) === sppdData.noSppd);
       if (matched && matched.keperluan) {
         mockKeperluan = matched.keperluan;
       }

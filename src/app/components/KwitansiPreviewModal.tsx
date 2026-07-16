@@ -1,7 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { X, Printer } from 'lucide-react';
 import { terbilang } from '../utils/terbilang';
 import html2pdf from 'html2pdf.js';
+import { getKwitansiNumber } from '../utils/supabaseDataStore';
 
 interface KwitansiPreviewModalProps {
   isOpen: boolean;
@@ -83,15 +84,19 @@ export function KwitansiPreviewModal({ isOpen, onClose, data }: KwitansiPreviewM
     .join('');
   const inisialFix = initials || 'PKPPUM';
   
-  let noKwitansi = '';
-  if (data.noSppdList && data.noSppdList.length > 0) {
-    const primarySppd = data.noSppdList[0];
-    const sppdKey = `kwitansi_no_${primarySppd}`;
-    noKwitansi = localStorage.getItem(sppdKey) || `05/${inisialFix}/K/${tahunAnggaran}`;
-  } else {
-    noKwitansi = `05/${inisialFix}/K/${tahunAnggaran}`;
-  }
+  const [noKwitansi, setNoKwitansi] = useState(`05/${inisialFix}/K/${tahunAnggaran}`);
 
+  useEffect(() => {
+    if (data.noSppdList && data.noSppdList.length > 0) {
+      const primarySppd = data.noSppdList[0];
+      const sppdKey = `kwitansi_no_${primarySppd}`;
+      getKwitansiNumber(sppdKey).then(savedNum => {
+        if (savedNum) {
+          setNoKwitansi(savedNum);
+        }
+      });
+    }
+  }, [data.noSppdList, inisialFix, tahunAnggaran]);
   let maksudText = `Belanja Perjalanan Dinas Dalam Kota. Belanja Perjalanan Dinas Dalam Daerah Kabupaten Berau Perjalanan Dinas Dalam Daerah untuk ${data.maksud || 'Melaksanakan tugas dinas'}`;
   if (data.tanggalMulai && data.tanggalSelesai) {
     maksudText += ` pada tanggal ${formatDateId(data.tanggalMulai)} sampai ${formatDateId(data.tanggalSelesai)}.`;

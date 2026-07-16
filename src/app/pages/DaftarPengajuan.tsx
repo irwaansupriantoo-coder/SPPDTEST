@@ -2,7 +2,15 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { apiRequest } from "../utils/supabaseClient";
-import { getStatusPengajuan, getTanggalPersetujuan, setStatusPengajuan } from "../utils/statusStore";
+import { getStatusPengajuan, getTanggalPersetujuan, setStatusPengajuan, batchGetStatusPengajuan, batchGetTanggalPersetujuan } from "../utils/statusStore";
+import {
+  getHiddenSppdIds,
+  addHiddenSppdIds,
+  getLaporanStatus,
+  batchGetLaporanStatus,
+  getAppSetting,
+  getAllPengajuan,
+} from "../utils/supabaseDataStore";
 import { downloadSPPD } from "../utils/generateSPPD";
 import { SppdPreviewModal } from "../components/SppdPreviewModal";
 import {
@@ -55,17 +63,23 @@ export default function DaftarPengajuan() {
   const loadData = useCallback(async () => {
     setIsLoadingData(true);
     try {
-      const { data } = await apiRequest<{ data: LaporanData[] }>('/pengajuan');
+      const data = await getAllPengajuan();
       
-      const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+      const hiddenIds = await getHiddenSppdIds();
 
-      const clearTime = parseInt(localStorage.getItem('clear_pengajuan_time') || '0', 10);
-      
-      const dataWithStatus = data
-        .filter((d: any) => d.noSppd?.includes('SPPD') && !hiddenIds.includes(d.noSppd))
+      // Filter out hidden and completed
+      const filteredData = data
+        .filter((d: any) => d.noSppd?.includes('SPPD') && !hiddenIds.includes(d.noSppd));
+
+      // Batch fetch laporan statuses
+      const noSppdList = filteredData.map((d: any) => d.noSppd || d.no_sppd || '');
+      const laporanStatuses = await batchGetLaporanStatus(noSppdList);
+      const statusMap = await batchGetStatusPengajuan(noSppdList);
+      const tanggalMap = await batchGetTanggalPersetujuan(noSppdList);
+
+      const dataWithStatus = filteredData
         .filter((d: any) => {
-          const storedStatus = localStorage.getItem(`status_laporan_${d.noSppd}`);
-          const spjStatus = storedStatus || d.status || "belum_spj";
+          const spjStatus = laporanStatuses[d.noSppd] || d.status || "belum_spj";
           return spjStatus !== "selesai";
         })
         .map((d: any) => {
@@ -73,8 +87,8 @@ export default function DaftarPengajuan() {
           return {
             ...d,
             noSppd: sppd,
-            statusPengajuan: getStatusPengajuan(sppd),
-            tanggalPersetujuan: getTanggalPersetujuan(sppd)
+            statusPengajuan: statusMap[sppd] || 'Menunggu Persetujuan',
+            tanggalPersetujuan: tanggalMap[sppd] || ''
           };
         });
       
@@ -189,18 +203,13 @@ export default function DaftarPengajuan() {
             </div>
             {user?.role === 'admin' && (
               <button
-                onClick={() => {
+                onClick={async () => {
                   if(window.confirm('Yakin ingin menghapus semua data pengajuan secara permanen? (Data akan hilang dari tampilan Pengelola dan KPA)')) {
-                    // Hide server data
-                    const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+                    // Hide server data in Supabase
                     const newHidden = allPengajuan.map(p => p.noSppd);
-                    localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, ...newHidden]));
+                    await addHiddenSppdIds(newHidden);
                     
-                    // Delete local data
-                    localStorage.removeItem('mock_pengajuan');
-                    localStorage.removeItem('sppd_statuses');
-                    localStorage.removeItem('sppd_approval_dates');
-                    localStorage.removeItem('clear_pengajuan_time');
+                    // Delete local IndexedDB
                     indexedDB.deleteDatabase('SppdFilesDB');
                     
                     setAllPengajuan([]);
