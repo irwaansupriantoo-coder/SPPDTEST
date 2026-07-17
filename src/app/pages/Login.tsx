@@ -114,10 +114,35 @@ export default function Login() {
     }
 
     // ── Layer 2: direct Supabase Auth (user already exists from a prior login) ──
-    const email = EMAIL_MAP[nip];
+    const email = EMAIL_MAP[nip] || `${nip.toLowerCase()}@berau.go.id`;
     if (email) {
       try {
-        const { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
+        let { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
+        
+        // Auto-signup if it fails (maybe the user hasn't been created yet)
+        if (error && error.message.includes('Invalid login credentials')) {
+          const { data: signUpData, error: signUpError } = await getSupabaseClient().auth.signUp({ 
+            email, 
+            password,
+            options: {
+              data: sessionUser
+            }
+          });
+          
+          if (signUpError) {
+             console.error("Signup error:", signUpError);
+             error = signUpError;
+          } else if (signUpData.session) {
+             data = signUpData;
+             error = null;
+          } else {
+             // Sign up succeeded but no session (likely email confirmation required)
+             toast.error('Akun berhasil dibuat tetapi membutuhkan verifikasi email. Matikan "Confirm email" di pengaturan Supabase Auth Anda.');
+             setIsLoading(false);
+             return;
+          }
+        }
+
         if (!error && data.session) {
           await getSupabaseClient().auth.updateUser({ data: sessionUser });
           
@@ -125,14 +150,22 @@ export default function Login() {
           toast.success(`Selamat datang, ${sessionUser.nama}!`);
           setTimeout(() => navigate('/dashboard'), 800);
           return;
+        } else if (error) {
+           console.error("Auth error:", error);
+           toast.error(`Login gagal: ${error.message}`);
+           setIsLoading(false);
+           return;
         }
-      } catch (_) {
-        // Auth also failed — fall through
+      } catch (err: any) {
+        console.error("Auth exception", err);
+        toast.error(`Error: ${err.message}`);
+        setIsLoading(false);
+        return;
       }
     }
 
     setIsLoading(false);
-    toast.error('Gagal masuk ke sistem. Pastikan koneksi internet stabil.');
+    toast.error('Gagal masuk ke sistem. Pastikan koneksi internet stabil atau cek konfigurasi database.');
   };
 
 
