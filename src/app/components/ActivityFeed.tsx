@@ -22,9 +22,9 @@ export function ActivityFeed() {
   const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
-    const fetchActivities = () => {
+    const fetchActivities = async () => {
       try {
-        const logs: ActivityLog[] = getActivityLogs();
+        const logs: ActivityLog[] = await getActivityLogs();
         const unified: UnifiedActivity[] = [];
 
         logs.forEach(log => {

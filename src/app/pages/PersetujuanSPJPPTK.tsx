@@ -69,11 +69,10 @@ interface LaporanData {
   subKegiatan?: string;
 }
 
-const MOCK_DATA_DALAM_DAERAH: LaporanData[] = [];
-
-const MOCK_DATA_LUAR_DAERAH: LaporanData[] = [];
+import { useAuth } from '../context/AuthContext';
 
 export default function PersetujuanSPJPPTK() {
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<
     "Semua" | "Dalam Daerah" | "Luar Daerah"
   >("Semua");
@@ -105,8 +104,6 @@ export default function PersetujuanSPJPPTK() {
   const [previewFileKey, setPreviewFileKey] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
 
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
   const pptkNip = user?.nip || "19951130 202203 2 030";
 
   const [dalamDaerahData, setDalamDaerahData] = useState<LaporanData[]>([]);
@@ -120,14 +117,10 @@ export default function PersetujuanSPJPPTK() {
       const serverDalam = data.filter((d: any) => d.tipePerjalanan === 'Dalam Daerah');
       const serverLuar = data.filter((d: any) => d.tipePerjalanan === 'Luar Daerah');
 
-      // Combine server data with mock data (server data first for recency)
-      const combinedDalam = [...serverDalam, ...MOCK_DATA_DALAM_DAERAH];
-      const combinedLuar = [...serverLuar, ...MOCK_DATA_LUAR_DAERAH];
-
       const hiddenIds = await getHiddenSppdIds();
 
       // Batch fetch statuses
-      const allItems = [...combinedDalam, ...combinedLuar];
+      const allItems = [...serverDalam, ...serverLuar];
       const noSppdList = allItems.map((d: any) => d.noSppd || d.no_sppd || '');
       const statusMap = await batchGetStatusPengajuan(noSppdList);
 
@@ -137,19 +130,18 @@ export default function PersetujuanSPJPPTK() {
         if (!item.noSppd?.includes('SPPD-V2')) return false;
 
         const status = statusMap[item.noSppd] || 'Menunggu Persetujuan';
-        return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id));
+        return status === "Disetujui";
       };
 
-      const hydratedDalam = await Promise.all(combinedDalam.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedDalam = await Promise.all(serverDalam.filter(isApproved).map(hydrateLaporanDataAsync));
       setDalamDaerahData(hydratedDalam.filter(d => d.status !== 'selesai' && d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
       
-      const hydratedLuar = await Promise.all(combinedLuar.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedLuar = await Promise.all(serverLuar.filter(isApproved).map(hydrateLaporanDataAsync));
       setLuarDaerahData(hydratedLuar.filter(d => d.status !== 'selesai' && d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
     } catch (err) {
       console.log('Error loading laporan data:', err);
-      // Fallback to mock data
-      setDalamDaerahData(MOCK_DATA_DALAM_DAERAH);
-      setLuarDaerahData(MOCK_DATA_LUAR_DAERAH);
+      setDalamDaerahData([]);
+      setLuarDaerahData([]);
     } finally {
       setIsLoadingData(false);
     }

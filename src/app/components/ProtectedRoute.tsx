@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -6,14 +7,16 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
-  const userJson = localStorage.getItem('user');
+  const { user, isLoading } = useAuth();
 
-  if (!userJson) {
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
     // User not logged in, redirect to login
     return <Navigate to="/login" replace />;
   }
-
-  const user = JSON.parse(userJson);
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/dashboard" replace />;

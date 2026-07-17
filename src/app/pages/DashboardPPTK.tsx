@@ -6,8 +6,11 @@ import { ProfileCard } from '../components/ProfileCard';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { Wallet, TrendingUp, Edit, CheckCircle, MapPin, FileText, Clock, Eye, XCircle, Search, Filter, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { apiRequest } from '../utils/supabaseClient';
-import { getStatusPengajuan, getTanggalPersetujuan } from '../utils/statusStore';
+import { batchGetStatusPengajuan, batchGetTanggalPersetujuan } from '../utils/statusStore';
+import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData } from '../utils/supabaseDataStore';
 import { SppdPreviewModal } from '../components/SppdPreviewModal';
+import { useNavigate } from 'react-router';
+import { useAuth } from '../context/AuthContext';
 import { 
   getSubKegiatanByPPTK, 
   SubKegiatan, 
@@ -32,6 +35,8 @@ export default function DashboardPPTK() {
   const [latestArsip, setLatestArsip] = useState<any[]>([]);
   const [isSppdModalOpen, setIsSppdModalOpen] = useState(false);
   const [selectedSppd, setSelectedSppd] = useState<any>(null);
+  const [statusMapState, setStatusMapState] = useState<Record<string, string>>({});
+  const [tanggalMapState, setTanggalMapState] = useState<Record<string, string>>({});
 
   const [searchSubKegiatan, setSearchSubKegiatan] = useState('');
   const [filterSubKegiatan, setFilterSubKegiatan] = useState('Semua');
@@ -51,8 +56,8 @@ export default function DashboardPPTK() {
 
   const itemsPerPage = 5;
 
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const pptkNip = user?.nip || "199511302022032030";
 
   useEffect(() => {
@@ -63,6 +68,18 @@ export default function DashboardPPTK() {
     try {
       const res = await apiRequest<{ data: any[] }>('/pengajuan');
       const pengajuanData = res.data || [];
+
+      // Pre-fetch all Supabase data in batch
+      const allSppdIds = pengajuanData.map((d: any) => d.noSppd || d.no_sppd || '').filter(Boolean);
+      const [sMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap] = await Promise.all([
+        batchGetStatusPengajuan(allSppdIds),
+        batchGetLaporanStatus(allSppdIds),
+        getHiddenSppdIds(),
+        batchGetPelaksanaData(allSppdIds),
+        batchGetProgramData(allSppdIds),
+      ]);
+      setStatusMapState(sMap);
+
       const msk = getSubKegiatanByPPTK(pptkNip);
       const mskNames = msk.map(sk => sk.nama);
 
@@ -73,14 +90,12 @@ export default function DashboardPPTK() {
 
       pengajuanData.forEach(row => {
         const sppd = row.noSppd || row.no_sppd || '';
-        const status = getStatusPengajuan(sppd);
-        const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || row.status || "belum_spj";
+        const status = sMap[sppd] || "belum_spj";
+        const spjStatus = laporanStatusMap[sppd] || row.status || "belum_spj";
 
-        const sppdDataStr = localStorage.getItem(`sppd_data_${sppd}`);
-        const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+        const parsedProgram = programDataMap[sppd] || {};
         const subKegiatanName = parsedProgram.subKegiatan || row.subKegiatan;
 
-        const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
         const isHiddenOrInvalid = hiddenIds.includes(sppd) || !sppd.includes('SPPD') || (row.isDuplicated && status !== 'Disetujui');
 
         if (isHiddenOrInvalid) return;
@@ -88,9 +103,9 @@ export default function DashboardPPTK() {
         if (spjStatus === 'selesai') {
           let actualTotalAnggaran = row.totalAnggaran || 0;
           try {
-            const storedPelaksana = localStorage.getItem(`pelaksana_${sppd}`);
-            if (storedPelaksana) {
-              const hydratedPelaksana = JSON.parse(storedPelaksana);
+            const storedPelaksana = pelaksanaMap[sppd];
+            if (storedPelaksana && storedPelaksana.length > 0) {
+              const hydratedPelaksana = storedPelaksana;
               actualTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
             }
           } catch(e) {}
@@ -117,8 +132,7 @@ export default function DashboardPPTK() {
 
       const validData = pengajuanData.filter(d => {
         const sppdStr = d.noSppd || d.no_sppd || '';
-        const sppdDataStr = localStorage.getItem(`sppd_data_${sppdStr}`);
-        const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+        const parsedProgram = programDataMap[sppdStr] || {};
         const dSub = parsedProgram.subKegiatan || d.subKegiatan;
         
         const isManaged = mskNames.includes(dSub);
@@ -129,8 +143,8 @@ export default function DashboardPPTK() {
         
         let isPelaksana = false;
         try {
-          const storedPelaksana = localStorage.getItem(`pelaksana_${sppdStr}`);
-          const pelaksanaList = storedPelaksana ? JSON.parse(storedPelaksana) : d.pelaksana || [d.pembuat];
+          const storedPelaksana = pelaksanaMap[sppdStr];
+          const pelaksanaList = (storedPelaksana && storedPelaksana.length > 0) ? storedPelaksana : d.pelaksana || [d.pembuat];
           if (Array.isArray(pelaksanaList)) {
             isPelaksana = pelaksanaList.some((p: any) => p.nip === pptkNip || p.nama === user?.nama);
           }
@@ -141,14 +155,13 @@ export default function DashboardPPTK() {
 
       const filteredPengajuan = validData.filter(d => {
         const sppd = d.noSppd || d.no_sppd || '';
-        const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
         if (hiddenIds.includes(sppd)) return false;
         if (!sppd.includes('SPPD')) return false;
 
-        const status = getStatusPengajuan(sppd);
+        const status = sMap[sppd] || "belum_spj";
         if (d.isDuplicated && status !== 'Disetujui') return false;
 
-        const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+        const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
         if (spjStatus === 'selesai') return false;
 
         return true;
@@ -159,10 +172,9 @@ export default function DashboardPPTK() {
 
       const laporanList = validData.filter(d => {
         const sppd = d.noSppd || d.no_sppd || '';
-        const status = getStatusPengajuan(sppd);
-        const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+        const status = sMap[sppd] || "belum_spj";
+        const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
 
-        const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
         if (hiddenIds.includes(sppd)) return false;
         if (!sppd.includes('SPPD')) return false;
         
@@ -177,9 +189,9 @@ export default function DashboardPPTK() {
       const hydrateTotalAnggaran = (d: any) => {
         let hydratedTotalAnggaran = d.totalAnggaran;
         try {
-          const storedPelaksana = localStorage.getItem(`pelaksana_${d.noSppd || d.no_sppd}`);
-          if (storedPelaksana) {
-            const hydratedPelaksana = JSON.parse(storedPelaksana);
+          const storedPelaksana = pelaksanaMap[d.noSppd || d.no_sppd];
+          if (storedPelaksana && storedPelaksana.length > 0) {
+            const hydratedPelaksana = storedPelaksana;
             hydratedTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
           }
         } catch(e) {}
@@ -188,10 +200,9 @@ export default function DashboardPPTK() {
 
       const arsipList = validData.filter(d => {
         const sppd = d.noSppd || d.no_sppd || '';
-        const status = getStatusPengajuan(sppd);
-        const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+        const status = sMap[sppd] || "belum_spj";
+        const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
 
-        const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
         if (hiddenIds.includes(sppd)) return false;
         if (!sppd.includes('SPPD')) return false;
         
@@ -539,7 +550,7 @@ export default function DashboardPPTK() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedPengajuan.length > 0 ? paginatedPengajuan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const statusPeng = getStatusPengajuan(sppd);
+                      const statusPeng = statusMapState[sppd] || "belum_spj";
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-4"><p className="font-semibold text-[#00475e] text-sm">{sppd || '-'}</p></td>
@@ -549,13 +560,11 @@ export default function DashboardPPTK() {
                           <td className="px-4 py-4 text-center">{getStatusBadge(statusPeng)}</td>
                           <td className="px-4 py-4 text-center">
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 const sppdStr = item.noSppd || item.no_sppd || '';
-                                const sppdDataStr = localStorage.getItem(`sppd_data_${sppdStr}`);
-                                const parsedData = sppdDataStr ? JSON.parse(sppdDataStr) : {};
-                                const storedPelaksana = localStorage.getItem(`pelaksana_${sppdStr}`);
-                                const pelaksanaList = storedPelaksana ? JSON.parse(storedPelaksana) : item.pelaksana || [item.pembuat];
-                                setSelectedSppd({ ...item, ...parsedData, pelaksana: pelaksanaList, statusPengajuan: statusPeng, tanggalPersetujuan: getTanggalPersetujuan(sppdStr) });
+                                const programData = await getProgramData(sppdStr);
+                                const pelaksanaList = await getPelaksanaData(sppdStr) || item.pelaksana || [item.pembuat];
+                                setSelectedSppd({ ...item, ...programData.program, ...programData.dates, pelaksana: pelaksanaList, statusPengajuan: statusPeng, tanggalPersetujuan: tanggalMapState[sppdStr] || "" });
                                 setIsSppdModalOpen(true);
                               }}
                               className="text-xs bg-slate-100 text-slate-600 px-3 py-1.5 rounded font-medium hover:bg-slate-200 inline-flex items-center gap-1"
@@ -647,7 +656,7 @@ export default function DashboardPPTK() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedLaporan.length > 0 ? paginatedLaporan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-4"><p className="font-semibold text-[#00475e] text-sm">{sppd || '-'}</p></td>
@@ -747,7 +756,7 @@ export default function DashboardPPTK() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedArsip.length > 0 ? paginatedArsip.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-4"><p className="font-semibold text-[#00475e] text-sm">{sppd || '-'}</p></td>
@@ -757,8 +766,7 @@ export default function DashboardPPTK() {
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => {
-                                localStorage.setItem('redirect_arsip_dokumen', sppd);
-                                window.location.href = '/pptk/arsip-spj';
+                                navigate('/pptk/arsip-spj', { state: { redirectSppd: sppd } });
                               }}
                               className="text-xs bg-slate-100 text-[#00475e] px-3 py-1.5 rounded font-medium hover:bg-slate-200 inline-flex items-center gap-1"
                             >

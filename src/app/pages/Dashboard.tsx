@@ -6,9 +6,12 @@ import DashboardBendahara from './DashboardBendahara';
 
 import DashboardPegawai from './DashboardPegawai';
 
+import { useAuth } from '../context/AuthContext';
+
 export default function Dashboard() {
-  const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user, isLoading } = useAuth();
+  
+  if (isLoading) return <div className="p-8 text-center">Memuat...</div>;
 
   if (user?.role === 'pegawai') {
     return <Navigate to="/pegawai/persetujuan-spj" replace />;

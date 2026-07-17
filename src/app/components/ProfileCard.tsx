@@ -4,14 +4,11 @@ import { X, Upload, Save, User, Hash, Briefcase } from 'lucide-react';
 import { saveUserProfile } from '../utils/supabaseDataStore';
 import { getSubKegiatanData } from '../utils/anggaranStore';
 
+import { useAuth } from '../context/AuthContext';
+import { getSupabaseClient } from '../utils/supabaseClient';
+
 export function ProfileCard() {
-  const [user, setUser] = useState<any>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('user');
-      return stored ? JSON.parse(stored) : null;
-    }
-    return null;
-  });
+  const { user } = useAuth();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -34,24 +31,14 @@ export function ProfileCard() {
     }
   }, [user]);
 
-  // Listen to external updates if needed
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const userJson = localStorage.getItem('user');
-      if (userJson) {
-        setUser(JSON.parse(userJson));
-      }
-    };
-    window.addEventListener('user-updated', handleStorageChange);
-    return () => window.removeEventListener('user-updated', handleStorageChange);
-  }, []);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (user) {
       const updatedUser = {
         ...user,
@@ -60,18 +47,28 @@ export function ProfileCard() {
         pangkat: formData.pangkat,
         profilePicture: formData.profilePicture,
       };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      setIsModalOpen(false);
 
-      // Persist across logouts to Supabase
-      saveUserProfile(updatedUser.nip, {
-        nama: updatedUser.nama,
-        pangkat: updatedUser.pangkat,
-        profilePicture: updatedUser.profilePicture
-      });
-      
-      window.dispatchEvent(new Event('user-updated'));
+      try {
+        await getSupabaseClient().auth.updateUser({
+          data: {
+            nama: updatedUser.nama,
+            nip: updatedUser.nip,
+            pangkat: updatedUser.pangkat,
+            profilePicture: updatedUser.profilePicture
+          }
+        });
+
+        // Persist across logouts to Supabase profile table
+        saveUserProfile(updatedUser.nip, {
+          nama: updatedUser.nama,
+          pangkat: updatedUser.pangkat,
+          profilePicture: updatedUser.profilePicture
+        });
+        
+        setIsModalOpen(false);
+      } catch (e) {
+        console.error('Failed to update user', e);
+      }
     }
   };
 

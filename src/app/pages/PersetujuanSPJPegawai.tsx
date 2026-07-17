@@ -11,7 +11,7 @@ import { signPdf } from "../utils/pdfSigner";
 import { mergePdfs } from "../utils/pdfMerger";
 import { saveFile } from "../utils/fileStore";
 import { apiRequest } from "../utils/supabaseClient";
-import { getStatusPengajuan, getPegawaiApprovals, addPegawaiApproval } from "../utils/statusStore";
+import { getStatusPengajuan, getPegawaiApprovals, addPegawaiApproval, batchGetPegawaiApprovals } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
 import {
@@ -73,13 +73,10 @@ interface LaporanData {
   subKegiatan?: string;
 }
 
-const MOCK_DATA_DALAM_DAERAH: LaporanData[] = [];
-
-const MOCK_DATA_LUAR_DAERAH: LaporanData[] = [];
+import { useAuth } from '../context/AuthContext';
 
 export default function PersetujuanSPJPegawai() {
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<
     "Semua" | "Dalam Daerah" | "Luar Daerah"
   >("Semua");
@@ -114,6 +111,7 @@ export default function PersetujuanSPJPegawai() {
 
   const [dalamDaerahData, setDalamDaerahData] = useState<LaporanData[]>([]);
   const [luarDaerahData, setLuarDaerahData] = useState<LaporanData[]>([]);
+  const [pegawaiApprovalsMap, setPegawaiApprovalsMap] = useState<Record<string, string[]>>({});
   const itemsPerPage = 4;
 
   const loadData = useCallback(async () => {
@@ -123,16 +121,14 @@ export default function PersetujuanSPJPegawai() {
       const serverDalam = data.filter((d) => d.tipePerjalanan === 'Dalam Daerah');
       const serverLuar = data.filter((d) => d.tipePerjalanan === 'Luar Daerah');
 
-      // Combine server data with mock data (server data first for recency)
-      const combinedDalam = [...serverDalam, ...MOCK_DATA_DALAM_DAERAH];
-      const combinedLuar = [...serverLuar, ...MOCK_DATA_LUAR_DAERAH];
-
       const hiddenIds = await getHiddenSppdIds();
 
       // Batch fetch statuses
-      const allItems = [...combinedDalam, ...combinedLuar];
+      const allItems = [...serverDalam, ...serverLuar];
       const noSppdList = allItems.map((d) => d.noSppd || (d as any).no_sppd || '');
       const statusMap = await batchGetStatusPengajuan(noSppdList);
+      const approvalsMap = await batchGetPegawaiApprovals(noSppdList);
+      setPegawaiApprovalsMap(approvalsMap);
 
       // Filter to only show approved (Disetujui) ones.
       // Also filter by SPPD-V2 to hide old legacy data
@@ -141,19 +137,18 @@ export default function PersetujuanSPJPegawai() {
         if (!item.noSppd?.includes('SPPD-V2')) return false;
 
         const status = statusMap[item.noSppd] || 'Menunggu Persetujuan';
-        return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id)); // let mock data show
+        return status === "Disetujui";
       };
 
-      const hydratedDalam = await Promise.all(combinedDalam.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedDalam = await Promise.all(serverDalam.filter(isApproved).map(hydrateLaporanDataAsync));
       setDalamDaerahData(hydratedDalam.filter(d => d.status !== 'selesai' && d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
       
-      const hydratedLuar = await Promise.all(combinedLuar.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedLuar = await Promise.all(serverLuar.filter(isApproved).map(hydrateLaporanDataAsync));
       setLuarDaerahData(hydratedLuar.filter(d => d.status !== 'selesai' && d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
     } catch (err) {
       console.log('Error loading laporan data:', err);
-      // Fallback to mock data
-      setDalamDaerahData(MOCK_DATA_DALAM_DAERAH);
-      setLuarDaerahData(MOCK_DATA_LUAR_DAERAH);
+      setDalamDaerahData([]);
+      setLuarDaerahData([]);
     } finally {
       setIsLoadingData(false);
     }
@@ -212,7 +207,7 @@ export default function PersetujuanSPJPegawai() {
       if (d.status !== "menunggu_verifikasi_pegawai") return false;
       const userNip = (user?.nip || "").replace(/\D/g, "");
       const isPelaksana = Array.isArray(d.pelaksana) && d.pelaksana.some((p: any) => (p.nip || "").replace(/\D/g, "") === userNip);
-      const hasApproved = user?.nip && getPegawaiApprovals(d.noSppd).includes(user.nip);
+      const hasApproved = user?.nip && (pegawaiApprovalsMap[d.noSppd] || []).includes(user.nip);
       return isPelaksana && !hasApproved;
     }).length,
     menunggu_pembayaran: allData.filter((d) => d.status === "menunggu_pembayaran").length,
@@ -401,7 +396,7 @@ export default function PersetujuanSPJPegawai() {
           </span>
         );
       case "menunggu_verifikasi_pegawai": {
-        const approvals = getPegawaiApprovals(item.noSppd);
+        const approvals = (pegawaiApprovalsMap[item.noSppd] || []);
         const hasApproved = user?.nip && approvals.includes(user.nip);
         return (
           <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200">
@@ -1017,7 +1012,7 @@ export default function PersetujuanSPJPegawai() {
 
             {selectedLaporanToReview.status === "menunggu_verifikasi_pegawai" ? (
               <div className="p-6 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
-                {!(user?.nip && getPegawaiApprovals(selectedLaporanToReview.noSppd).includes(user.nip)) ? (
+                {!(user?.nip && (pegawaiApprovalsMap[selectedLaporanToReview.noSppd] || []).includes(user.nip)) ? (
                   <>
                     <button
                       onClick={() => setIsRevisiNoteOpen(true)}
@@ -1041,9 +1036,13 @@ export default function PersetujuanSPJPegawai() {
                     
                     // Add this user's approval
                     if (user?.nip) {
-                      addPegawaiApproval(selectedLaporanToReview.noSppd, user.nip);
+                      await addPegawaiApproval(selectedLaporanToReview.noSppd, user.nip);
+                      setPegawaiApprovalsMap(prev => ({
+                        ...prev,
+                        [selectedLaporanToReview.noSppd]: [...(prev[selectedLaporanToReview.noSppd] || []), user.nip]
+                      }));
                     }
-                    const approvals = getPegawaiApprovals(selectedLaporanToReview.noSppd);
+                    const approvals = await getPegawaiApprovals(selectedLaporanToReview.noSppd);
                     const pelaksanaCount = selectedLaporanToReview.pelaksana.length;
 
                     if (approvals.length >= pelaksanaCount) {

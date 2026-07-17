@@ -32,13 +32,10 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
 
   useEffect(() => {
     if (data?.noSppd) {
-      getBuktiPembayaran(data.noSppd).then(stored => {
-        if (stored) {
-          setBuktiPembayaran(stored);
-        }
-      });
-      
       const checkFiles = async () => {
+        const bp = await getBuktiPembayaran(data.noSppd);
+        if (bp) setBuktiPembayaran(bp);
+
         const keysToCheck = [
           { id: 'kwitansi', key: `sppd_kwitansi_${data.noSppd}` },
           { id: 'rincian', key: `sppd_rincian_${data.noSppd}` },
@@ -47,7 +44,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
           { id: 'dokumentasi', key: `sppd_dokumentasi_${data.noSppd}` },
           { id: 'bukti_pembayaran', key: `sppd_bukti_pembayaran_${data.noSppd}` }
         ];
-        
+
         const newUploadedFiles: Record<string, string> = {};
         for (const item of keysToCheck) {
           try {
@@ -57,12 +54,12 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
             }
             if (file) {
               newUploadedFiles[item.id] = file instanceof File ? file.name : 'Terunggah';
-            } else if (item.id === 'bukti_pembayaran' && stored) {
-              newUploadedFiles[item.id] = stored;
+            } else if (item.id === 'bukti_pembayaran' && bp) {
+              newUploadedFiles[item.id] = bp;
             }
           } catch (e) {
-            if (item.id === 'bukti_pembayaran' && stored) {
-              newUploadedFiles[item.id] = stored;
+            if (item.id === 'bukti_pembayaran' && bp) {
+              newUploadedFiles[item.id] = bp;
             }
           }
         }

@@ -15,7 +15,8 @@ import {
   syncSubKegiatanData
 } from '../utils/anggaranStore';
 import { apiRequest } from '../utils/supabaseClient';
-import { getStatusPengajuan } from '../utils/statusStore';
+import { getStatusPengajuan, batchGetStatusPengajuan } from '../utils/statusStore';
+import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from '../utils/supabaseDataStore';
 import { Toaster, toast } from 'sonner';
 
 const AVAILABLE_PPTK = [
@@ -60,16 +61,23 @@ export default function DashboardBendahara() {
         subKegiatanRealisasi[sk.nama] = { dalam: 0, luar: 0 };
       });
 
+      const sppdList = pengajuanData.map((row: any) => row.noSppd || row.no_sppd || '').filter(Boolean);
+      const [statusMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap] = await Promise.all([
+        batchGetStatusPengajuan(sppdList),
+        batchGetLaporanStatus(sppdList),
+        getHiddenSppdIds(),
+        batchGetPelaksanaData(sppdList),
+        batchGetProgramData(sppdList),
+      ]);
+
       pengajuanData.forEach(row => {
         const sppd = row.noSppd || row.no_sppd || '';
-        const status = getStatusPengajuan(sppd);
-        const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || row.status || "belum_spj";
+        const status = statusMap[sppd] || 'Menunggu Persetujuan';
+        const spjStatus = laporanStatusMap[sppd] || row.status || "belum_spj";
 
-        const sppdDataStr = localStorage.getItem(`sppd_data_${sppd}`);
-        const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+        const parsedProgram = programDataMap[sppd] || {};
         const subKegiatanName = parsedProgram.subKegiatan || row.subKegiatan;
 
-        const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
         const isHiddenOrInvalid = hiddenIds.includes(sppd) || !sppd.includes('SPPD') || (row.isDuplicated && status !== 'Disetujui');
 
         if (isHiddenOrInvalid) return;
@@ -77,9 +85,9 @@ export default function DashboardBendahara() {
         if (spjStatus === 'selesai') {
           let actualTotalAnggaran = row.totalAnggaran || 0;
           try {
-            const storedPelaksana = localStorage.getItem(`pelaksana_${sppd}`);
-            if (storedPelaksana) {
-              const hydratedPelaksana = JSON.parse(storedPelaksana);
+            const storedPelaksana = pelaksanaMap[sppd];
+            if (storedPelaksana && storedPelaksana.length > 0) {
+              const hydratedPelaksana = storedPelaksana;
               actualTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
             }
           } catch(e) {}

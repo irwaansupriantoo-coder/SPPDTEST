@@ -5,7 +5,8 @@ import { SPJDialog } from "../components/SPJDialog";
 import { LuarDaerahDialog } from "../components/LuarDaerahDialog";
 import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
 import { apiRequest } from "../utils/supabaseClient";
-import { getStatusPengajuan } from "../utils/statusStore";
+import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
+import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -88,34 +89,39 @@ export default function ArsipSPJPengelola() {
 
       const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
       const user = userJson ? JSON.parse(userJson) : null;
-      const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+      const allSppdIds = [...combinedDalam, ...combinedLuar].map(d => d.noSppd).filter(Boolean);
+      const [statusMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap] = await Promise.all([
+        batchGetStatusPengajuan(allSppdIds),
+        batchGetLaporanStatus(allSppdIds),
+        getHiddenSppdIds(),
+        batchGetPelaksanaData(allSppdIds),
+        batchGetProgramData(allSppdIds),
+      ]);
 
       const isApproved = (item: LaporanData) => {
         if (hiddenIds.includes(item.noSppd)) return false;
         if (!item.noSppd?.includes('SPPD-V2')) return false;
 
-        const status = getStatusPengajuan(item.noSppd);
+        const status = statusMap[item.noSppd] || "belum_spj";
         return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id));
       };
 
       const hydrateData = (d: any) => {
-        const storedStatus = localStorage.getItem(`status_laporan_${d.noSppd}`);
-        const status = storedStatus || d.status || "belum_spj";
+        const status = laporanStatusMap[d.noSppd] || d.status || "belum_spj";
         
         let hydratedPelaksana = d.pelaksana;
         let hydratedTotalAnggaran = d.totalAnggaran;
 
         try {
-          const storedPelaksana = localStorage.getItem(`pelaksana_${d.noSppd}`);
-          if (storedPelaksana) {
-            hydratedPelaksana = JSON.parse(storedPelaksana);
+          const storedPelaksana = pelaksanaMap[d.noSppd];
+          if (storedPelaksana && storedPelaksana.length > 0) {
+            hydratedPelaksana = storedPelaksana;
             hydratedTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
           }
         } catch(e) {}
 
         try {
-          const sppdDataStr = localStorage.getItem(`sppd_data_${d.noSppd}`);
-          const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+          const parsedProgram = programDataMap[d.noSppd] || {};
           return { ...d, status, pelaksana: hydratedPelaksana, totalAnggaran: hydratedTotalAnggaran, ...parsedProgram };
         } catch (e) {
           return { ...d, status, pelaksana: hydratedPelaksana, totalAnggaran: hydratedTotalAnggaran };

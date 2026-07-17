@@ -48,9 +48,10 @@ interface LaporanData {
   version?: string;
 }
 
+import { useAuth } from "../context/AuthContext";
+
 export default function DaftarPengajuan() {
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<"Semua" | "Dalam Daerah" | "Luar Daerah">("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,10 +93,7 @@ export default function DaftarPengajuan() {
           };
         });
       
-      const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const user = userJson ? JSON.parse(userJson) : null;
-
-      // Additional local filtering if needed
+        // Additional local filtering if needed
       const validData = dataWithStatus.filter((d: any) => {
         if (user?.role === 'pengelola') {
           const nip = typeof d.pembuat === 'string' ? null : d.pembuat?.nip;
@@ -134,10 +132,9 @@ export default function DaftarPengajuan() {
     }
   };
 
-  const handleDeleteItem = (noSppd: string) => {
+  const handleDeleteItem = async (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
-      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
+      await addHiddenSppdIds(noSppd);
       setAllPengajuan(prev => prev.filter(item => item.noSppd !== noSppd));
       toast.success('Data berhasil dihapus permanen.');
     }

@@ -2,11 +2,11 @@ import { Building2, LayoutDashboard, FileText, ClipboardCheck, LogOut, Archive }
 import { Link, useLocation } from 'react-router';
 import { getSupabaseClient } from '../utils/supabaseClient';
 
+import { useAuth } from '../context/AuthContext';
+
 export function Sidebar() {
   const location = useLocation();
-  
-  const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   
   let menuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' }
@@ -96,8 +96,6 @@ export function Sidebar() {
           onClick={() => {
             if (window.confirm('Apakah Anda yakin ingin keluar?')) {
               getSupabaseClient().auth.signOut().catch(console.error);
-              localStorage.removeItem('user');
-              localStorage.removeItem('offline_mode');
               window.location.href = '/login';
             }
           }}

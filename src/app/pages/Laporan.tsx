@@ -5,9 +5,10 @@ import { SPJDialog } from "../components/SPJDialog";
 import { LuarDaerahDialog } from "../components/LuarDaerahDialog";
 import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
 import { apiRequest } from "../utils/supabaseClient";
-import { getStatusPengajuan } from "../utils/statusStore";
+import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
+import { getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -59,13 +60,10 @@ interface LaporanData {
   subKegiatan?: string;
 }
 
-const MOCK_DATA_DALAM_DAERAH: LaporanData[] = [];
-
-const MOCK_DATA_LUAR_DAERAH: LaporanData[] = [];
+import { useAuth } from '../context/AuthContext';
 
 export default function Laporan() {
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<
     "Semua" | "Dalam Daerah" | "Luar Daerah"
   >("Semua");
@@ -98,37 +96,33 @@ export default function Laporan() {
       const serverDalam = data.filter((d) => d.tipePerjalanan === 'Dalam Daerah');
       const serverLuar = data.filter((d) => d.tipePerjalanan === 'Luar Daerah');
 
-      // Combine server data with mock data (server data first for recency)
-      const combinedDalam = [...serverDalam, ...MOCK_DATA_DALAM_DAERAH];
-      const combinedLuar = [...serverLuar, ...MOCK_DATA_LUAR_DAERAH];
-
-      const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
+      const hiddenIds = await getHiddenSppdIds();
 
       // Filter to only show approved (Disetujui) ones.
       // Also filter by SPPD-V2 to hide old legacy data
       // Filter by pengelola NIP if role is pengelola
-      const localUserJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      const localUser = localUserJson ? JSON.parse(localUserJson) : null;
+
+      const allSppdIds = [...serverDalam, ...serverLuar].map(d => d.noSppd).filter(Boolean);
+      const statusMap = await batchGetStatusPengajuan(allSppdIds);
 
       const isApproved = (item: LaporanData) => {
         if (hiddenIds.includes(item.noSppd)) return false;
         if (!item.noSppd?.includes('SPPD-V2') && !item.noSppd?.includes('DKPP')) return false;
-        if (localUser?.role === 'pengelola' && item.pembuat?.nip !== localUser?.nip) return false;
+        if (user?.role === 'pengelola' && item.pembuat?.nip !== user?.nip) return false;
 
-        const status = getStatusPengajuan(item.noSppd);
-        return status === "Disetujui" || (status === "Menunggu Persetujuan" && !((item as any).id)); // let mock data show
+        const status = statusMap[item.noSppd] || "belum_spj";
+        return status === "Disetujui";
       };
 
-      const hydratedDalam = await Promise.all(combinedDalam.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedDalam = await Promise.all(serverDalam.filter(isApproved).map(hydrateLaporanDataAsync));
       setDalamDaerahData(hydratedDalam.filter(d => d.status !== 'selesai'));
       
-      const hydratedLuar = await Promise.all(combinedLuar.filter(isApproved).map(hydrateLaporanDataAsync));
+      const hydratedLuar = await Promise.all(serverLuar.filter(isApproved).map(hydrateLaporanDataAsync));
       setLuarDaerahData(hydratedLuar.filter(d => d.status !== 'selesai'));
     } catch (err) {
       console.log('Error loading laporan data:', err);
-      // Fallback to mock data
-      setDalamDaerahData(MOCK_DATA_DALAM_DAERAH);
-      setLuarDaerahData(MOCK_DATA_LUAR_DAERAH);
+      setDalamDaerahData([]);
+      setLuarDaerahData([]);
     } finally {
       setIsLoadingData(false);
     }
@@ -265,8 +259,8 @@ export default function Laporan() {
     const currentStatus = selectedLaporan.status;
     const newStatus = (targetStatus || "draft_laporan") as any;
     try {
-      localStorage.setItem(`status_laporan_${selectedLaporan.noSppd}`, newStatus);
-      localStorage.setItem(`pelaksana_${selectedLaporan.noSppd}`, JSON.stringify(updatedPelaksana));
+      setLaporanStatus(selectedLaporan.noSppd, newStatus);
+      setPelaksanaData(selectedLaporan.noSppd, updatedPelaksana);
     } catch(e) {}
 
     const updateLocal = (prevData: LaporanData[]) =>
@@ -307,8 +301,7 @@ export default function Laporan() {
 
   const handleDeleteItem = (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
-      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
+      addHiddenSppdId(noSppd);
       setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
       setLuarDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
       toast.success('Data berhasil dihapus permanen.');
@@ -393,9 +386,8 @@ export default function Laporan() {
                 <button
                   onClick={() => {
                     if(window.confirm('Yakin ingin menghapus semua laporan SPJ secara permanen?')) {
-                      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
                       const newHidden = allData.map(p => p.noSppd);
-                      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, ...newHidden]));
+                      addHiddenSppdIds(newHidden);
                       setDalamDaerahData([]);
                       setLuarDaerahData([]);
                       toast.success('Semua laporan SPJ berhasil dihapus permanen.');

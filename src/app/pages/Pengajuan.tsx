@@ -29,6 +29,7 @@ import { processFileForOCR, SptData } from "../utils/sptParser";
 import { saveFileToDB } from "../utils/db";
 import { getSubKegiatanByPengelola, buildProgramData } from "../utils/anggaranStore";
 import { logActivity } from "../utils/activityStore";
+import { setProgramData } from "../utils/supabaseDataStore";
 
 const PROGRAM_DATA: Record<string, Record<string, string[]>> = {
   "Program Pemberdayaan Usaha Menengah, Usaha Kecil, dan Usaha Mikro (UMKM)": {
@@ -62,6 +63,7 @@ interface PelaksanaData {
 }
 
 import { AVAILABLE_PEGAWAI } from "../utils/pegawai";
+import { useAuth } from "../context/AuthContext";
 
 const BERAU_DISTRICTS = [
   "tanjung redeb",
@@ -80,6 +82,7 @@ const BERAU_DISTRICTS = [
 ];
 
 export default function Pengajuan() {
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] =
     useState("Luar Daerah");
   const [alatAngkut, setAlatAngkut] = useState(
@@ -133,8 +136,6 @@ export default function Pengajuan() {
   const [programData, setProgramData] = useState<Record<string, Record<string, string[]>>>({});
 
   useEffect(() => {
-    const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-    const user = userJson ? JSON.parse(userJson) : null;
     const pengelolaNip = user?.nip || "19970610 202521 1 001";
 
     const assigned = getSubKegiatanByPengelola(pengelolaNip);
@@ -440,23 +441,23 @@ export default function Pengajuan() {
         await saveFileToDB(`dasar_${noSppd}`, dasarSuratFileUrl);
       }
       
-      // Simpan tanggal agar tidak hilang di halaman Laporan jika backend tidak menyimpannya
-      localStorage.setItem(`dates_${noSppd}`, JSON.stringify({
-        tanggalPergi: formData.tanggalPergi,
-        tanggalKembali: formData.tanggalKembali
-      }));
-
-      // Simpan program, kegiatan, subKegiatan ke localStorage
-      localStorage.setItem(`program_${noSppd}`, JSON.stringify({
-        program: formData.program,
-        kegiatan: formData.kegiatan,
-        subKegiatan: formData.subKegiatan,
-        keperluan: formData.keperluan
-      }));
+      // Simpan tanggal dan program data ke Supabase
+      setProgramData(
+        noSppd,
+        {
+          program: formData.program,
+          kegiatan: formData.kegiatan,
+          subKegiatan: formData.subKegiatan,
+          keperluan: formData.keperluan
+        },
+        {
+          tanggalPergi: formData.tanggalPergi,
+          tanggalKembali: formData.tanggalKembali
+        }
+      );
 
       setIsReviewModalOpen(false);
       
-      // Catat log aktivitas
       logActivity(
         'pengajuan_sppd',
         `Pengajuan ${noSppd} Baru`,

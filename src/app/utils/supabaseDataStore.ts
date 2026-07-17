@@ -93,6 +93,28 @@ export async function getTanggalPersetujuan(noSppd: string): Promise<string> {
 // PEGAWAI APPROVALS
 // ═══════════════════════════════════════════════════════════════════════════
 
+export async function batchGetPegawaiApprovals(noSppdList: string[]): Promise<Record<string, string[]>> {
+  if (!noSppdList || noSppdList.length === 0) return {};
+  try {
+    const { data } = await getSupabaseClient()
+      .from('sppd_pegawai_approvals')
+      .select('no_sppd, nip')
+      .in('no_sppd', noSppdList);
+    
+    const result: Record<string, string[]> = {};
+    noSppdList.forEach(id => { result[id] = []; });
+    (data || []).forEach((d: any) => {
+      if (result[d.no_sppd]) {
+        result[d.no_sppd].push(d.nip);
+      }
+    });
+    return result;
+  } catch (e) {
+    console.error('batchGetPegawaiApprovals error:', e);
+    return {};
+  }
+}
+
 export async function getPegawaiApprovals(noSppd: string): Promise<string[]> {
   try {
     const { data } = await sb()
@@ -856,6 +878,57 @@ export async function batchGetTanggalPersetujuan(noSppdList: string[]): Promise<
     return result;
   } catch (e) {
     console.error('batchGetTanggalPersetujuan error:', e);
+    return {};
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BATCH LOAD for pelaksana data (used in dashboard views)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export async function batchGetPelaksanaData(noSppdList: string[]): Promise<Record<string, any[]>> {
+  if (noSppdList.length === 0) return {};
+
+  try {
+    const { data } = await sb()
+      .from('sppd_pelaksana_data')
+      .select('no_sppd, pelaksana')
+      .in('no_sppd', noSppdList);
+
+    const result: Record<string, any[]> = {};
+    (data || []).forEach((d: any) => {
+      result[d.no_sppd] = d.pelaksana || [];
+    });
+    return result;
+  } catch (e) {
+    console.error('batchGetPelaksanaData error:', e);
+    return {};
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BATCH LOAD for program data (replaces sppd_data_* localStorage)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export async function batchGetProgramData(noSppdList: string[]): Promise<Record<string, any>> {
+  if (noSppdList.length === 0) return {};
+
+  try {
+    const { data } = await sb()
+      .from('sppd_program_data')
+      .select('no_sppd, program_data, dates_data')
+      .in('no_sppd', noSppdList);
+
+    const result: Record<string, any> = {};
+    (data || []).forEach((d: any) => {
+      result[d.no_sppd] = {
+        ...(d.program_data || {}),
+        dates: d.dates_data || {},
+      };
+    });
+    return result;
+  } catch (e) {
+    console.error('batchGetProgramData error:', e);
     return {};
   }
 }

@@ -9,4 +9,5 @@ export {
   addPegawaiApproval,
   batchGetStatusPengajuan,
   batchGetTanggalPersetujuan,
+  batchGetPegawaiApprovals,
 } from './supabaseDataStore';

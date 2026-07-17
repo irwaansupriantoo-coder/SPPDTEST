@@ -5,8 +5,11 @@ import { User, Lock, Bell, Database, CheckCircle } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { apiRequest } from '../utils/supabaseClient';
 
+import { useAuth } from '../context/AuthContext';
+import { getSupabaseClient } from '../utils/supabaseClient';
+
 export default function Pengaturan() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const { user } = useAuth();
   const [dbStatus, setDbStatus] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
 
@@ -25,10 +28,9 @@ export default function Pengaturan() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm('Yakin ingin keluar?')) {
-      localStorage.removeItem('user');
-      localStorage.removeItem('offline_mode');
+      await getSupabaseClient().auth.signOut();
       window.location.href = '/login';
     }
   };
@@ -49,7 +51,7 @@ export default function Pengaturan() {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
             <h3 className="font-bold text-[#00475e] flex items-center gap-2"><User className="w-4 h-4" /> Profil Akun</h3>
             <div className="grid grid-cols-2 gap-4">
-              {[['Nama', user.nama ?? '-'], ['NIP', user.nip ?? '-'], ['Role', user.role ?? 'pegawai'], ['Mode', localStorage.getItem('offline_mode') ? 'Offline' : 'Online']].map(([k, v]) => (
+              {[['Nama', user?.nama ?? '-'], ['NIP', user?.nip ?? '-'], ['Role', user?.role ?? 'pegawai'], ['Mode', 'Online']].map(([k, v]) => (
                 <div key={k} className="bg-slate-50 rounded-xl p-3">
                   <p className="text-xs text-slate-500 uppercase tracking-wider">{k}</p>
                   <p className="font-bold text-[#191c1e] mt-0.5">{v}</p>

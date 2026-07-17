@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { RouterProvider } from 'react-router';
 import { router } from './routes';
+import { AuthProvider } from './context/AuthContext';
 
 export default function App() {
   useEffect(() => {
@@ -33,5 +34,9 @@ export default function App() {
     })(window, document, 'https://snippet.maze.co/maze-universal-loader.js', '11c1c4c2-761e-4b94-8acf-d0a6f3085321');
   }, []);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }

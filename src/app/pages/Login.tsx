@@ -103,7 +103,8 @@ export default function Login() {
       });
 
       const serverUser = { ...result.user, ...sessionUser, nama: sessionUser.nama || result.user.nama };
-      localStorage.setItem('user', JSON.stringify(serverUser));
+      await getSupabaseClient().auth.updateUser({ data: serverUser }); // Push metadata to Supabase
+      
       logLogin(serverUser);
       toast.success(`Selamat datang, ${serverUser.nama}!`);
       setTimeout(() => navigate('/dashboard'), 800);
@@ -118,7 +119,8 @@ export default function Login() {
       try {
         const { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password });
         if (!error && data.session) {
-          localStorage.setItem('user', JSON.stringify(sessionUser));
+          await getSupabaseClient().auth.updateUser({ data: sessionUser });
+          
           logLogin(sessionUser);
           toast.success(`Selamat datang, ${sessionUser.nama}!`);
           setTimeout(() => navigate('/dashboard'), 800);
@@ -129,12 +131,8 @@ export default function Login() {
       }
     }
 
-    // ── Layer 3: offline mode (Edge Function not deployed yet) ──
-    localStorage.setItem('user', JSON.stringify(sessionUser));
-    localStorage.setItem('offline_mode', 'true');
-    logLogin(sessionUser);
-    toast.success(`Selamat datang, ${sessionUser.nama}!`);
-    setTimeout(() => navigate('/dashboard'), 800);
+    setIsLoading(false);
+    toast.error('Gagal masuk ke sistem. Pastikan koneksi internet stabil.');
   };
 
 

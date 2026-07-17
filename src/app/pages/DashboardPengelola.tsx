@@ -10,8 +10,11 @@ import { BudgetDialog, BudgetData } from '../components/BudgetDialog';
 import { Eye, CheckCircle, XCircle, Timer, Database, X, MapPin, FileText, Clock, Search, Filter, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
-import { getStatusPengajuan, getTanggalPersetujuan } from '../utils/statusStore';
+import { batchGetStatusPengajuan, batchGetTanggalPersetujuan } from '../utils/statusStore';
 import { SubKegiatan, getSubKegiatanByPengelola } from '../utils/anggaranStore';
+import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData } from '../utils/supabaseDataStore';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router';
 import { SppdPreviewModal } from '../components/SppdPreviewModal';
 
 interface StatsData {
@@ -45,6 +48,8 @@ interface LaporanData {
 }
 
 export default function DashboardPengelola() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'edit' | 'add'>('add');
   const [selectedBudgetType, setSelectedBudgetType] = useState<'Dalam Daerah' | 'Luar Daerah'>('Dalam Daerah');
@@ -74,6 +79,8 @@ export default function DashboardPengelola() {
   
   const [isSppdModalOpen, setIsSppdModalOpen] = useState(false);
   const [selectedSppd, setSelectedSppd] = useState<any>(null);
+  const [statusMapState, setStatusMapState] = useState<Record<string, string>>({});
+  const [tanggalMapState, setTanggalMapState] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,8 +104,17 @@ export default function DashboardPengelola() {
         let total = 0, disetujui = 0, ditolak = 0, menunggu = 0;
         let usedDalam = 0, usedLuar = 0;
 
-        const userJson = localStorage.getItem('user');
-        const user = userJson ? JSON.parse(userJson) : null;
+        // Pre-fetch all Supabase data in batch
+        const allSppdIds = pengajuanData.map((d: any) => d.noSppd || d.no_sppd || '').filter(Boolean);
+        const [sMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap] = await Promise.all([
+          batchGetStatusPengajuan(allSppdIds),
+          batchGetLaporanStatus(allSppdIds),
+          getHiddenSppdIds(),
+          batchGetPelaksanaData(allSppdIds),
+          batchGetProgramData(allSppdIds),
+        ]);
+        setStatusMapState(sMap);
+
         let msk: SubKegiatan[] = [];
 
         if (user?.role === 'pengelola') {
@@ -108,8 +124,7 @@ export default function DashboardPengelola() {
         const validData = pengajuanData.filter((d: any) => {
           if (user?.role === 'pengelola') {
             const sppd = d.noSppd || d.no_sppd || '';
-            const sppdDataStr = localStorage.getItem(`sppd_data_${sppd}`);
-            const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+            const parsedProgram = programDataMap[sppd] || {};
             const dSub = parsedProgram.subKegiatan || d.subKegiatan;
             
             const isManaged = msk.some(sk => sk.nama === dSub);
@@ -130,15 +145,13 @@ export default function DashboardPengelola() {
 
         validData.forEach(row => {
            const sppd = row.noSppd || row.no_sppd || '';
-           const status = getStatusPengajuan(sppd);
-           const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || row.status || "belum_spj";
+           const status = sMap[sppd] || "belum_spj";
+           const spjStatus = laporanStatusMap[sppd] || row.status || "belum_spj";
 
-           const sppdDataStr = localStorage.getItem(`sppd_data_${sppd}`);
-           const parsedProgram = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+           const parsedProgram = programDataMap[sppd] || {};
            const subKegiatanName = parsedProgram.subKegiatan || row.subKegiatan;
 
            // Skip hidden or invalid SPPDs immediately for ALL calculations (KPIs & Realization)
-           const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
            const isHiddenOrInvalid = hiddenIds.includes(sppd) || !sppd.includes('SPPD') || (row.isDuplicated && status !== 'Disetujui');
 
            if (isHiddenOrInvalid) {
@@ -158,9 +171,9 @@ export default function DashboardPengelola() {
            if (spjStatus === 'selesai') {
              let actualTotalAnggaran = row.totalAnggaran || 0;
              try {
-               const storedPelaksana = localStorage.getItem(`pelaksana_${sppd}`);
-               if (storedPelaksana) {
-                 const hydratedPelaksana = JSON.parse(storedPelaksana);
+               const storedPelaksana = pelaksanaMap[sppd];
+                if (storedPelaksana && storedPelaksana.length > 0) {
+                  const hydratedPelaksana = storedPelaksana;
                  actualTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
                }
              } catch(e) {}
@@ -205,14 +218,13 @@ export default function DashboardPengelola() {
 
         const filteredPengajuan = validData.filter(d => {
            const sppd = d.noSppd || d.no_sppd || '';
-           const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
            if (hiddenIds.includes(sppd)) return false;
            if (!sppd.includes('SPPD')) return false;
 
-           const status = getStatusPengajuan(sppd);
+           const status = sMap[sppd] || "belum_spj";
            if (d.isDuplicated && status !== 'Disetujui') return false;
 
-           const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+           const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
            if (spjStatus === 'selesai') return false;
 
            return true;
@@ -223,10 +235,9 @@ export default function DashboardPengelola() {
 
         const laporanList = validData.filter(d => {
            const sppd = d.noSppd || d.no_sppd || '';
-           const status = getStatusPengajuan(sppd);
-           const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+           const status = sMap[sppd] || "belum_spj";
+           const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
 
-           const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
            if (hiddenIds.includes(sppd)) return false;
            if (!sppd.includes('SPPD')) return false;
            
@@ -241,9 +252,9 @@ export default function DashboardPengelola() {
         const hydrateTotalAnggaran = (d: any) => {
           let hydratedTotalAnggaran = d.totalAnggaran;
           try {
-            const storedPelaksana = localStorage.getItem(`pelaksana_${d.noSppd || d.no_sppd}`);
-            if (storedPelaksana) {
-              const hydratedPelaksana = JSON.parse(storedPelaksana);
+            const storedPelaksana = pelaksanaMap[d.noSppd || d.no_sppd];
+            if (storedPelaksana && storedPelaksana.length > 0) {
+              const hydratedPelaksana = storedPelaksana;
               hydratedTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
             }
           } catch(e) {}
@@ -252,10 +263,9 @@ export default function DashboardPengelola() {
 
         const arsipList = validData.filter(d => {
            const sppd = d.noSppd || d.no_sppd || '';
-           const status = getStatusPengajuan(sppd);
-           const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || d.status || "belum_spj";
+           const status = sMap[sppd] || "belum_spj";
+           const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
 
-           const hiddenIds = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
            if (hiddenIds.includes(sppd)) return false;
            if (!sppd.includes('SPPD')) return false;
            
@@ -614,7 +624,7 @@ export default function DashboardPengelola() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedPengajuan.length > 0 ? paginatedPengajuan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const statusPeng = getStatusPengajuan(sppd);
+                      const statusPeng = statusMapState[sppd] || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
@@ -638,20 +648,19 @@ export default function DashboardPengelola() {
                           </td>
                           <td className="px-4 py-4 text-center">
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 const sppdStr = item.noSppd || item.no_sppd || '';
-                                const sppdDataStr = localStorage.getItem(`sppd_data_${sppdStr}`);
-                                const parsedData = sppdDataStr ? JSON.parse(sppdDataStr) : {};
+                                const programData = await getProgramData(sppdStr);
                                 
-                                const storedPelaksana = localStorage.getItem(`pelaksana_${sppdStr}`);
-                                const pelaksanaList = storedPelaksana ? JSON.parse(storedPelaksana) : item.pelaksana || [item.pembuat];
+                                const pelaksanaList = await getPelaksanaData(sppdStr) || item.pelaksana || [item.pembuat];
 
                                 setSelectedSppd({
                                   ...item,
-                                  ...parsedData,
+                                  ...programData.program,
+                                  ...programData.dates,
                                   pelaksana: pelaksanaList,
                                   statusPengajuan: statusPeng,
-                                  tanggalPersetujuan: getTanggalPersetujuan(sppdStr)
+                                  tanggalPersetujuan: tanggalMapState[sppdStr] || ""
                                 });
                                 setIsSppdModalOpen(true);
                               }}
@@ -759,7 +768,7 @@ export default function DashboardPengelola() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedLaporan.length > 0 ? paginatedLaporan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
@@ -781,8 +790,7 @@ export default function DashboardPengelola() {
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => {
-                                localStorage.setItem('redirect_spj_sppd', sppd);
-                                window.location.href = '/laporan';
+                                navigate('/laporan', { state: { redirectSppd: sppd } });
                               }}
                               className="text-xs bg-slate-100 text-[#00475e] px-3 py-1.5 rounded font-medium hover:bg-slate-200 inline-flex items-center gap-1"
                             >
@@ -888,7 +896,7 @@ export default function DashboardPengelola() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedArsip.length > 0 ? paginatedArsip.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = localStorage.getItem(`status_laporan_${sppd}`) || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
@@ -910,8 +918,7 @@ export default function DashboardPengelola() {
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => {
-                                localStorage.setItem('redirect_arsip_dokumen', sppd);
-                                window.location.href = '/arsip-spj-pengelola';
+                                navigate('/arsip-spj-pengelola', { state: { redirectSppd: sppd } });
                               }}
                               className="text-xs bg-slate-100 text-[#00475e] px-3 py-1.5 rounded font-medium hover:bg-slate-200 inline-flex items-center gap-1"
                             >

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router';
 import { useState, useRef, useEffect } from 'react';
 import { logActivity } from '../utils/activityStore';
 import { getSupabaseClient } from '../utils/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 export function Header() {
   const location = useLocation();
@@ -10,9 +11,7 @@ export function Header() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Get user data from localStorage
-  const userJson = localStorage.getItem('user');
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -33,8 +32,6 @@ export function Header() {
       }
       // Sign out from Supabase and clear local session
       await getSupabaseClient().auth.signOut().catch(console.error);
-      // Clear user data from localStorage
-      localStorage.removeItem('user');
       // Redirect to login
       navigate('/login');
     }
