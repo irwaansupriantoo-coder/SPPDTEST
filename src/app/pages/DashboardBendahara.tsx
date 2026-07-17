@@ -8,8 +8,7 @@ import { ActivityFeed } from '../components/ActivityFeed';
 import { 
   getSubKegiatanData, 
   SubKegiatan, 
-  updatePagu, 
-  assignPPTK, 
+  updateSubKegiatan,
   addSubKegiatan, 
   deleteSubKegiatan,
   syncSubKegiatanData
@@ -19,15 +18,11 @@ import { getStatusPengajuan, batchGetStatusPengajuan } from '../utils/statusStor
 import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from '../utils/supabaseDataStore';
 import { Toaster, toast } from 'sonner';
 
-const AVAILABLE_PPTK = [
-  { nip: "199511302022032030", nama: "Rahmawati" },
-  { nip: "199509012022031013", nama: "Irwan Suprianto" }
-];
-
 export default function DashboardBendahara() {
   const [data, setData] = useState<SubKegiatan[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<SubKegiatan>>({});
+  const [availablePPTK, setAvailablePPTK] = useState<{ nip: string, nama: string }[]>([]);
 
   const [isAdding, setIsAdding] = useState(false);
   const [addForm, setAddForm] = useState<Partial<SubKegiatan> & { kodeRekening?: string; namaSubKegiatanRaw?: string }>({
@@ -47,7 +42,25 @@ export default function DashboardBendahara() {
 
   useEffect(() => {
     loadData();
+    fetchPPTK();
   }, []);
+
+  const fetchPPTK = async () => {
+    try {
+      const res = await apiRequest<{ data: any[] }>('/users'); // Asumsikan /users mengembalikan daftar user. 
+      // Atau fetch langsung dari supabase:
+      const { data: userData } = await getSupabaseClient()
+        .from('user_profiles')
+        .select('nip, nama, role')
+        .eq('role', 'pptk');
+      
+      if (userData) {
+        setAvailablePPTK(userData.map(u => ({ nip: u.nip, nama: u.nama })));
+      }
+    } catch (e) {
+      console.error("Failed to fetch PPTK", e);
+    }
+  };
 
   const loadData = async () => {
     await syncSubKegiatanData();
@@ -160,12 +173,13 @@ export default function DashboardBendahara() {
 
   const handleSaveEdit = () => {
     if (isEditing) {
-      if (editForm.paguDalamDaerah !== undefined || editForm.paguLuarDaerah !== undefined) {
-        updatePagu(isEditing, editForm.paguDalamDaerah, editForm.paguLuarDaerah);
-      }
-      if (editForm.pptkNip !== undefined) {
-        assignPPTK(isEditing, editForm.pptkNip);
-      }
+      const updates: Partial<SubKegiatan> = {};
+      if (editForm.paguDalamDaerah !== undefined) updates.paguDalamDaerah = editForm.paguDalamDaerah;
+      if (editForm.paguLuarDaerah !== undefined) updates.paguLuarDaerah = editForm.paguLuarDaerah;
+      if (editForm.pptkNip !== undefined) updates.pptkNip = editForm.pptkNip;
+      
+      updateSubKegiatan(isEditing, updates);
+      
       toast.success("Perubahan anggaran berhasil disimpan");
       setIsEditing(null);
       loadData();
@@ -355,7 +369,7 @@ export default function DashboardBendahara() {
                         onChange={(e) => setAddForm({...addForm, pptkNip: e.target.value})}
                       >
                         <option value="">-- Pilih PPTK --</option>
-                        {AVAILABLE_PPTK.map(p => (
+                        {availablePPTK.map(p => (
                           <option key={p.nip} value={p.nip}>{p.nama}</option>
                         ))}
                       </select>
@@ -450,12 +464,12 @@ export default function DashboardBendahara() {
                           onChange={(e) => setEditForm({...editForm, pptkNip: e.target.value})}
                         >
                           <option value="">-- Kosong --</option>
-                          {AVAILABLE_PPTK.map(p => (
+                          {availablePPTK.map(p => (
                             <option key={p.nip} value={p.nip}>{p.nama}</option>
                           ))}
                         </select>
                       ) : (
-                        <span className="text-sm">{AVAILABLE_PPTK.find(p => p.nip === item.pptkNip)?.nama || item.pptkNip || "Belum Ditugaskan"}</span>
+                        <span className="text-sm">{availablePPTK.find(p => p.nip === item.pptkNip)?.nama || item.pptkNip || "Belum Ditugaskan"}</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-center align-top">
