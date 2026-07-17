@@ -13,7 +13,7 @@ import {
   deleteSubKegiatan,
   syncSubKegiatanData
 } from '../utils/anggaranStore';
-import { apiRequest } from '../utils/supabaseClient';
+import { apiRequest, getSupabaseClient } from '../utils/supabaseClient';
 import { getStatusPengajuan, batchGetStatusPengajuan } from '../utils/statusStore';
 import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from '../utils/supabaseDataStore';
 import { Toaster, toast } from 'sonner';
@@ -55,7 +55,7 @@ export default function DashboardBendahara() {
         .eq('role', 'pptk');
       
       if (userData) {
-        setAvailablePPTK(userData.map(u => ({ nip: u.nip, nama: u.nama })));
+        setAvailablePPTK(userData.map((u: any) => ({ nip: u.nip, nama: u.nama })));
       }
     } catch (e) {
       console.error("Failed to fetch PPTK", e);
