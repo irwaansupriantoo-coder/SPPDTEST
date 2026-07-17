@@ -98,7 +98,12 @@ export default function DaftarPengajuan() {
         if (user?.role === 'pengelola') {
           const nip = typeof d.pembuat === 'string' ? null : d.pembuat?.nip;
           const nama = typeof d.pembuat === 'string' ? d.pembuat : d.pembuat?.nama;
-          if (nip && nip !== user?.nip && nama !== user?.nama) return false;
+          const cleanNip = (nip || '').replace(/\s+/g, '');
+          const cleanUserNip = (user?.nip || '').replace(/\s+/g, '');
+          const cleanNama = (nama || '').toLowerCase().trim();
+          const cleanUserNama = (user?.nama || '').toLowerCase().trim();
+          
+          if (cleanNip && cleanNip !== cleanUserNip && cleanNama !== cleanUserNama) return false;
         }
         if (d.isDuplicated && d.statusPengajuan !== 'Disetujui') return false;
 
