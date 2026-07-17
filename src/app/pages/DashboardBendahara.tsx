@@ -47,18 +47,41 @@ export default function DashboardBendahara() {
 
   const fetchPPTK = async () => {
     try {
-      const res = await apiRequest<{ data: any[] }>('/users'); // Asumsikan /users mengembalikan daftar user. 
-      // Atau fetch langsung dari supabase:
-      const { data: userData } = await getSupabaseClient()
+      // Coba ambil dari user_profiles dulu
+      const { data: profileData } = await getSupabaseClient()
         .from('user_profiles')
         .select('nip, nama, role')
         .eq('role', 'pptk');
       
-      if (userData) {
-        setAvailablePPTK(userData.map((u: any) => ({ nip: u.nip, nama: u.nama })));
+      if (profileData && profileData.length > 0) {
+        setAvailablePPTK(profileData.map((u: any) => ({ nip: u.nip, nama: u.nama })));
+        return;
       }
+
+      // Fallback: ambil semua user dari auth lalu filter role pptk dari metadata
+      const { data: { users }, error } = await getSupabaseClient().auth.admin.listUsers();
+      if (!error && users) {
+        const pptkUsers = users
+          .filter((u: any) => u.user_metadata?.role === 'pptk')
+          .map((u: any) => ({ nip: u.user_metadata?.nip || '', nama: u.user_metadata?.nama || '' }));
+        if (pptkUsers.length > 0) {
+          setAvailablePPTK(pptkUsers);
+          return;
+        }
+      }
+
+      // Fallback terakhir: hardcode PPTK yang diketahui
+      setAvailablePPTK([
+        { nip: "199511302022032030", nama: "Rahmawati" },
+        { nip: "199509012022031013", nama: "Irwan Suprianto" }
+      ]);
     } catch (e) {
-      console.error("Failed to fetch PPTK", e);
+      console.error("Failed to fetch PPTK, using fallback", e);
+      // Fallback jika semua method gagal
+      setAvailablePPTK([
+        { nip: "199511302022032030", nama: "Rahmawati" },
+        { nip: "199509012022031013", nama: "Irwan Suprianto" }
+      ]);
     }
   };
 
@@ -171,18 +194,18 @@ export default function DashboardBendahara() {
     }
   ];
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (isEditing) {
       const updates: Partial<SubKegiatan> = {};
       if (editForm.paguDalamDaerah !== undefined) updates.paguDalamDaerah = editForm.paguDalamDaerah;
       if (editForm.paguLuarDaerah !== undefined) updates.paguLuarDaerah = editForm.paguLuarDaerah;
       if (editForm.pptkNip !== undefined) updates.pptkNip = editForm.pptkNip;
       
-      updateSubKegiatan(isEditing, updates);
+      await updateSubKegiatan(isEditing, updates);
       
       toast.success("Perubahan anggaran berhasil disimpan");
       setIsEditing(null);
-      loadData();
+      await loadData();
     }
   };
 

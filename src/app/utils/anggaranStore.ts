@@ -170,13 +170,13 @@ export function addSubKegiatan(newSk: SubKegiatan) {
   saveOneSubKegiatan(newSk).catch(e => console.error("Gagal add sub kegiatan:", e));
 }
 
-export function updateSubKegiatan(id: string, updatedData: Partial<SubKegiatan>) {
+export async function updateSubKegiatan(id: string, updatedData: Partial<SubKegiatan>): Promise<void> {
   const data = getSubKegiatanData();
   const index = data.findIndex(sk => sk.id === id);
   if (index !== -1) {
     data[index] = { ...data[index], ...updatedData };
     cachedData = data;
-    saveOneSubKegiatan(data[index]).catch(e => console.error("Gagal update sub kegiatan:", e));
+    await saveOneSubKegiatan(data[index]);
   }
 }
 
