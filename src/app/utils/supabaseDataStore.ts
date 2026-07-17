@@ -6,7 +6,7 @@
  * Mendukung realtime subscription untuk update cross-device.
  */
 
-import { getSupabaseClient } from './supabaseClient';
+import { getSupabaseClient, apiRequest } from './supabaseClient';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // ─── In-memory cache ──────────────────────────────────────────────────────
@@ -652,13 +652,9 @@ export async function setAppSetting(key: string, value: string): Promise<void> {
 
 export async function getAllPengajuan(): Promise<any[]> {
   try {
-    const { data } = await sb()
-      .from('pengajuan_sppd')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (data && data.length > 0) {
-      return data.map(normPengajuan);
+    const res = await apiRequest('/pengajuan?limit=1000');
+    if (res && res.data && res.data.length > 0) {
+      return res.data;
     }
     return [];
   } catch (e) {
