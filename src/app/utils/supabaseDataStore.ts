@@ -559,34 +559,48 @@ export async function saveSubKegiatanData(items: SubKegiatan[]): Promise<void> {
       updated_at: new Date().toISOString(),
     }));
 
-    await sb()
+    const { error } = await sb()
       .from('sub_kegiatan')
       .upsert(records, { onConflict: 'id' });
+
+    if (error) {
+      console.error('saveSubKegiatanData upsert error:', error);
+      throw error;
+    }
   } catch (e) {
     console.error('saveSubKegiatanData error:', e);
+    throw e;
   }
 }
 
 export async function saveOneSubKegiatan(sk: SubKegiatan): Promise<void> {
-  try {
-    await sb()
-      .from('sub_kegiatan')
-      .upsert({
-        id: sk.id,
-        program: sk.program,
-        kegiatan: sk.kegiatan,
-        nama: sk.nama,
-        pagu_dalam_daerah: sk.paguDalamDaerah,
-        realisasi_dalam_daerah: sk.realisasiDalamDaerah,
-        pagu_luar_daerah: sk.paguLuarDaerah,
-        realisasi_luar_daerah: sk.realisasiLuarDaerah,
-        pengelola_nips: sk.pengelolaNips,
-        pptk_nip: sk.pptkNip,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'id' });
-  } catch (e) {
-    console.error('saveOneSubKegiatan error:', e);
+  const record = {
+    id: sk.id,
+    program: sk.program,
+    kegiatan: sk.kegiatan,
+    nama: sk.nama,
+    pagu_dalam_daerah: sk.paguDalamDaerah,
+    realisasi_dalam_daerah: sk.realisasiDalamDaerah,
+    pagu_luar_daerah: sk.paguLuarDaerah,
+    realisasi_luar_daerah: sk.realisasiLuarDaerah,
+    pengelola_nips: sk.pengelolaNips,
+    pptk_nip: sk.pptkNip,
+    updated_at: new Date().toISOString(),
+  };
+
+  console.log('[saveOneSubKegiatan] Saving:', JSON.stringify(record, null, 2));
+
+  const { data, error } = await sb()
+    .from('sub_kegiatan')
+    .upsert(record, { onConflict: 'id' })
+    .select();
+
+  if (error) {
+    console.error('[saveOneSubKegiatan] Supabase error:', error);
+    throw error;
   }
+
+  console.log('[saveOneSubKegiatan] Saved successfully:', data);
 }
 
 export async function deleteSubKegiatanById(id: string): Promise<void> {

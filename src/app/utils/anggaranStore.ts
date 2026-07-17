@@ -171,12 +171,32 @@ export function addSubKegiatan(newSk: SubKegiatan) {
 }
 
 export async function updateSubKegiatan(id: string, updatedData: Partial<SubKegiatan>): Promise<void> {
-  const data = getSubKegiatanData();
+  const currentData = getSubKegiatanData();
+  // Deep clone to avoid mutation issues  
+  const data = currentData.map(sk => ({ ...sk }));
   const index = data.findIndex(sk => sk.id === id);
   if (index !== -1) {
+    console.log('[updateSubKegiatan] Before:', {
+      id: data[index].id,
+      paguDalam: data[index].paguDalamDaerah,
+      paguLuar: data[index].paguLuarDaerah,
+      pptkNip: data[index].pptkNip,
+    });
+    console.log('[updateSubKegiatan] Updates:', updatedData);
+    
     data[index] = { ...data[index], ...updatedData };
     cachedData = data;
+    
+    console.log('[updateSubKegiatan] After:', {
+      id: data[index].id,
+      paguDalam: data[index].paguDalamDaerah,
+      paguLuar: data[index].paguLuarDaerah,
+      pptkNip: data[index].pptkNip,
+    });
+    
     await saveOneSubKegiatan(data[index]);
+  } else {
+    console.error('[updateSubKegiatan] Item not found with id:', id);
   }
 }
 

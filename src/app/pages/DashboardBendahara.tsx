@@ -46,42 +46,27 @@ export default function DashboardBendahara() {
   }, []);
 
   const fetchPPTK = async () => {
+    // Daftar PPTK default yang selalu tersedia
+    const defaultPPTK = [
+      { nip: "199511302022032030", nama: "Rahmawati" },
+      { nip: "199509012022031013", nama: "Irwan Suprianto" }
+    ];
+
     try {
-      // Coba ambil dari user_profiles dulu
-      const { data: profileData } = await getSupabaseClient()
+      // Coba ambil dari user_profiles jika ada
+      const { data: profileData, error } = await getSupabaseClient()
         .from('user_profiles')
         .select('nip, nama, role')
         .eq('role', 'pptk');
       
-      if (profileData && profileData.length > 0) {
+      if (!error && profileData && profileData.length > 0) {
         setAvailablePPTK(profileData.map((u: any) => ({ nip: u.nip, nama: u.nama })));
-        return;
+      } else {
+        setAvailablePPTK(defaultPPTK);
       }
-
-      // Fallback: ambil semua user dari auth lalu filter role pptk dari metadata
-      const { data: { users }, error } = await getSupabaseClient().auth.admin.listUsers();
-      if (!error && users) {
-        const pptkUsers = users
-          .filter((u: any) => u.user_metadata?.role === 'pptk')
-          .map((u: any) => ({ nip: u.user_metadata?.nip || '', nama: u.user_metadata?.nama || '' }));
-        if (pptkUsers.length > 0) {
-          setAvailablePPTK(pptkUsers);
-          return;
-        }
-      }
-
-      // Fallback terakhir: hardcode PPTK yang diketahui
-      setAvailablePPTK([
-        { nip: "199511302022032030", nama: "Rahmawati" },
-        { nip: "199509012022031013", nama: "Irwan Suprianto" }
-      ]);
     } catch (e) {
-      console.error("Failed to fetch PPTK, using fallback", e);
-      // Fallback jika semua method gagal
-      setAvailablePPTK([
-        { nip: "199511302022032030", nama: "Rahmawati" },
-        { nip: "199509012022031013", nama: "Irwan Suprianto" }
-      ]);
+      console.error("Failed to fetch PPTK from DB, using default list", e);
+      setAvailablePPTK(defaultPPTK);
     }
   };
 
@@ -196,16 +181,44 @@ export default function DashboardBendahara() {
 
   const handleSaveEdit = async () => {
     if (isEditing) {
-      const updates: Partial<SubKegiatan> = {};
-      if (editForm.paguDalamDaerah !== undefined) updates.paguDalamDaerah = editForm.paguDalamDaerah;
-      if (editForm.paguLuarDaerah !== undefined) updates.paguLuarDaerah = editForm.paguLuarDaerah;
-      if (editForm.pptkNip !== undefined) updates.pptkNip = editForm.pptkNip;
-      
-      await updateSubKegiatan(isEditing, updates);
-      
-      toast.success("Perubahan anggaran berhasil disimpan");
-      setIsEditing(null);
-      await loadData();
+      const currentItem = data.find(d => d.id === isEditing);
+      if (!currentItem) return;
+
+      // Buat object lengkap dengan semua field dari item saat ini, lalu overwrite dengan perubahan
+      const updatedItem: SubKegiatan = {
+        ...currentItem,
+        paguDalamDaerah: editForm.paguDalamDaerah !== undefined ? editForm.paguDalamDaerah : currentItem.paguDalamDaerah,
+        paguLuarDaerah: editForm.paguLuarDaerah !== undefined ? editForm.paguLuarDaerah : currentItem.paguLuarDaerah,
+        pptkNip: editForm.pptkNip !== undefined ? editForm.pptkNip : currentItem.pptkNip,
+      };
+
+      console.log('[handleSaveEdit] Current:', {
+        paguDalam: currentItem.paguDalamDaerah,
+        paguLuar: currentItem.paguLuarDaerah,
+        pptkNip: currentItem.pptkNip
+      });
+      console.log('[handleSaveEdit] Edit form:', editForm);
+      console.log('[handleSaveEdit] Will save:', {
+        paguDalam: updatedItem.paguDalamDaerah,
+        paguLuar: updatedItem.paguLuarDaerah,
+        pptkNip: updatedItem.pptkNip
+      });
+
+      try {
+        await updateSubKegiatan(isEditing, {
+          paguDalamDaerah: updatedItem.paguDalamDaerah,
+          paguLuarDaerah: updatedItem.paguLuarDaerah,
+          pptkNip: updatedItem.pptkNip,
+        });
+        
+        toast.success("Perubahan anggaran berhasil disimpan");
+        setIsEditing(null);
+        setEditForm({});
+        await loadData();
+      } catch (e) {
+        console.error('[handleSaveEdit] Error saving:', e);
+        toast.error("Gagal menyimpan perubahan. Silakan coba lagi.");
+      }
     }
   };
 
