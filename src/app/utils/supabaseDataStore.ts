@@ -339,19 +339,14 @@ export async function logActivity(
     if (customUser) {
       currentUser = customUser;
     } else {
-      const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      if (userJson) {
-        currentUser = JSON.parse(userJson);
-      } else {
-        const { data: sessionData } = await sb().auth.getSession();
-        const user = sessionData?.session?.user;
-        if (user && user.user_metadata) {
-          currentUser = {
-            nama: user.user_metadata.nama || user.email?.split('@')[0] || 'Unknown User',
-            nip: user.user_metadata.nip || 'Unknown NIP',
-            role: user.user_metadata.role || 'Unknown Role',
-          };
-        }
+      const { data: sessionData } = await sb().auth.getSession();
+      const user = sessionData?.session?.user;
+      if (user && user.user_metadata) {
+        currentUser = {
+          nama: user.user_metadata.nama || user.email?.split('@')[0] || 'Unknown User',
+          nip: user.user_metadata.nip || 'Unknown NIP',
+          role: user.user_metadata.role || 'Unknown Role',
+        };
       }
     }
 
