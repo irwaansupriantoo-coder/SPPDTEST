@@ -46,6 +46,7 @@ interface LaporanData {
     | "belum_spj"
     | "draft_laporan"
     | "menunggu_verifikasi_pegawai"
+    | "menunggu_verifikasi_pegawai"
     | "menunggu_verifikasi_bendahara"
     | "menunggu_verifikasi_pptk"
     | "menunggu_verifikasi_kpa"
@@ -259,8 +260,8 @@ export default function Laporan() {
     const currentStatus = selectedLaporan.status;
     const newStatus = (targetStatus || "draft_laporan") as any;
     try {
-      setLaporanStatus(selectedLaporan.noSppd, newStatus);
-      setPelaksanaData(selectedLaporan.noSppd, updatedPelaksana);
+      await setLaporanStatus(selectedLaporan.noSppd, newStatus);
+      await setPelaksanaData(selectedLaporan.noSppd, updatedPelaksana);
     } catch(e) {}
 
     const updateLocal = (prevData: LaporanData[]) =>
@@ -311,6 +312,7 @@ export default function Laporan() {
   const getStatusBadge = (status: LaporanData["status"]) => {
     switch (status) {
       case "belum_spj":
+      case "Menunggu Persetujuan" as any:
       case "draft_laporan":
         return (
           <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
@@ -650,9 +652,7 @@ export default function Laporan() {
                           {item.status === "belum_spj" || item.status === "draft_laporan" || item.status === "perbaikan" || item.status === "Menunggu Persetujuan" as any ? (
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() =>
-                                  item.status === "draft_laporan" || item.status === "perbaikan" ? (setSelectedLaporan(item), setIsVerifikasiDialogOpen(true)) : handleBuatLaporan(item)
-                                }
+                                onClick={() => handleBuatLaporan(item)}
                                 className="px-4 py-2 bg-[#00475e] text-white rounded-lg text-xs font-bold hover:bg-[#1a5f7a] shadow-sm transition-all active:scale-95 flex items-center gap-2"
                               >
                                 <FileText className="w-4 h-4" />

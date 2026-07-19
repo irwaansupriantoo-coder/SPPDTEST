@@ -158,33 +158,39 @@ export async function getLaporanStatus(noSppd: string): Promise<string | null> {
   if (cached) return cached;
 
   try {
-    const { data } = await sb()
+    const { data, error } = await sb()
       .from('sppd_laporan_status')
       .select('status')
       .eq('no_sppd', noSppd)
       .maybeSingle();
 
-    const status = data?.status || null;
+    if (error) throw error;
+
+    const status = data?.status || localStorage.getItem(cacheKey) || null;
     if (status) setCache(cacheKey, status);
     return status;
   } catch (e) {
     console.error('getLaporanStatus error:', e);
-    return null;
+    return localStorage.getItem(cacheKey) || null;
   }
 }
 
 export async function setLaporanStatus(noSppd: string, status: string): Promise<void> {
+  const cacheKey = `laporan_status_${noSppd}`;
   try {
-    await sb()
+    const { error } = await sb()
       .from('sppd_laporan_status')
       .upsert(
         { no_sppd: noSppd, status, updated_at: new Date().toISOString() },
         { onConflict: 'no_sppd' }
       );
-
-    setCache(`laporan_status_${noSppd}`, status);
+    if (error) throw error;
+    setCache(cacheKey, status);
+    localStorage.setItem(cacheKey, status);
   } catch (e) {
     console.error('setLaporanStatus error:', e);
+    setCache(cacheKey, status);
+    localStorage.setItem(cacheKey, status);
   }
 }
 
