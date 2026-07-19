@@ -395,9 +395,6 @@ export default function Pengajuan() {
     // Calculate total budget
     const totalAnggaran = calculateBudget();
 
-    const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-    const user = userJson ? JSON.parse(userJson) : null;
-
     const payload = {
       noSpt,
       noSppd,
