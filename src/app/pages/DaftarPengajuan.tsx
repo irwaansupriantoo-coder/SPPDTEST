@@ -139,7 +139,7 @@ export default function DaftarPengajuan() {
 
   const handleDeleteItem = async (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      await addHiddenSppdIds(noSppd);
+      await addHiddenSppdIds([noSppd]);
       setAllPengajuan(prev => prev.filter(item => item.noSppd !== noSppd));
       toast.success('Data berhasil dihapus permanen.');
     }
