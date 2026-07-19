@@ -97,18 +97,7 @@ export default function DaftarPengajuan() {
       
         // Additional local filtering if needed
       const validData = dataWithStatus.filter((d: any) => {
-        if (user?.role === 'pengelola') {
-          const nip = typeof d.pembuat === 'string' ? null : d.pembuat?.nip;
-          const nama = typeof d.pembuat === 'string' ? d.pembuat : d.pembuat?.nama;
-          const cleanNip = (nip || '').replace(/\s+/g, '');
-          const cleanUserNip = (user?.nip || '').replace(/\s+/g, '');
-          const cleanNama = (nama || '').toLowerCase().trim();
-          const cleanUserNama = (user?.nama || '').toLowerCase().trim();
-          
-          if (cleanNip && cleanNip !== cleanUserNip && cleanNama !== cleanUserNama) return false;
-        }
         if (d.isDuplicated && d.statusPengajuan !== 'Disetujui') return false;
-
         return true;
       });
 
