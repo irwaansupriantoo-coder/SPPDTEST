@@ -11,6 +11,7 @@ import {
   getAppSetting,
   getAllPengajuan,
   deletePengajuan,
+  deletePengajuanByNoSppd,
 } from "../utils/supabaseDataStore";
 import { downloadSPPD } from "../utils/generateSPPD";
 import { SppdPreviewModal } from "../components/SppdPreviewModal";
@@ -141,11 +142,12 @@ export default function DaftarPengajuan() {
 
   const handleDeleteItem = async (item: LaporanData) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      if (item.id) {
-        await deletePengajuan(item.id);
-      } else {
-        await addHiddenSppdIds([item.noSppd]);
-      }
+      // 1. Coba hapus secara fisik dari database menggunakan no_sppd
+      await deletePengajuanByNoSppd(item.noSppd);
+      
+      // 2. Sebagai fallback/tambahan, sembunyikan juga ID-nya
+      await addHiddenSppdIds([item.noSppd]);
+
       setAllPengajuan(prev => prev.filter(p => p.noSppd !== item.noSppd));
       toast.success('Data berhasil dihapus permanen.');
     }

@@ -726,6 +726,22 @@ export async function deletePengajuan(id: string): Promise<void> {
   }
 }
 
+export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
+  try {
+    const { error } = await sb()
+      .from('pengajuan_sppd')
+      .delete()
+      .eq('no_sppd', noSppd);
+      
+    if (error) {
+      console.error('deletePengajuanByNoSppd error from Supabase:', error);
+      throw error;
+    }
+  } catch (e) {
+    console.error('deletePengajuanByNoSppd error:', e);
+  }
+}
+
 function normPengajuan(row: any) {
   return {
     id: row.id,
