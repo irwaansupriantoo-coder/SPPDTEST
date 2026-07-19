@@ -644,7 +644,7 @@ export default function DashboardKPA() {
                                   ...programData.dates,
                                   pelaksana: pelaksanaList,
                                   statusPengajuan: statusPeng,
-                                  tanggalPersetujuan: getTanggalPersetujuan(sppdStr)
+                                  tanggalPersetujuan: await getTanggalPersetujuan(sppdStr)
                                 });
                                 setIsSppdModalOpen(true);
                               }}
