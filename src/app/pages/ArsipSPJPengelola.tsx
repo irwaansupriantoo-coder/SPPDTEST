@@ -6,7 +6,7 @@ import { LuarDaerahDialog } from "../components/LuarDaerahDialog";
 import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
 import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
-import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan } from "../utils/supabaseDataStore";
+import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan, deletePengajuan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -45,6 +45,7 @@ interface LaporanData {
   tipePerjalanan: "Dalam Daerah" | "Luar Daerah";
   statusPengajuan?: string;
   version?: string;
+  id?: string;
 }
 
 const MOCK_DATA_DALAM_DAERAH: LaporanData[] = [];
@@ -265,13 +266,21 @@ export default function ArsipSPJPengelola() {
     }
   };
 
-  const handleDeleteItem = (noSppd: string) => {
-    if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
-      localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
-      setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
-      setLuarDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
-      toast.success('Data berhasil dihapus permanen.');
+  const handleDeleteItem = async (item: LaporanData) => {
+    if(window.confirm('Yakin ingin menghapus data ini secara permanen dari server?')) {
+      if (item.id) {
+        try {
+          await deletePengajuan(item.id);
+          setDalamDaerahData(prev => prev.filter(d => d.id !== item.id));
+          setLuarDaerahData(prev => prev.filter(d => d.id !== item.id));
+          toast.success('Data SPJ berhasil dihapus secara permanen.');
+        } catch (err) {
+          console.error("Error deleting SPJ:", err);
+          toast.error("Gagal menghapus data secara permanen.");
+        }
+      } else {
+        toast.error("Data tidak memiliki ID yang valid untuk dihapus.");
+      }
     }
   };
 
@@ -507,7 +516,7 @@ export default function ArsipSPJPengelola() {
                             </button>
                             {user?.role === 'admin' && (
                               <button
-                                onClick={() => handleDeleteItem(item.noSppd)}
+                                onClick={() => handleDeleteItem(item)}
                                 className="px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 shadow-sm transition-all active:scale-95 flex items-center gap-1"
                               >
                                 Hapus
