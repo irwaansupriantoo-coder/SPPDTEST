@@ -11,7 +11,7 @@ import { Eye, CheckCircle, XCircle, Timer, Database, MapPin, FileText, Clock, Us
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
 import { getStatusPengajuan, getTanggalPersetujuan, batchGetStatusPengajuan } from '../utils/statusStore';
-import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData } from '../utils/supabaseDataStore';
+import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData , getAllPengajuan } from "../utils/supabaseDataStore";
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { SubKegiatan, getSubKegiatanData, syncSubKegiatanData } from '../utils/anggaranStore';

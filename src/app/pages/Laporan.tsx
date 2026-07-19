@@ -8,7 +8,7 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
-import { getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData } from "../utils/supabaseDataStore";
+import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,

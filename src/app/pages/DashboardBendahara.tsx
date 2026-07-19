@@ -15,7 +15,7 @@ import {
 } from '../utils/anggaranStore';
 import { apiRequest, getSupabaseClient } from '../utils/supabaseClient';
 import { getStatusPengajuan, batchGetStatusPengajuan } from '../utils/statusStore';
-import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from '../utils/supabaseDataStore';
+import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan } from "../utils/supabaseDataStore";
 import { Toaster, toast } from 'sonner';
 
 export default function DashboardBendahara() {

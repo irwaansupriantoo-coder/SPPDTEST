@@ -6,7 +6,7 @@ import { LuarDaerahDialog } from "../components/LuarDaerahDialog";
 import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
 import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
-import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds } from "../utils/supabaseDataStore";
+import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,

@@ -12,7 +12,7 @@ import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
 import { batchGetStatusPengajuan, batchGetTanggalPersetujuan } from '../utils/statusStore';
 import { SubKegiatan, getSubKegiatanByPengelola } from '../utils/anggaranStore';
-import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData } from '../utils/supabaseDataStore';
+import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData , getAllPengajuan } from "../utils/supabaseDataStore";
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
 import { SppdPreviewModal } from '../components/SppdPreviewModal';
