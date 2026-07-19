@@ -170,7 +170,17 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
 
   if (!isOpen || !data) return null;
 
-  const baseDocuments = [
+  const isDalamDaerah = data?.tipePerjalanan === 'Dalam Daerah' || data?.jenis_perjalanan === 'Dalam Daerah';
+
+  const baseDocuments = isDalamDaerah ? [
+    { name: "Kuitansi Dinas", icon: Receipt, docId: "kwitansi" },
+    { name: "Rincian Perjalanan", icon: BarChart2, docId: "rincian" },
+    { name: "Laporan Perjalanan Dinas", icon: ClipboardList, docId: "laporan" },
+    { name: "SPPD", icon: BadgeCheck, docId: "sppd" },
+    { name: "Dokumentasi", icon: ClipboardList, docId: "dokumentasi" },
+    { name: "Bukti Biaya Transportasi", icon: Car, docId: "transportasi" },
+    { name: "Bukti Biaya Penginapan", icon: Bed, docId: "penginapan" }
+  ] : [
     { name: "Kwitansi Perjalanan Dinas", icon: Receipt, docId: "kwitansi" },
     { name: "Rincian Perjalanan Dinas", icon: BarChart2, docId: "rincian" },
     { name: "Laporan Perjalanan Dinas", icon: ClipboardList, docId: "laporan" },
@@ -351,6 +361,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
   const isEditable = ['belum_spj', 'draft_laporan', 'perbaikan'].includes(data.status || 'belum_spj');
 
   const visibleDocuments = documents.filter(doc => {
+    if (isDalamDaerah) return true;
     if (uploadedFiles[doc.docId]) return true;
     if (!isEditable) return false;
     const canUploadHere = ['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId);
@@ -420,7 +431,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    {(uploadedFiles[doc.docId] || !['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId)) && uploadedFiles[doc.docId] && (
+                    {(uploadedFiles[doc.docId] || (!['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId))) && (
                       <button 
                         onClick={() => handleViewDoc(doc.docId, doc.name)}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
