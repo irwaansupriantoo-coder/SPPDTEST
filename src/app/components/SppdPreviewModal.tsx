@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { X, Download, Printer } from 'lucide-react';
 // @ts-ignore
 import html2pdf from 'html2pdf.js';
-import { getStatusPengajuan, getTanggalPersetujuan } from '../utils/statusStore';
 
 interface SppdPreviewModalProps {
   isOpen: boolean;
@@ -54,8 +53,8 @@ export function SppdPreviewModal({ isOpen, onClose, data }: SppdPreviewModalProp
   }
 
   const sppdRaw = data.noSppd || data.no_sppd || '';
-  const finalStatus = data.statusPengajuan || getStatusPengajuan(sppdRaw);
-  const finalTanggalPersetujuan = data.tanggalPersetujuan || getTanggalPersetujuan(sppdRaw);
+  const finalStatus = data.statusPengajuan || 'Menunggu Persetujuan';
+  const finalTanggalPersetujuan = data.tanggalPersetujuan || '';
 
   const qrData = `Disetujui secara elektronik oleh:\nNama: WAHID HASYIM\nJabatan: Kepala Bidang Koperasi dan UKM\nNo. SPPD: ${sppdClean}\nTanggal: ${formatDateId(finalTanggalPersetujuan || data.tanggalPengajuan)}`;
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(qrData)}`;
