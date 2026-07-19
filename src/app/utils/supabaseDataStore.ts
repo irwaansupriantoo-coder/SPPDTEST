@@ -674,6 +674,9 @@ export async function getAllPengajuan(): Promise<any[]> {
 
 export async function createPengajuan(payload: any): Promise<any> {
   try {
+    const { data: sessionData } = await sb().auth.getSession();
+    const userId = sessionData?.session?.user?.id;
+    
     const { data, error } = await sb()
       .from('pengajuan_sppd')
       .insert({
@@ -689,6 +692,7 @@ export async function createPengajuan(payload: any): Promise<any> {
         tanggal_kembali: payload.tanggalKembali,
         keperluan: payload.keperluan,
         alat_angkut: payload.alatAngkut,
+        ...(userId ? { created_by: userId } : {})
       })
       .select()
       .single();
