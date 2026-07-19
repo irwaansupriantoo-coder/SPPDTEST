@@ -66,7 +66,8 @@ export default function DashboardPPTK() {
 
   const fetchPengajuan = async () => {
     try {
-      const res = await apiRequest<{ data: any[] }>('/pengajuan');
+      const data = await getAllPengajuan();
+      const res = { data };
       const pengajuanData = res.data || [];
 
       // Pre-fetch all Supabase data in batch

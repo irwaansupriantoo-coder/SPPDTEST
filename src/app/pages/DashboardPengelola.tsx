@@ -89,7 +89,8 @@ export default function DashboardPengelola() {
         let anggaranRes: AnggaranData | null = null;
         
         try {
-          const res = await apiRequest<{ data: LaporanData[] }>('/pengajuan');
+          const data = await getAllPengajuan();
+          const res = { data };
           pengajuanData = res.data || [];
         } catch (err) {
           console.error("Error fetching pengajuan:", err);

@@ -74,7 +74,8 @@ export default function DashboardBendahara() {
     await syncSubKegiatanData();
     const baseData = getSubKegiatanData();
     try {
-      const res = await apiRequest<{ data: any[] }>('/pengajuan');
+      const data = await getAllPengajuan();
+      const res = { data };
       const pengajuanData = res.data || [];
       const subKegiatanRealisasi: Record<string, { dalam: number, luar: number }> = {};
       

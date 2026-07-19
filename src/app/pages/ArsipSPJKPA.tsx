@@ -86,7 +86,7 @@ export default function ArsipSPJKPA() {
   const loadData = useCallback(async () => {
     setIsLoadingData(true);
     try {
-      const { data } = await apiRequest<{ data: LaporanData[] }>('/pengajuan');
+      const data = await getAllPengajuan();
       const serverDalam = data.filter((d) => d.tipePerjalanan === 'Dalam Daerah');
       const serverLuar = data.filter((d) => d.tipePerjalanan === 'Luar Daerah');
 
