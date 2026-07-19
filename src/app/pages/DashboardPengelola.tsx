@@ -211,8 +211,8 @@ export default function DashboardPengelola() {
         pengajuanData.forEach(row => {
           const sppd = row.noSppd || row.no_sppd || '';
           if (hiddenIds.includes(sppd) || !sppd.includes('SPPD')) return;
-          const status = sMap[sppd] || "belum_spj";
-          if (status === 'Menunggu Persetujuan') {
+          const status = sMap[sppd];
+          if (status !== 'Disetujui' && status !== 'Ditolak') {
             menunggu++;
           }
         });
