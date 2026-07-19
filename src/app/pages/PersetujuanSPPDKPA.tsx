@@ -110,8 +110,16 @@ export default function PersetujuanSPPDKPA() {
     loadData();
   }, [loadData]);
 
-  const handleApprove = (noSppd: string) => {
-    setStatusPengajuan(noSppd, "Disetujui");
+  const handleApprove = async (noSppd: string) => {
+    await setStatusPengajuan(noSppd, "Disetujui");
+    
+    // Cari id pengajuan_sppd untuk update di table utama jika perlu
+    const item = allPengajuan.find(p => p.noSppd === noSppd);
+    if (item && (item as any).id) {
+      const { updatePengajuan } = await import('../utils/supabaseDataStore');
+      await updatePengajuan((item as any).id, { status: "Disetujui" }).catch(e => console.error(e));
+    }
+
     toast.success("Pengajuan berhasil disetujui");
     
     // Catat log aktivitas
@@ -126,8 +134,16 @@ export default function PersetujuanSPPDKPA() {
     setAllPengajuan(prev => prev.map(p => p.noSppd === noSppd ? { ...p, statusPengajuan: "Disetujui" } : p));
   };
 
-  const handleReject = (noSppd: string) => {
-    setStatusPengajuan(noSppd, "Ditolak");
+  const handleReject = async (noSppd: string) => {
+    await setStatusPengajuan(noSppd, "Ditolak");
+    
+    // Cari id pengajuan_sppd untuk update di table utama jika perlu
+    const item = allPengajuan.find(p => p.noSppd === noSppd);
+    if (item && (item as any).id) {
+      const { updatePengajuan } = await import('../utils/supabaseDataStore');
+      await updatePengajuan((item as any).id, { status: "Ditolak" }).catch(e => console.error(e));
+    }
+
     toast.error("Pengajuan ditolak");
     
     // Catat log aktivitas

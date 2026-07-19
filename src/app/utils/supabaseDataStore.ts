@@ -64,9 +64,13 @@ export async function setStatusPengajuan(noSppd: string, status: string): Promis
       record.approval_date = now;
     }
 
-    await sb()
+    const { error } = await sb()
       .from('sppd_statuses')
       .upsert(record, { onConflict: 'no_sppd' });
+
+    if (error) {
+      console.error('Supabase UPSERT Error in sppd_statuses:', error);
+    }
 
     setCache(`status_${noSppd}`, status);
   } catch (e) {
