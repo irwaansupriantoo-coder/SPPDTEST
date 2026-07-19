@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { X, User, Receipt, BarChart2, ClipboardList, BadgeCheck, Car, Bed, CheckCircle2, FileDown, Eye, Wallet, Upload, Check, RefreshCw, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-import { saveFile, getFile } from '../utils/fileStore';
+import { saveFile, getFile, deleteFilesContaining } from '../utils/fileStore';
 import { mergePdfs } from '../utils/pdfMerger';
 import { toast } from "sonner";
 import { exportRincianDalamDaerah } from "../utils/exportExcelDalamDaerah";
@@ -499,16 +499,30 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
           <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between gap-3">
             <div>
               {onSubmitUlang && ['draft_laporan', 'perbaikan'].includes(data.status) && (
-                <button
-                  onClick={() => {
-                    onSubmitUlang('menunggu_verifikasi_pegawai');
-                    onClose();
-                  }}
-                  className="px-6 py-2.5 rounded text-sm font-bold text-white bg-[#00475e] hover:bg-[#1a5f7a] transition-colors flex items-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  {data.status === 'perbaikan' ? 'Submit Ulang' : 'Submit Laporan'}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      onSubmitUlang('menunggu_verifikasi_pegawai');
+                      onClose();
+                    }}
+                    className="px-6 py-2.5 rounded text-sm font-bold text-white bg-[#00475e] hover:bg-[#1a5f7a] transition-colors flex items-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                    {data.status === 'perbaikan' ? 'Submit Ulang' : 'Submit Laporan'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (confirm('Yakin ingin mereset/menghapus semua file lampiran untuk SPPD ini? Gunakan ini jika terdapat file dari data lama yang masih muncul.')) {
+                        await deleteFilesContaining(data.noSppd);
+                        setUploadedFiles({});
+                        toast.success('Semua file lampiran berhasil direset');
+                      }
+                    }}
+                    className="px-6 py-2.5 rounded text-sm font-bold text-red-700 bg-red-100 hover:bg-red-200 transition-colors flex items-center gap-2"
+                  >
+                    Reset Lampiran (Data Nyangkut)
+                  </button>
+                </div>
               )}
             </div>
             <div className="flex gap-3 justify-end flex-1">

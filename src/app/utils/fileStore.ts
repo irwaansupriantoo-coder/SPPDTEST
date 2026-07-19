@@ -53,3 +53,23 @@ export const deleteFile = async (key: string): Promise<void> => {
     request.onerror = () => reject(request.error);
   });
 };
+
+export const deleteFilesContaining = async (substring: string): Promise<void> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.getAllKeys();
+
+    request.onsuccess = () => {
+      const keys = request.result as string[];
+      for (const key of keys) {
+        if (key.includes(substring)) {
+          store.delete(key);
+        }
+      }
+      resolve();
+    };
+    request.onerror = () => reject(request.error);
+  });
+};

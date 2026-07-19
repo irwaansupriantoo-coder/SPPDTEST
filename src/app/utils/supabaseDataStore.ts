@@ -7,6 +7,7 @@
  */
 
 import { getSupabaseClient, apiRequest } from './supabaseClient';
+import { deleteFilesContaining } from './fileStore';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 // ─── In-memory cache ──────────────────────────────────────────────────────
@@ -751,6 +752,14 @@ export async function deletePengajuan(id: string): Promise<void> {
       await sb().from('sppd_pegawai_approvals').delete().eq('no_sppd', noSppd);
       await sb().from('sppd_pelaksana_data').delete().eq('no_sppd', noSppd);
       await sb().from('sppd_program_data').delete().eq('no_sppd', noSppd);
+      
+      // Clear associated files in IndexedDB
+      try {
+        await deleteFilesContaining(noSppd);
+      } catch (err) {
+        console.error('Failed to clean up files for', noSppd, err);
+      }
+      
       await sb().from('sppd_hidden_ids').delete().eq('no_sppd', noSppd);
       await sb().from('bukti_pembayaran').delete().eq('no_sppd', noSppd);
     }
