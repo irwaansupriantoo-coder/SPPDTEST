@@ -113,13 +113,6 @@ export default function PersetujuanSPPDKPA() {
   const handleApprove = async (noSppd: string) => {
     await setStatusPengajuan(noSppd, "Disetujui");
     
-    // Cari id pengajuan_sppd untuk update di table utama jika perlu
-    const item = allPengajuan.find(p => p.noSppd === noSppd);
-    if (item && (item as any).id) {
-      const { updatePengajuan } = await import('../utils/supabaseDataStore');
-      await updatePengajuan((item as any).id, { status: "Disetujui" }).catch(e => console.error(e));
-    }
-
     toast.success("Pengajuan berhasil disetujui");
     
     // Catat log aktivitas
