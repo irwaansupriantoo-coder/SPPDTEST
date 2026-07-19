@@ -31,6 +31,18 @@ function sb() {
 
 export async function getStatusPengajuan(noSppd: string): Promise<string> {
   try {
+    // 1. Coba ambil dari sppd_statuses terlebih dahulu (lebih reliable)
+    const { data: statusData } = await sb()
+      .from('sppd_statuses')
+      .select('status')
+      .eq('no_sppd', noSppd)
+      .maybeSingle();
+
+    if (statusData?.status) {
+      return statusData.status;
+    }
+
+    // 2. Fallback ke pengajuan_sppd jika belum ada di sppd_statuses
     const { data } = await sb()
       .from('pengajuan_sppd')
       .select('status')
@@ -49,10 +61,14 @@ export async function setStatusPengajuan(noSppd: string, status: string): Promis
     const now = new Date().toISOString();
     
     // Update main table
-    await sb()
+    const { error: mainError } = await sb()
       .from('pengajuan_sppd')
       .update({ status, updated_at: now })
       .eq('no_sppd', noSppd);
+
+    if (mainError) {
+      console.error('Supabase update pengajuan_sppd error in setStatusPengajuan:', mainError);
+    }
 
     const record: any = {
       no_sppd: noSppd,
@@ -844,14 +860,28 @@ export async function batchGetStatusPengajuan(noSppdList: string[]): Promise<Rec
   if (noSppdList.length === 0) return {};
 
   try {
-    const { data } = await sb()
+    const result: Record<string, string> = {};
+
+    // 1. Fetch from pengajuan_sppd (sebagai fallback base)
+    const { data: mainData } = await sb()
       .from('pengajuan_sppd')
       .select('no_sppd, status')
       .in('no_sppd', noSppdList);
 
-    const result: Record<string, string> = {};
-    (data || []).forEach((d: any) => {
+    (mainData || []).forEach((d: any) => {
       result[d.no_sppd] = d.status || 'Menunggu Persetujuan';
+    });
+
+    // 2. Fetch from sppd_statuses (sebagai prioritas utama/override)
+    const { data: statusData } = await sb()
+      .from('sppd_statuses')
+      .select('no_sppd, status')
+      .in('no_sppd', noSppdList);
+
+    (statusData || []).forEach((d: any) => {
+      if (d.status) {
+        result[d.no_sppd] = d.status;
+      }
     });
 
     // Fill defaults for missing
