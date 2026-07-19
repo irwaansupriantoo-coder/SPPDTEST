@@ -893,7 +893,7 @@ export default function DashboardKPA() {
                           <td className="px-4 py-4 text-center">
                             <button
                               onClick={() => {
-                                navigate('/kpa/arsip-spj', { state: { redirectSppd: sppd } });
+                                navigate('/arsip-spj', { state: { redirectSppd: sppd } });
                               }}
                               className="text-xs bg-slate-100 text-[#00475e] px-3 py-1.5 rounded font-medium hover:bg-slate-200 inline-flex items-center gap-1"
                             >
