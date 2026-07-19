@@ -62,9 +62,11 @@ interface LaporanData {
 }
 
 import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router';
 
 export default function Laporan() {
   const { user } = useAuth();
+  const location = useLocation();
   const [tipePerjalanan, setTipePerjalanan] = useState<
     "Semua" | "Dalam Daerah" | "Luar Daerah"
   >("Semua");
@@ -132,6 +134,12 @@ export default function Laporan() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (location.state && location.state.redirectSppd) {
+      setSearchQuery(location.state.redirectSppd);
+    }
+  }, [location.state]);
 
   // Get data based on tipe perjalanan
   const allData =

@@ -108,15 +108,17 @@ export default function DashboardPengelola() {
 
         // Pre-fetch all Supabase data in batch
         const allSppdIds = pengajuanData.map((d: any) => d.noSppd || d.no_sppd || '').filter(Boolean);
-        const [sMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap] = await Promise.all([
+        const [sMap, laporanStatusMap, hiddenIds, pelaksanaMap, programDataMap, tMap] = await Promise.all([
           batchGetStatusPengajuan(allSppdIds),
           batchGetLaporanStatus(allSppdIds),
           getHiddenSppdIds(),
           batchGetPelaksanaData(allSppdIds),
           batchGetProgramData(allSppdIds),
+          batchGetTanggalPersetujuan(allSppdIds),
         ]);
         setStatusMapState(sMap);
         setLaporanStatusMapState(laporanStatusMap);
+        setTanggalMapState(tMap);
 
         let msk: SubKegiatan[] = [];
 
@@ -168,7 +170,6 @@ export default function DashboardPengelola() {
              // Jika belum selesai SPJ (masih di Daftar Pengajuan), baru hitung statusnya
              if (status === 'Disetujui') disetujui++;
              else if (status === 'Ditolak') ditolak++;
-             else if (status === 'Menunggu Persetujuan') menunggu++;
            }
            
            if (spjStatus === 'selesai') {
@@ -205,6 +206,16 @@ export default function DashboardPengelola() {
         if (user?.role === 'pengelola') {
           setManagedSubKegiatan(updatedMsk);
         }
+
+        // Hitung seluruh pengajuan sppd dengan status menunggu persetujuan
+        pengajuanData.forEach(row => {
+          const sppd = row.noSppd || row.no_sppd || '';
+          if (hiddenIds.includes(sppd) || !sppd.includes('SPPD')) return;
+          const status = sMap[sppd] || "belum_spj";
+          if (status === 'Menunggu Persetujuan') {
+            menunggu++;
+          }
+        });
 
         setStats({ total, disetujui, ditolak, menunggu, belumSpj: 0 });
         
