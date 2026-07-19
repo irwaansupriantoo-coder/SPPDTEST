@@ -108,6 +108,7 @@ export default function DashboardKPA() {
   const [stats, setStats] = useState<StatsData>({ total: 0, disetujui: 0, ditolak: 0, menunggu: 0, belumSpj: 0 });
   const [latestPengajuan, setLatestPengajuan] = useState<LaporanData[]>([]);
   const [pengajuanStatuses, setPengajuanStatuses] = useState<Record<string, string>>({});
+  const [laporanStatusMapState, setLaporanStatusMapState] = useState<Record<string, string>>({});
   const [latestLaporan, setLatestLaporan] = useState<LaporanData[]>([]);
   const [latestArsip, setLatestArsip] = useState<LaporanData[]>([]);
   const [allSubKegiatan, setAllSubKegiatan] = useState<SubKegiatan[]>([]);
@@ -176,6 +177,7 @@ export default function DashboardKPA() {
           batchGetProgramData(sppdList),
         ]);
         setPengajuanStatuses(statusMap);
+        setLaporanStatusMapState(laporanStatusMap);
 
         const subKegiatanRealisasi: Record<string, { dalam: number, luar: number }> = {};
         msk.forEach(sk => {
@@ -751,7 +753,7 @@ export default function DashboardKPA() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedLaporan.length > 0 ? paginatedLaporan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = pengajuanStatuses[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
@@ -869,7 +871,7 @@ export default function DashboardKPA() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedArsip.length > 0 ? paginatedArsip.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = pengajuanStatuses[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
