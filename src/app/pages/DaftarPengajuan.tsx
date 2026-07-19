@@ -72,7 +72,7 @@ export default function DaftarPengajuan() {
 
       // Filter out hidden and completed
       const filteredData = data
-        .filter((d: any) => d.noSppd?.includes('SPPD') && !hiddenIds.includes(d.noSppd));
+        .filter((d: any) => d.noSppd && !hiddenIds.includes(d.noSppd));
 
       // Batch fetch laporan statuses
       const noSppdList = filteredData.map((d: any) => d.noSppd || d.no_sppd || '');
