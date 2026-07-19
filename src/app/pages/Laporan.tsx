@@ -271,7 +271,7 @@ export default function Laporan() {
           : item,
       );
 
-    if (tipePerjalanan === "Dalam Daerah") {
+    if (selectedLaporan.tipePerjalanan === "Dalam Daerah") {
       setDalamDaerahData(updateLocal);
     } else {
       setLuarDaerahData(updateLocal);
