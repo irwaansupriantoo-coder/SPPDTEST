@@ -24,6 +24,7 @@ interface StatsData {
   ditolak: number;
   menunggu: number;
   belumSpj: number;
+  perjalananSelesai?: number;
 }
 
 interface AnggaranData {
@@ -159,7 +160,7 @@ export default function DashboardKPA() {
           console.error("Error fetching anggaran:", err);
         }
 
-        let masuk = 0, disetujui = 0, ditolak = 0, menunggu = 0;
+        let masuk = 0, disetujui = 0, ditolak = 0, menunggu = 0, perjalananSelesai = 0;
         let usedDalam = 0, usedLuar = 0;
 
         // KPA sees all SubKegiatan
@@ -199,11 +200,19 @@ export default function DashboardKPA() {
            }
 
            // Calculate Widgets specifically for KPA: Pengajuan Masuk, Menunggu, Disetujui
-           if (spjStatus !== 'selesai') {
-             masuk++;
+           if (spjStatus === 'selesai') {
+               perjalananSelesai++;
+           } else {
              if (status === 'Disetujui') disetujui++;
              else if (status === 'Ditolak') ditolak++;
-             else if (status === 'Menunggu Persetujuan') menunggu++;
+             
+             if (status === 'Menunggu Persetujuan') {
+                 menunggu++;
+             }
+
+             if (status === 'Menunggu Persetujuan' || spjStatus === 'menunggu_verifikasi_kpa') {
+                 masuk++;
+             }
            }
            
            if (spjStatus === 'selesai') {
@@ -240,7 +249,7 @@ export default function DashboardKPA() {
         setAllSubKegiatan(updatedMsk);
 
         // Map masuk to total for stats
-        setStats({ total: masuk, disetujui, ditolak, menunggu, belumSpj: 0 });
+        setStats({ total: masuk, disetujui, ditolak, menunggu, belumSpj: 0, perjalananSelesai });
         
         let targetDalam = updatedMsk.reduce((acc, sk) => acc + (sk.paguDalamDaerah || 0), 0);
         let targetLuar = updatedMsk.reduce((acc, sk) => acc + (sk.paguLuarDaerah || 0), 0);
@@ -345,6 +354,14 @@ export default function DashboardKPA() {
       bgColor: 'bg-green-100',
       iconColor: 'text-green-700',
       hoverColor: 'group-hover:text-green-600'
+    },
+    {
+      icon: MapPin,
+      value: String(stats.perjalananSelesai || 0).padStart(2, '0'),
+      label: 'Perjalanan Selesai',
+      bgColor: 'bg-emerald-100',
+      iconColor: 'text-emerald-700',
+      hoverColor: 'group-hover:text-emerald-600'
     }
   ];
 
@@ -429,7 +446,7 @@ export default function DashboardKPA() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {kpiData.map((kpi, index) => (
             <KPICard key={index} {...kpi} />
           ))}
