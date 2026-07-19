@@ -11,7 +11,6 @@ import {
   getAppSetting,
   getAllPengajuan,
   deletePengajuan,
-  deletePengajuanByNoSppd,
 } from "../utils/supabaseDataStore";
 import { downloadSPPD } from "../utils/generateSPPD";
 import { SppdPreviewModal } from "../components/SppdPreviewModal";
@@ -142,8 +141,10 @@ export default function DaftarPengajuan() {
 
   const handleDeleteItem = async (item: LaporanData) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      // 1. Coba hapus secara fisik dari database menggunakan no_sppd
-      await deletePengajuanByNoSppd(item.noSppd);
+      if (item.id) {
+        // 1. Hapus via API yang akan menghapus data di KV Store dan DB
+        await deletePengajuan(item.id);
+      }
       
       // 2. Sebagai fallback/tambahan, sembunyikan juga ID-nya
       await addHiddenSppdIds([item.noSppd]);

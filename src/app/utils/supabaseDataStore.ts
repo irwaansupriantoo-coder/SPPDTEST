@@ -717,28 +717,16 @@ export async function updatePengajuan(id: string, updates: any): Promise<any> {
 
 export async function deletePengajuan(id: string): Promise<void> {
   try {
+    // 1. Delete via edge function (clears both KV store and Supabase DB)
+    await apiRequest(`/pengajuan/${id}`, { method: 'DELETE' }).catch(() => {});
+    
+    // 2. Fallback: delete directly via Supabase client just in case
     await sb()
       .from('pengajuan_sppd')
       .delete()
       .eq('id', id);
   } catch (e) {
     console.error('deletePengajuan error:', e);
-  }
-}
-
-export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
-  try {
-    const { error } = await sb()
-      .from('pengajuan_sppd')
-      .delete()
-      .eq('no_sppd', noSppd);
-      
-    if (error) {
-      console.error('deletePengajuanByNoSppd error from Supabase:', error);
-      throw error;
-    }
-  } catch (e) {
-    console.error('deletePengajuanByNoSppd error:', e);
   }
 }
 
