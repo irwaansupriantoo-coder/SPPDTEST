@@ -759,7 +759,7 @@ export default function DashboardPPTK() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedArsip.length > 0 ? paginatedArsip.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-4"><p className="font-semibold text-[#00475e] text-sm">{sppd || '-'}</p></td>

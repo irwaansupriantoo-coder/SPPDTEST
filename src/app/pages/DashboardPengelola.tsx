@@ -899,7 +899,7 @@ export default function DashboardPengelola() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedArsip.length > 0 ? paginatedArsip.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
