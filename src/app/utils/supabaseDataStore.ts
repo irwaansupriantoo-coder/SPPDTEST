@@ -740,6 +740,23 @@ export async function updatePengajuan(id: string, updates: any): Promise<any> {
 
 export async function deletePengajuan(id: string): Promise<void> {
   try {
+    const { data: pengajuan } = await sb()
+      .from('pengajuan_sppd')
+      .select('no_sppd')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (pengajuan?.no_sppd) {
+      const noSppd = pengajuan.no_sppd;
+      await sb().from('sppd_statuses').delete().eq('no_sppd', noSppd);
+      await sb().from('sppd_laporan_status').delete().eq('no_sppd', noSppd);
+      await sb().from('sppd_pegawai_approvals').delete().eq('no_sppd', noSppd);
+      await sb().from('sppd_pelaksana_data').delete().eq('no_sppd', noSppd);
+      await sb().from('sppd_program_data').delete().eq('no_sppd', noSppd);
+      await sb().from('sppd_hidden_ids').delete().eq('no_sppd', noSppd);
+      await sb().from('bukti_pembayaran').delete().eq('no_sppd', noSppd);
+    }
+
     const { error } = await sb()
       .from('pengajuan_sppd')
       .delete()
@@ -753,6 +770,14 @@ export async function deletePengajuan(id: string): Promise<void> {
 
 export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
   try {
+    await sb().from('sppd_statuses').delete().eq('no_sppd', noSppd);
+    await sb().from('sppd_laporan_status').delete().eq('no_sppd', noSppd);
+    await sb().from('sppd_pegawai_approvals').delete().eq('no_sppd', noSppd);
+    await sb().from('sppd_pelaksana_data').delete().eq('no_sppd', noSppd);
+    await sb().from('sppd_program_data').delete().eq('no_sppd', noSppd);
+    await sb().from('sppd_hidden_ids').delete().eq('no_sppd', noSppd);
+    await sb().from('bukti_pembayaran').delete().eq('no_sppd', noSppd);
+
     const { error } = await sb()
       .from('pengajuan_sppd')
       .delete()
@@ -767,6 +792,14 @@ export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
 export async function deletePengajuanByNoSppdList(noSppdList: string[]): Promise<void> {
   if (!noSppdList || noSppdList.length === 0) return;
   try {
+    await sb().from('sppd_statuses').delete().in('no_sppd', noSppdList);
+    await sb().from('sppd_laporan_status').delete().in('no_sppd', noSppdList);
+    await sb().from('sppd_pegawai_approvals').delete().in('no_sppd', noSppdList);
+    await sb().from('sppd_pelaksana_data').delete().in('no_sppd', noSppdList);
+    await sb().from('sppd_program_data').delete().in('no_sppd', noSppdList);
+    await sb().from('sppd_hidden_ids').delete().in('no_sppd', noSppdList);
+    await sb().from('bukti_pembayaran').delete().in('no_sppd', noSppdList);
+
     const { error } = await sb()
       .from('pengajuan_sppd')
       .delete()
