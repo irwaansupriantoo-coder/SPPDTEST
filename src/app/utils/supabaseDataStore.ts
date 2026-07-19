@@ -652,9 +652,18 @@ export async function setAppSetting(key: string, value: string): Promise<void> {
 
 export async function getAllPengajuan(): Promise<any[]> {
   try {
-    const res = await apiRequest('/pengajuan?limit=1000');
-    if (res && res.data && res.data.length > 0) {
-      return res.data;
+    const { data, error } = await sb()
+      .from('pengajuan_sppd')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('getAllPengajuan query error:', error);
+      throw error;
+    }
+
+    if (data && data.length > 0) {
+      return data.map(normPengajuan);
     }
     return [];
   } catch (e) {
@@ -717,14 +726,12 @@ export async function updatePengajuan(id: string, updates: any): Promise<any> {
 
 export async function deletePengajuan(id: string): Promise<void> {
   try {
-    // 1. Delete via edge function (clears both KV store and Supabase DB)
-    await apiRequest(`/pengajuan/${id}`, { method: 'DELETE' }).catch(() => {});
-    
-    // 2. Fallback: delete directly via Supabase client just in case
-    await sb()
+    const { error } = await sb()
       .from('pengajuan_sppd')
       .delete()
       .eq('id', id);
+      
+    if (error) throw error;
   } catch (e) {
     console.error('deletePengajuan error:', e);
   }

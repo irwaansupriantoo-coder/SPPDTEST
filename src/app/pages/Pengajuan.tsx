@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { apiRequest } from "../utils/supabaseClient";
+import { createPengajuan } from "../utils/supabaseDataStore";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { ReviewModal } from "../components/ReviewModal";
@@ -428,34 +429,24 @@ export default function Pengajuan() {
     };
 
     try {
+      // Simpan langsung ke Supabase (melewati KV store / edge function)
+      await createPengajuan(payload);
+      
+      // Update anggaran
       try {
-        await apiRequest('/pengajuan', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        });
-      } catch (reqErr: any) {
-        // Edge function throws 500 because kv_store table doesn't exist, but insertion succeeds!
-        if (reqErr.message.includes('500')) {
-          console.warn("Caught 500 error from pengajuan, proceeding with manual budget update:", reqErr);
-          // Manually update the budget since edge function crashed before updating it
-          try {
-            const currentAnggaran: any = await apiRequest('/anggaran');
-            const targetAnggaran = tipePerjalanan === "Dalam Daerah" ? currentAnggaran.dalamDaerah : currentAnggaran.luarDaerah;
-            await apiRequest('/anggaran', {
-              method: 'PUT',
-              body: JSON.stringify({
-                type: tipePerjalanan,
-                total: targetAnggaran.total,
-                used: (targetAnggaran.used || 0) + totalAnggaran,
-                tahun: new Date().getFullYear().toString()
-              })
-            }).catch(e => console.warn("Expected 500 on PUT /anggaran ignored:", e));
-          } catch (angErr) {
-            console.error("Failed to update anggaran:", angErr);
-          }
-        } else {
-          throw reqErr;
-        }
+        const currentAnggaran: any = await apiRequest('/anggaran');
+        const targetAnggaran = tipePerjalanan === "Dalam Daerah" ? currentAnggaran.dalamDaerah : currentAnggaran.luarDaerah;
+        await apiRequest('/anggaran', {
+          method: 'PUT',
+          body: JSON.stringify({
+            type: tipePerjalanan,
+            total: targetAnggaran.total,
+            used: (targetAnggaran.used || 0) + totalAnggaran,
+            tahun: new Date().getFullYear().toString()
+          })
+        }).catch(e => console.warn("Expected 500 on PUT /anggaran ignored:", e));
+      } catch (angErr) {
+        console.error("Failed to update anggaran:", angErr);
       }
 
       // Simpan file base64 ke IndexedDB agar bisa dilihat oleh akun kpa di browser yang sama tanpa limit quota 5MB
