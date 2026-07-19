@@ -8,7 +8,7 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
-import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan } from "../utils/supabaseDataStore";
+import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -300,12 +300,17 @@ export default function Laporan() {
     }
   };
 
-  const handleDeleteItem = (noSppd: string) => {
+  const handleDeleteItem = async (noSppd: string) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      addHiddenSppdId(noSppd);
-      setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
-      setLuarDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
-      toast.success('Data berhasil dihapus permanen.');
+      try {
+        await deletePengajuanByNoSppd(noSppd);
+        setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
+        setLuarDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
+        toast.success('Data berhasil dihapus permanen.');
+      } catch (err) {
+        console.error('Error deleting SPJ:', err);
+        toast.error('Gagal menghapus data.');
+      }
     }
   };
 
@@ -386,14 +391,19 @@ export default function Laporan() {
             <div className="flex gap-3">
               {user?.role === 'admin' && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if(window.confirm('Yakin ingin menghapus semua laporan SPJ secara permanen?')) {
-                      const newHidden = allData.map(p => p.noSppd);
-                      addHiddenSppdIds(newHidden);
-                      setDalamDaerahData([]);
-                      setLuarDaerahData([]);
-                      toast.success('Semua laporan SPJ berhasil dihapus permanen.');
-                      setTimeout(() => window.location.reload(), 1000);
+                      try {
+                        const allSppdIds = allData.map(p => p.noSppd);
+                        await deletePengajuanByNoSppdList(allSppdIds);
+                        setDalamDaerahData([]);
+                        setLuarDaerahData([]);
+                        toast.success('Semua laporan SPJ berhasil dihapus permanen.');
+                        setTimeout(() => window.location.reload(), 1000);
+                      } catch (err) {
+                        console.error('Error deleting all SPJ:', err);
+                        toast.error('Gagal menghapus semua data.');
+                      }
                     }
                   }}
                   className="px-5 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl text-sm transition-colors shadow-sm whitespace-nowrap"

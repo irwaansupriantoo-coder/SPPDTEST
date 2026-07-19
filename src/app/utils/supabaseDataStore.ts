@@ -751,6 +751,33 @@ export async function deletePengajuan(id: string): Promise<void> {
   }
 }
 
+export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
+  try {
+    const { error } = await sb()
+      .from('pengajuan_sppd')
+      .delete()
+      .eq('no_sppd', noSppd);
+      
+    if (error) throw error;
+  } catch (e) {
+    console.error('deletePengajuanByNoSppd error:', e);
+  }
+}
+
+export async function deletePengajuanByNoSppdList(noSppdList: string[]): Promise<void> {
+  if (!noSppdList || noSppdList.length === 0) return;
+  try {
+    const { error } = await sb()
+      .from('pengajuan_sppd')
+      .delete()
+      .in('no_sppd', noSppdList);
+      
+    if (error) throw error;
+  } catch (e) {
+    console.error('deletePengajuanByNoSppdList error:', e);
+  }
+}
+
 function normPengajuan(row: any) {
   return {
     id: row.id,

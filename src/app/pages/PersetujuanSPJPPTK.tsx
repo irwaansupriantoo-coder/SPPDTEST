@@ -55,6 +55,7 @@ interface LaporanData {
   status:
     | "belum_spj"
     | "menunggu_verifikasi_pegawai"
+    | "menunggu_verifikasi_pegawai"
     | "menunggu_verifikasi_bendahara"
     | "menunggu_verifikasi_pptk"
     | "menunggu_verifikasi_kpa"
@@ -79,6 +80,7 @@ export default function PersetujuanSPJPPTK() {
   const [statusFilter, setStatusFilter] = useState<
     | "all"
     | "belum_spj"
+    | "menunggu_verifikasi_pegawai"
     | "menunggu_verifikasi_pegawai"
     | "menunggu_verifikasi_bendahara"
     | "menunggu_verifikasi_pptk"
