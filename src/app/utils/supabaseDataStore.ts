@@ -953,21 +953,33 @@ export async function batchGetStatusPengajuan(noSppdList: string[]): Promise<Rec
 export async function batchGetLaporanStatus(noSppdList: string[]): Promise<Record<string, string>> {
   if (noSppdList.length === 0) return {};
 
+  const result: Record<string, string> = {};
+
   try {
     const { data } = await sb()
       .from('sppd_laporan_status')
       .select('no_sppd, status')
       .in('no_sppd', noSppdList);
 
-    const result: Record<string, string> = {};
     (data || []).forEach((d: any) => {
       result[d.no_sppd] = d.status;
     });
-    return result;
   } catch (e) {
     console.error('batchGetLaporanStatus error:', e);
-    return {};
   }
+
+  // Fallback to localStorage for missing entries
+  noSppdList.forEach((noSppd) => {
+    if (!result[noSppd]) {
+      const cacheKey = `laporan_status_${noSppd}`;
+      const localStatus = typeof localStorage !== 'undefined' ? localStorage.getItem(cacheKey) : null;
+      if (localStatus) {
+        result[noSppd] = localStatus;
+      }
+    }
+  });
+
+  return result;
 }
 
 export async function batchGetTanggalPersetujuan(noSppdList: string[]): Promise<Record<string, string>> {
