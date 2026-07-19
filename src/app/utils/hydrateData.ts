@@ -7,7 +7,7 @@ import {
 } from "./supabaseDataStore";
 
 export const hydrateLaporanDataAsync = async (d: any) => {
-  let status = d.status;
+  let status = "belum_spj"; // Default to belum_spj for new Laporan
   try {
     const storedStatus = await getLaporanStatus(d.noSppd);
     if (storedStatus) {
