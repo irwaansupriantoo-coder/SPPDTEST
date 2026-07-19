@@ -662,7 +662,14 @@ export default function Laporan() {
                           {item.status === "belum_spj" || item.status === "draft_laporan" || item.status === "perbaikan" || item.status === "Menunggu Persetujuan" as any ? (
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => handleBuatLaporan(item)}
+                                onClick={() => {
+                                  if (item.status === "draft_laporan") {
+                                    setSelectedLaporan(item);
+                                    setIsVerifikasiDialogOpen(true);
+                                  } else {
+                                    handleBuatLaporan(item);
+                                  }
+                                }}
                                 className="px-4 py-2 bg-[#00475e] text-white rounded-lg text-xs font-bold hover:bg-[#1a5f7a] shadow-sm transition-all active:scale-95 flex items-center gap-2"
                               >
                                 <FileText className="w-4 h-4" />
