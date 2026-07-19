@@ -1044,7 +1044,10 @@ export default function PersetujuanSPJPegawai() {
                         [selectedLaporanToReview.noSppd]: [...(prev[selectedLaporanToReview.noSppd] || []), user.nip]
                       }));
                     }
-                    const approvals = await getPegawaiApprovals(selectedLaporanToReview.noSppd);
+                    let approvals = await getPegawaiApprovals(selectedLaporanToReview.noSppd);
+                    if (user?.nip && !approvals.includes(user.nip)) {
+                      approvals = [...approvals, user.nip];
+                    }
                     const pelaksanaCount = selectedLaporanToReview.pelaksana.length;
 
                     if (approvals.length >= pelaksanaCount) {
