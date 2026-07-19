@@ -31,18 +31,6 @@ function sb() {
 
 export async function getStatusPengajuan(noSppd: string): Promise<string> {
   try {
-    // 1. Coba ambil dari sppd_statuses terlebih dahulu (lebih reliable)
-    const { data: statusData } = await sb()
-      .from('sppd_statuses')
-      .select('status')
-      .eq('no_sppd', noSppd)
-      .maybeSingle();
-
-    if (statusData?.status) {
-      return statusData.status;
-    }
-
-    // 2. Fallback ke pengajuan_sppd jika belum ada di sppd_statuses
     const { data } = await sb()
       .from('pengajuan_sppd')
       .select('status')
@@ -725,21 +713,11 @@ export async function createPengajuan(payload: any): Promise<any> {
 
 export async function updatePengajuan(id: string, updates: any): Promise<any> {
   try {
-    const patch: Record<string, any> = { updated_at: new Date().toISOString() };
-    if (updates.status !== undefined) patch.status = updates.status;
-    if (updates.catatanPerbaikan !== undefined) patch.catatan_perbaikan = updates.catatanPerbaikan;
-    if (updates.pelaksana !== undefined) patch.pelaksana = updates.pelaksana;
-    if (updates.totalAnggaran !== undefined) patch.total_anggaran = updates.totalAnggaran;
-
-    const { data, error } = await sb()
-      .from('pengajuan_sppd')
-      .update(patch)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return { success: true, data: normPengajuan(data) };
+    const res = await apiRequest(`/pengajuan/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+    return res;
   } catch (e) {
     console.error('updatePengajuan error:', e);
     throw e;
@@ -860,28 +838,14 @@ export async function batchGetStatusPengajuan(noSppdList: string[]): Promise<Rec
   if (noSppdList.length === 0) return {};
 
   try {
-    const result: Record<string, string> = {};
-
-    // 1. Fetch from pengajuan_sppd (sebagai fallback base)
-    const { data: mainData } = await sb()
+    const { data } = await sb()
       .from('pengajuan_sppd')
       .select('no_sppd, status')
       .in('no_sppd', noSppdList);
 
-    (mainData || []).forEach((d: any) => {
+    const result: Record<string, string> = {};
+    (data || []).forEach((d: any) => {
       result[d.no_sppd] = d.status || 'Menunggu Persetujuan';
-    });
-
-    // 2. Fetch from sppd_statuses (sebagai prioritas utama/override)
-    const { data: statusData } = await sb()
-      .from('sppd_statuses')
-      .select('no_sppd, status')
-      .in('no_sppd', noSppdList);
-
-    (statusData || []).forEach((d: any) => {
-      if (d.status) {
-        result[d.no_sppd] = d.status;
-      }
     });
 
     // Fill defaults for missing
