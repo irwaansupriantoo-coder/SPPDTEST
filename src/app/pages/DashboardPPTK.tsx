@@ -36,6 +36,7 @@ export default function DashboardPPTK() {
   const [isSppdModalOpen, setIsSppdModalOpen] = useState(false);
   const [selectedSppd, setSelectedSppd] = useState<any>(null);
   const [statusMapState, setStatusMapState] = useState<Record<string, string>>({});
+  const [laporanStatusMapState, setLaporanStatusMapState] = useState<Record<string, string>>({});
   const [tanggalMapState, setTanggalMapState] = useState<Record<string, string>>({});
 
   const [searchSubKegiatan, setSearchSubKegiatan] = useState('');
@@ -80,6 +81,7 @@ export default function DashboardPPTK() {
         batchGetProgramData(allSppdIds),
       ]);
       setStatusMapState(sMap);
+      setLaporanStatusMapState(laporanStatusMap);
 
       const msk = getSubKegiatanByPPTK(pptkNip);
       const mskNames = msk.map(sk => sk.nama);
@@ -657,7 +659,7 @@ export default function DashboardPPTK() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedLaporan.length > 0 ? paginatedLaporan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
                           <td className="px-4 py-4"><p className="font-semibold text-[#00475e] text-sm">{sppd || '-'}</p></td>

@@ -80,6 +80,7 @@ export default function DashboardPengelola() {
   const [isSppdModalOpen, setIsSppdModalOpen] = useState(false);
   const [selectedSppd, setSelectedSppd] = useState<any>(null);
   const [statusMapState, setStatusMapState] = useState<Record<string, string>>({});
+  const [laporanStatusMapState, setLaporanStatusMapState] = useState<Record<string, string>>({});
   const [tanggalMapState, setTanggalMapState] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -115,6 +116,7 @@ export default function DashboardPengelola() {
           batchGetProgramData(allSppdIds),
         ]);
         setStatusMapState(sMap);
+        setLaporanStatusMapState(laporanStatusMap);
 
         let msk: SubKegiatan[] = [];
 
@@ -769,7 +771,7 @@ export default function DashboardPengelola() {
                   <tbody className="divide-y divide-slate-200">
                     {paginatedLaporan.length > 0 ? paginatedLaporan.map((item, idx) => {
                       const sppd = item.noSppd || item.no_sppd || '';
-                      const spjStatus = laporanStatusMap[sppd] || item.status || "belum_spj";
+                      const spjStatus = laporanStatusMapState[sppd] || item.status || "belum_spj";
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
