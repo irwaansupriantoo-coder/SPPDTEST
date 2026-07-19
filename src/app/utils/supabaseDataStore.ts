@@ -166,12 +166,12 @@ export async function getLaporanStatus(noSppd: string): Promise<string | null> {
 
     if (error) throw error;
 
-    const status = data?.status || localStorage.getItem(cacheKey) || null;
+    const status = data?.status || null;
     if (status) setCache(cacheKey, status);
     return status;
   } catch (e) {
     console.error('getLaporanStatus error:', e);
-    return localStorage.getItem(cacheKey) || null;
+    return null;
   }
 }
 
@@ -186,11 +186,9 @@ export async function setLaporanStatus(noSppd: string, status: string): Promise<
       );
     if (error) throw error;
     setCache(cacheKey, status);
-    localStorage.setItem(cacheKey, status);
   } catch (e) {
     console.error('setLaporanStatus error:', e);
     setCache(cacheKey, status);
-    localStorage.setItem(cacheKey, status);
   }
 }
 
@@ -967,17 +965,6 @@ export async function batchGetLaporanStatus(noSppdList: string[]): Promise<Recor
   } catch (e) {
     console.error('batchGetLaporanStatus error:', e);
   }
-
-  // Fallback to localStorage for missing entries
-  noSppdList.forEach((noSppd) => {
-    if (!result[noSppd]) {
-      const cacheKey = `laporan_status_${noSppd}`;
-      const localStatus = typeof localStorage !== 'undefined' ? localStorage.getItem(cacheKey) : null;
-      if (localStatus) {
-        result[noSppd] = localStatus;
-      }
-    }
-  });
 
   return result;
 }
