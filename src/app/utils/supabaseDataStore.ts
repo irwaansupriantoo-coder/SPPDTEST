@@ -30,21 +30,14 @@ function sb() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export async function getStatusPengajuan(noSppd: string): Promise<string> {
-  // Cache check
-  const cacheKey = `status_${noSppd}`;
-  const cached = getCached<string>(cacheKey);
-  if (cached) return cached;
-
   try {
     const { data } = await sb()
-      .from('sppd_statuses')
+      .from('pengajuan_sppd')
       .select('status')
       .eq('no_sppd', noSppd)
       .maybeSingle();
 
-    const status = data?.status || 'Menunggu Persetujuan';
-    setCache(cacheKey, status);
-    return status;
+    return data?.status || 'Menunggu Persetujuan';
   } catch (e) {
     console.error('getStatusPengajuan error:', e);
     return 'Menunggu Persetujuan';
@@ -54,6 +47,13 @@ export async function getStatusPengajuan(noSppd: string): Promise<string> {
 export async function setStatusPengajuan(noSppd: string, status: string): Promise<void> {
   try {
     const now = new Date().toISOString();
+    
+    // Update main table
+    await sb()
+      .from('pengajuan_sppd')
+      .update({ status, updated_at: now })
+      .eq('no_sppd', noSppd);
+
     const record: any = {
       no_sppd: noSppd,
       status,
@@ -71,8 +71,6 @@ export async function setStatusPengajuan(noSppd: string, status: string): Promis
     if (error) {
       console.error('Supabase UPSERT Error in sppd_statuses:', error);
     }
-
-    setCache(`status_${noSppd}`, status);
   } catch (e) {
     console.error('setStatusPengajuan error:', e);
   }
@@ -847,14 +845,13 @@ export async function batchGetStatusPengajuan(noSppdList: string[]): Promise<Rec
 
   try {
     const { data } = await sb()
-      .from('sppd_statuses')
+      .from('pengajuan_sppd')
       .select('no_sppd, status')
       .in('no_sppd', noSppdList);
 
     const result: Record<string, string> = {};
     (data || []).forEach((d: any) => {
-      result[d.no_sppd] = d.status;
-      setCache(`status_${d.no_sppd}`, d.status);
+      result[d.no_sppd] = d.status || 'Menunggu Persetujuan';
     });
 
     // Fill defaults for missing
