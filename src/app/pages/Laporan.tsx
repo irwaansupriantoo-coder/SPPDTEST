@@ -8,7 +8,7 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
-import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList } from "../utils/supabaseDataStore";
+import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList, setTotalAnggaranPengajuan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -237,17 +237,32 @@ export default function Laporan() {
     const updatedPelaksana = selectedLaporan.pelaksana.map(p => {
       if (travelerData && travelerData[p.nip]) {
         const tData = travelerData[p.nip];
+        
+        // Handle both Dalam Daerah (flat) and Luar Daerah (nested) structures
+        const tiketPesawat = tData.pesawat?.enabled ? (tData.pesawat.subtotal || 0) : (tData.totalPesawat || 0);
+        const tiketKereta = tData.keretaApi?.enabled ? (tData.keretaApi.subtotal || 0) : (tData.totalKeretaApi || 0);
+        const taxi = tData.taxiBandara?.enabled ? (tData.taxiBandara.subtotal || 0) : (tData.totalTaxiBandara || 0);
+        const rep = tData.biayaRepresentatif?.enabled ? (tData.biayaRepresentatif.subtotal || 0) : (tData.totalBiayaRepresentatif || 0);
+        
+        let tol = tData.totalBiayaTol || 0;
+        if (tData.biayaTol?.enabled) {
+          const tolStr = String(tData.biayaTol.total || '0');
+          tol = parseInt(tolStr.replace(/\D/g, "")) || 0;
+        }
+
+        const sewa = tData.sewaKendaraan?.enabled ? (tData.sewaKendaraan.subtotal || 0) : (tData.totalSewaKendaraan || 0);
+
         return {
           ...p,
           jumlahHari: parseInt(tData.jumlahHari || '0'),
           totalBiayaHotel: tData.totalBiayaHotel || 0,
-          totalSewaKendaraan: tData.totalSewaKendaraan || 0,
+          totalSewaKendaraan: sewa,
           totalUangHarian: tData.totalUangHarian || 0,
-          totalPesawat: tData.totalPesawat || 0,
-          totalKeretaApi: tData.totalKeretaApi || 0,
-          totalBiayaTol: tData.totalBiayaTol || 0,
-          totalTaxiBandara: tData.totalTaxiBandara || 0,
-          totalBiayaRepresentatif: tData.totalBiayaRepresentatif || 0,
+          totalPesawat: tiketPesawat,
+          totalKeretaApi: tiketKereta,
+          totalBiayaTol: tol,
+          totalTaxiBandara: taxi,
+          totalBiayaRepresentatif: rep,
         };
       }
       return p;
@@ -290,10 +305,7 @@ export default function Laporan() {
     // Persist to server if item has a server-side id
     if ((selectedLaporan as any).id) {
       try {
-        await apiRequest(`/laporan/${(selectedLaporan as any).id}`, {
-          method: 'POST',
-          body: JSON.stringify({ status: newStatus, pelaksana: updatedPelaksana, totalAnggaran: newTotalAnggaran }),
-        });
+        await setTotalAnggaranPengajuan((selectedLaporan as any).id, newTotalAnggaran);
       } catch (err) {
         console.log('Error saving SPJ to server:', err);
       }

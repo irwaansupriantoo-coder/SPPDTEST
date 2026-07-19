@@ -737,6 +737,19 @@ export async function updatePengajuan(id: string, updates: any): Promise<any> {
   }
 }
 
+export async function setTotalAnggaranPengajuan(id: string, totalAnggaran: number): Promise<void> {
+  try {
+    const { error } = await sb()
+      .from('pengajuan_sppd')
+      .update({ total_anggaran: totalAnggaran })
+      .eq('id', id);
+      
+    if (error) throw error;
+  } catch (e) {
+    console.error('setTotalAnggaranPengajuan error:', e);
+  }
+}
+
 export async function deletePengajuan(id: string): Promise<void> {
   try {
     const { data: pengajuan } = await sb()
