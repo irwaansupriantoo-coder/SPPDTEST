@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { apiRequest } from "../utils/supabaseClient";
-import { getStatusPengajuan, setStatusPengajuan, getTanggalPersetujuan } from "../utils/statusStore";
+import { useAuth } from "../context/AuthContext";
+import { getStatusPengajuan, setStatusPengajuan, getTanggalPersetujuan, batchGetStatusPengajuan, batchGetTanggalPersetujuan } from "../utils/statusStore";
 import { getFileFromDB } from "../utils/db";
 import { logActivity } from "../utils/activityStore";
 import {
@@ -49,8 +50,7 @@ interface LaporanData {
 }
 
 export default function PersetujuanSPPDKPA() {
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<"Semua" | "Dalam Daerah" | "Luar Daerah">("Semua");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

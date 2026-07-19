@@ -4,6 +4,7 @@ import { Sidebar } from "../components/Sidebar";
 import { SPJDialog } from "../components/SPJDialog";
 import { LuarDaerahDialog } from "../components/LuarDaerahDialog";
 import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
+import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan } from "../utils/supabaseDataStore";
@@ -51,8 +52,7 @@ const MOCK_DATA_DALAM_DAERAH: LaporanData[] = [];
 const MOCK_DATA_LUAR_DAERAH: LaporanData[] = [];
 
 export default function ArsipSPJPegawai() {
-  const userJson = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-  const user = userJson ? JSON.parse(userJson) : null;
+  const { user } = useAuth();
   const [tipePerjalanan, setTipePerjalanan] = useState<
     "Semua Laporan" | "Dalam Daerah" | "Luar Daerah"
   >("Semua Laporan");
