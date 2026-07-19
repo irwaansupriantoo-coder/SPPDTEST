@@ -10,6 +10,7 @@ import {
   batchGetLaporanStatus,
   getAppSetting,
   getAllPengajuan,
+  deletePengajuan,
 } from "../utils/supabaseDataStore";
 import { downloadSPPD } from "../utils/generateSPPD";
 import { SppdPreviewModal } from "../components/SppdPreviewModal";
@@ -30,6 +31,7 @@ import { Toaster, toast } from "sonner";
 import * as XLSX from "xlsx";
 
 interface LaporanData {
+  id?: string;
   noSpt: string;
   noSppd: string;
   pembuat: {
@@ -137,10 +139,14 @@ export default function DaftarPengajuan() {
     }
   };
 
-  const handleDeleteItem = async (noSppd: string) => {
+  const handleDeleteItem = async (item: LaporanData) => {
     if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
-      await addHiddenSppdIds([noSppd]);
-      setAllPengajuan(prev => prev.filter(item => item.noSppd !== noSppd));
+      if (item.id) {
+        await deletePengajuan(item.id);
+      } else {
+        await addHiddenSppdIds([item.noSppd]);
+      }
+      setAllPengajuan(prev => prev.filter(p => p.noSppd !== item.noSppd));
       toast.success('Data berhasil dihapus permanen.');
     }
   };
@@ -318,11 +324,11 @@ export default function DaftarPengajuan() {
                                   Unduh
                                 </button>
                               )}
-                              {user?.role === 'admin' && (
-                                <button
-                                  onClick={() => handleDeleteItem(item.noSppd)}
-                                  className="px-3 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 shadow-sm transition-all active:scale-95 flex items-center gap-2"
-                                >
+                                {user?.role === 'admin' && (
+                                  <button
+                                    onClick={() => handleDeleteItem(item)}
+                                    className="px-3 py-2 bg-red-50 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 shadow-sm transition-all active:scale-95 flex items-center gap-2"
+                                  >
                                   Hapus
                                 </button>
                               )}
