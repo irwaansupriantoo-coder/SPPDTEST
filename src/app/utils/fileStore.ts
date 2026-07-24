@@ -1,75 +1,110 @@
-const DB_NAME = 'SPPD_FileStore';
-const STORE_NAME = 'files';
-const DB_VERSION = 1;
+import { getSupabaseClient } from './supabaseClient';
 
-export const openDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME);
-      }
-    };
-  });
-};
+const BUCKET_NAME = 'sppd-documents';
 
 export const saveFile = async (key: string, file: File | Blob | string): Promise<void> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(file, key);
+  const sb = getSupabaseClient();
+  
+  let fileBody: File | Blob | string = file;
+  let contentType = 'application/octet-stream';
+  
+  if (file instanceof File) {
+    contentType = file.type;
+  } else if (file instanceof Blob) {
+    contentType = file.type;
+  } else if (typeof file === 'string') {
+    // If it's a string (e.g. base64 or just text), we keep it as is, or we can convert it.
+    // For simplicity, we just pass the string.
+    contentType = 'text/plain';
+  }
 
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
+  // Replace slashes in the key to avoid nested folders, or keep them?
+  // Supabase supports nested folders. We'll keep them, but ensure no leading slash.
+  const cleanKey = key.replace(/^\//, '');
+
+  const { error } = await sb.storage.from(BUCKET_NAME).upload(cleanKey, fileBody, {
+    upsert: true,
+    contentType
   });
+
+  if (error) {
+    console.error('Error uploading file to Supabase:', error);
+    throw error;
+  }
 };
 
 export const getFile = async (key: string): Promise<File | Blob | string | undefined> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.get(key);
+  const sb = getSupabaseClient();
+  const cleanKey = key.replace(/^\//, '');
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  const { data, error } = await sb.storage.from(BUCKET_NAME).download(cleanKey);
+
+  if (error || !data) {
+    console.warn(`File ${key} not found in Supabase:`, error);
+    return undefined;
+  }
+
+  return data as Blob;
 };
 
 export const deleteFile = async (key: string): Promise<void> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.delete(key);
+  const sb = getSupabaseClient();
+  const cleanKey = key.replace(/^\//, '');
 
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+  const { error } = await sb.storage.from(BUCKET_NAME).remove([cleanKey]);
+
+  if (error) {
+    console.error('Error deleting file from Supabase:', error);
+    throw error;
+  }
 };
 
 export const deleteFilesContaining = async (substring: string): Promise<void> => {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAllKeys();
+  const sb = getSupabaseClient();
+  
+  // Supabase doesn't support substring search directly in `list`.
+  // We have to list all files in the bucket and filter. 
+  // For small buckets this is fine, but for large ones it requires pagination.
+  // We'll implement a simple list for now.
+  let allFiles: any[] = [];
+  let offset = 0;
+  const limit = 100;
+  let hasMore = true;
 
-    request.onsuccess = () => {
-      const keys = request.result as string[];
-      for (const key of keys) {
-        if (key.includes(substring)) {
-          store.delete(key);
-        }
+  while (hasMore) {
+    const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
+      limit,
+      offset,
+      sortBy: { column: 'name', order: 'asc' },
+    });
+
+    if (error) {
+      console.error('Error listing files for deletion:', error);
+      break;
+    }
+
+    if (!data || data.length === 0) {
+      hasMore = false;
+    } else {
+      allFiles = [...allFiles, ...data];
+      if (data.length < limit) {
+        hasMore = false;
+      } else {
+        offset += limit;
       }
-      resolve();
-    };
-    request.onerror = () => reject(request.error);
-  });
+    }
+  }
+
+  const keysToDelete = allFiles
+    .map(f => f.name)
+    .filter(name => name.includes(substring));
+
+  if (keysToDelete.length > 0) {
+    const { error } = await sb.storage.from(BUCKET_NAME).remove(keysToDelete);
+    if (error) {
+      console.error('Error deleting multiple files:', error);
+      throw error;
+    }
+  }
 };
+

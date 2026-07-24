@@ -111,8 +111,67 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
     if (selectedPelaksana) {
       const nip = selectedPelaksana.nip;
       const newStatus = { ...travelerStatus, [nip]: 'sudah_lengkap' as const };
-      const newData = { ...travelerData, [nip]: detailData };
       
+      // Upload all files to Supabase immediately and replace with markers
+      const processedData = { ...detailData };
+      toast.info('Mengunggah file ke server...');
+      
+      try {
+        if (processedData.hotelFile instanceof File) {
+          await saveFile(`sppd_hotel_${data.noSppd}_${nip}`, processedData.hotelFile);
+          processedData.hotelFile = 'uploaded';
+        }
+        if (processedData.sewaKendaraan?.file instanceof File) {
+          await saveFile(`sppd_kendaraan_${data.noSppd}_${nip}`, processedData.sewaKendaraan.file);
+          processedData.sewaKendaraan.file = 'uploaded';
+        }
+        if (processedData.pesawat?.filePergi instanceof File) {
+          await saveFile(`sppd_pesawat_pergi_${data.noSppd}_${nip}`, processedData.pesawat.filePergi);
+          processedData.pesawat.filePergi = 'uploaded';
+        }
+        if (processedData.pesawat?.filePulang instanceof File) {
+          await saveFile(`sppd_pesawat_pulang_${data.noSppd}_${nip}`, processedData.pesawat.filePulang);
+          processedData.pesawat.filePulang = 'uploaded';
+        }
+        if (processedData.keretaApi?.file instanceof File) {
+          await saveFile(`sppd_kereta_${data.noSppd}_${nip}`, processedData.keretaApi.file);
+          processedData.keretaApi.file = 'uploaded';
+        }
+        if (processedData.taxiBandara?.filePergi instanceof File) {
+          await saveFile(`sppd_taxi_pergi_${data.noSppd}_${nip}`, processedData.taxiBandara.filePergi);
+          processedData.taxiBandara.filePergi = 'uploaded';
+        }
+        if (processedData.taxiBandara?.filePulang instanceof File) {
+          await saveFile(`sppd_taxi_pulang_${data.noSppd}_${nip}`, processedData.taxiBandara.filePulang);
+          processedData.taxiBandara.filePulang = 'uploaded';
+        }
+        if (processedData.biayaTol?.file instanceof File) {
+          await saveFile(`sppd_tol_${data.noSppd}_${nip}`, processedData.biayaTol.file);
+          processedData.biayaTol.file = 'uploaded';
+        }
+        if (processedData.biayaRepresentatif?.file instanceof File) {
+          await saveFile(`sppd_representatif_${data.noSppd}_${nip}`, processedData.biayaRepresentatif.file);
+          processedData.biayaRepresentatif.file = 'uploaded';
+        }
+        if (processedData.kwitansiFile instanceof File) {
+          await saveFile(`sppd_kwitansi_${data.noSppd}`, processedData.kwitansiFile);
+          processedData.kwitansiFile = 'uploaded';
+        }
+        if (processedData.rincianFile instanceof File) {
+          await saveFile(`sppd_rincian_${data.noSppd}`, processedData.rincianFile);
+          processedData.rincianFile = 'uploaded';
+        }
+        if (processedData.sppdVisumFile instanceof File) {
+          await saveFile(`sppd_tervisum_${data.noSppd}`, processedData.sppdVisumFile);
+          processedData.sppdVisumFile = 'uploaded';
+        }
+      } catch (err) {
+        toast.error('Gagal mengunggah file ke server.');
+        console.error(err);
+        return; // stop save if upload fails
+      }
+
+      const newData = { ...travelerData, [nip]: processedData };
       setTravelerStatus(newStatus);
       setTravelerData(newData);
       
@@ -137,24 +196,24 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
     
     toast.info('Menyimpan laporan beserta file dokumen...');
     try {
-      if (dokumentasiFile) await saveFile(`sppd_dokumentasi_${data.noSppd}`, dokumentasiFile);
-      if (laporanFile) await saveFile(`sppd_laporan_${data.noSppd}`, laporanFile);
+      if (dokumentasiFile instanceof File) await saveFile(`sppd_dokumentasi_${data.noSppd}`, dokumentasiFile);
+      if (laporanFile instanceof File) await saveFile(`sppd_laporan_${data.noSppd}`, laporanFile);
 
       for (const [nip, td] of Object.entries(travelerData)) {
-        if (td.hotelFile) await saveFile(`sppd_hotel_${data.noSppd}_${nip}`, td.hotelFile);
-        if (td.sewaKendaraan?.file) await saveFile(`sppd_kendaraan_${data.noSppd}_${nip}`, td.sewaKendaraan.file);
-        if (td.pesawat?.filePergi) await saveFile(`sppd_pesawat_pergi_${data.noSppd}_${nip}`, td.pesawat.filePergi);
-        if (td.pesawat?.filePulang) await saveFile(`sppd_pesawat_pulang_${data.noSppd}_${nip}`, td.pesawat.filePulang);
-        if (td.keretaApi?.file) await saveFile(`sppd_kereta_${data.noSppd}_${nip}`, td.keretaApi.file);
-        if (td.taxiBandara?.filePergi) await saveFile(`sppd_taxi_pergi_${data.noSppd}_${nip}`, td.taxiBandara.filePergi);
-        if (td.taxiBandara?.filePulang) await saveFile(`sppd_taxi_pulang_${data.noSppd}_${nip}`, td.taxiBandara.filePulang);
-        if (td.biayaTol?.file) await saveFile(`sppd_tol_${data.noSppd}_${nip}`, td.biayaTol.file);
-        if (td.biayaRepresentatif?.file) await saveFile(`sppd_representatif_${data.noSppd}_${nip}`, td.biayaRepresentatif.file);
+        if (td.hotelFile instanceof File) await saveFile(`sppd_hotel_${data.noSppd}_${nip}`, td.hotelFile);
+        if (td.sewaKendaraan?.file instanceof File) await saveFile(`sppd_kendaraan_${data.noSppd}_${nip}`, td.sewaKendaraan.file);
+        if (td.pesawat?.filePergi instanceof File) await saveFile(`sppd_pesawat_pergi_${data.noSppd}_${nip}`, td.pesawat.filePergi);
+        if (td.pesawat?.filePulang instanceof File) await saveFile(`sppd_pesawat_pulang_${data.noSppd}_${nip}`, td.pesawat.filePulang);
+        if (td.keretaApi?.file instanceof File) await saveFile(`sppd_kereta_${data.noSppd}_${nip}`, td.keretaApi.file);
+        if (td.taxiBandara?.filePergi instanceof File) await saveFile(`sppd_taxi_pergi_${data.noSppd}_${nip}`, td.taxiBandara.filePergi);
+        if (td.taxiBandara?.filePulang instanceof File) await saveFile(`sppd_taxi_pulang_${data.noSppd}_${nip}`, td.taxiBandara.filePulang);
+        if (td.biayaTol?.file instanceof File) await saveFile(`sppd_tol_${data.noSppd}_${nip}`, td.biayaTol.file);
+        if (td.biayaRepresentatif?.file instanceof File) await saveFile(`sppd_representatif_${data.noSppd}_${nip}`, td.biayaRepresentatif.file);
         
         // Rescue kwitansi and rincian if uploaded per-traveler
-        if (td.kwitansiFile) await saveFile(`sppd_kwitansi_${data.noSppd}`, td.kwitansiFile);
-        if (td.rincianFile) await saveFile(`sppd_rincian_${data.noSppd}`, td.rincianFile);
-        if (td.sppdVisumFile) await saveFile(`sppd_tervisum_${data.noSppd}`, td.sppdVisumFile);
+        if (td.kwitansiFile instanceof File) await saveFile(`sppd_kwitansi_${data.noSppd}`, td.kwitansiFile);
+        if (td.rincianFile instanceof File) await saveFile(`sppd_rincian_${data.noSppd}`, td.rincianFile);
+        if (td.sppdVisumFile instanceof File) await saveFile(`sppd_tervisum_${data.noSppd}`, td.sppdVisumFile);
       }
       
       toast.success('Laporan kolektif berhasil disimpan ke dalam Draf');
@@ -348,7 +407,8 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                       const file = e.target.files[0];
                       setDokumentasiFile(file);
                       if (data?.noSppd) {
-                        set(`draft_dokumentasi_${data.noSppd}`, file).catch(console.error);
+                        toast.info('Mengunggah file ke server...');
+                        saveFile(`draft_dokumentasi_${data.noSppd}`, file).catch(console.error);
                       }
                     }
                   }} 
@@ -394,7 +454,8 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                       const file = e.target.files[0];
                       setLaporanFile(file);
                       if (data?.noSppd) {
-                        set(`draft_laporan_${data.noSppd}`, file).catch(console.error);
+                        toast.info('Mengunggah file ke server...');
+                        saveFile(`draft_laporan_${data.noSppd}`, file).catch(console.error);
                       }
                     }
                   }} 
