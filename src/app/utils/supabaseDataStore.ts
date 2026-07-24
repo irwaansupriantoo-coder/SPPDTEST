@@ -797,6 +797,13 @@ export async function deletePengajuanByNoSppd(noSppd: string): Promise<void> {
     await sb().from('sppd_program_data').delete().eq('no_sppd', noSppd);
     await sb().from('sppd_hidden_ids').delete().eq('no_sppd', noSppd);
     await sb().from('bukti_pembayaran').delete().eq('no_sppd', noSppd);
+    
+    // Clear associated files in Storage
+    try {
+      await deleteFilesContaining(noSppd);
+    } catch (err) {
+      console.error('Failed to clean up files for', noSppd, err);
+    }
 
     const { error } = await sb()
       .from('pengajuan_sppd')
@@ -819,6 +826,15 @@ export async function deletePengajuanByNoSppdList(noSppdList: string[]): Promise
     await sb().from('sppd_program_data').delete().in('no_sppd', noSppdList);
     await sb().from('sppd_hidden_ids').delete().in('no_sppd', noSppdList);
     await sb().from('bukti_pembayaran').delete().in('no_sppd', noSppdList);
+
+    // Clear associated files in Storage for all sppds
+    for (const noSppd of noSppdList) {
+      try {
+        await deleteFilesContaining(noSppd);
+      } catch (err) {
+        console.error('Failed to clean up files for', noSppd, err);
+      }
+    }
 
     const { error } = await sb()
       .from('pengajuan_sppd')
