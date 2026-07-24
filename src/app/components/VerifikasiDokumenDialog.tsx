@@ -11,6 +11,7 @@ import { RincianPreviewModal } from "./RincianPreviewModal";
 import { FilePreviewModal } from "./FilePreviewModal";
 import { getBuktiPembayaran } from "../utils/supabaseDataStore";
 import { get } from 'idb-keyval';
+import { reapplyBarcodes } from '../utils/barcodeReapplier';
 
 interface VerifikasiDokumenDialogProps {
   isOpen: boolean;
@@ -269,8 +270,15 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
     if (key) {
       try {
         await saveFile(key, file);
+        
+        // Apabila ini kwitansi atau rincian, aplikasikan ulang barcode untuk yang sudah setuju
+        if (docId === 'kwitansi' || docId === 'rincian' || docId === 'laporan') {
+          toast.info("Mengaplikasikan ulang barcode persetujuan (jika ada)...");
+          await reapplyBarcodes(docId, data);
+        }
+        
         setUploadedFiles(prev => ({ ...prev, [docId]: file.name }));
-        toast.success(`${file.name} berhasil diunggah`);
+        toast.success(`${file.name} berhasil diunggah dan diperbarui dengan barcode`);
       } catch (err) {
         toast.error("Gagal mengunggah file");
       }
