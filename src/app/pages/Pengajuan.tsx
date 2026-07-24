@@ -426,10 +426,19 @@ export default function Pengajuan() {
     };
 
     try {
-      // Simpan langsung ke Supabase (melewati KV store / edge function)
+      // 1. Simpan file dokumen (SPT & Dasar Surat) ke Supabase Storage DULUAN.
+      // Agar jika gagal (misal karena RLS error), pengajuan tidak telanjur terbuat di database (mencegah duplikat).
+      if (sptFileUrl) {
+        await saveFileToDB(`spt_${noSppd}`, sptFileUrl);
+      }
+      if (dasarSuratFileUrl) {
+        await saveFileToDB(`dasar_${noSppd}`, dasarSuratFileUrl);
+      }
+
+      // 2. Simpan data text pengajuan langsung ke Supabase Database
       await createPengajuan(payload);
       
-      // Update anggaran
+      // 3. Update anggaran
       try {
         const currentAnggaran: any = await apiRequest('/anggaran');
         const targetAnggaran = tipePerjalanan === "Dalam Daerah" ? currentAnggaran.dalamDaerah : currentAnggaran.luarDaerah;
@@ -444,14 +453,6 @@ export default function Pengajuan() {
         }).catch(e => console.warn("Expected 500 on PUT /anggaran ignored:", e));
       } catch (angErr) {
         console.error("Failed to update anggaran:", angErr);
-      }
-
-      // Simpan file base64 ke IndexedDB agar bisa dilihat oleh akun kpa di browser yang sama tanpa limit quota 5MB
-      if (sptFileUrl) {
-        await saveFileToDB(`spt_${noSppd}`, sptFileUrl);
-      }
-      if (dasarSuratFileUrl) {
-        await saveFileToDB(`dasar_${noSppd}`, dasarSuratFileUrl);
       }
       
       // Simpan tanggal dan program data ke Supabase
