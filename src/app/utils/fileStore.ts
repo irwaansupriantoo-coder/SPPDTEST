@@ -62,38 +62,52 @@ export const deleteFile = async (key: string): Promise<void> => {
 export const deleteFilesContaining = async (substring: string): Promise<void> => {
   const sb = getSupabaseClient();
   
-  // Supabase doesn't support substring search directly in `list`.
-  // We have to list all files in the bucket and filter. 
-  // For small buckets this is fine, but for large ones it requires pagination.
-  // We'll implement a simple list for now.
-  let allFiles: any[] = [];
-  let offset = 0;
-  const limit = 100;
-  let hasMore = true;
+  // Recursively list all files in the bucket
+  const listAllFiles = async (path: string = ''): Promise<any[]> => {
+    let allFiles: any[] = [];
+    let offset = 0;
+    const limit = 100;
+    let hasMore = true;
 
-  while (hasMore) {
-    const { data, error } = await sb.storage.from(BUCKET_NAME).list('', {
-      limit,
-      offset,
-      sortBy: { column: 'name', order: 'asc' },
-    });
+    while (hasMore) {
+      const { data, error } = await sb.storage.from(BUCKET_NAME).list(path, {
+        limit,
+        offset,
+        sortBy: { column: 'name', order: 'asc' },
+      });
 
-    if (error) {
-      console.error('Error listing files for deletion:', error);
-      break;
-    }
+      if (error) {
+        console.error('Error listing files in', path, error);
+        break;
+      }
 
-    if (!data || data.length === 0) {
-      hasMore = false;
-    } else {
-      allFiles = [...allFiles, ...data];
-      if (data.length < limit) {
+      if (!data || data.length === 0) {
         hasMore = false;
       } else {
-        offset += limit;
+        for (const item of data) {
+          // In Supabase storage, folders don't have an id or their id is null
+          if (!item.id || item.metadata === null) {
+            // It's a folder
+            const subPath = path ? `${path}/${item.name}` : item.name;
+            const subFiles = await listAllFiles(subPath);
+            allFiles = [...allFiles, ...subFiles];
+          } else {
+            // It's a file
+            const fullPath = path ? `${path}/${item.name}` : item.name;
+            allFiles.push({ ...item, name: fullPath });
+          }
+        }
+        if (data.length < limit) {
+          hasMore = false;
+        } else {
+          offset += limit;
+        }
       }
     }
-  }
+    return allFiles;
+  };
+
+  const allFiles = await listAllFiles();
 
   const keysToDelete = allFiles
     .map(f => f.name)
