@@ -3,7 +3,7 @@ import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { apiRequest } from "../utils/supabaseClient";
 import { useAuth } from "../context/AuthContext";
-import { getStatusPengajuan, setStatusPengajuan, getTanggalPersetujuan, batchGetStatusPengajuan, batchGetTanggalPersetujuan } from "../utils/statusStore";
+import { getStatusPengajuan, setStatusPengajuan, getTanggalPersetujuan } from "../utils/statusStore";
 import { getFileFromDB } from "../utils/db";
 import { logActivity } from "../utils/activityStore";
 import {

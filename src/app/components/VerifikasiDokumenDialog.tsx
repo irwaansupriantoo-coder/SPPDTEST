@@ -431,7 +431,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    {(uploadedFiles[doc.docId] || (!['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId))) && (
+                    {uploadedFiles[doc.docId] && (
                       <button 
                         onClick={() => handleViewDoc(doc.docId, doc.name)}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
@@ -459,7 +459,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                         <span className="text-xs font-bold">{uploadedFiles[doc.docId] ? 'Ganti File' : 'Unggah'}</span>
                       </button>
                     )}
-                    {doc.docId === 'rincian' && isEditable && (
+                    {doc.docId === 'rincian' && (
                       <button
                         onClick={handleDownloadRincian}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f4f1] hover:bg-[#d0ece5] text-[#00475e] rounded-lg transition-colors border border-[#00475e]/20"
@@ -468,7 +468,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                         <span className="text-xs font-bold">Unduh</span>
                       </button>
                     )}
-                    {doc.docId === 'kwitansi' && isEditable && (
+                    {doc.docId === 'kwitansi' && (
                       <button
                         onClick={handleDownloadKwitansi}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f4f1] hover:bg-[#d0ece5] text-[#00475e] rounded-lg transition-colors border border-[#00475e]/20"
