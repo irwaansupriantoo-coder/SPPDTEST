@@ -671,20 +671,8 @@ export async function setAppSetting(key: string, value: string): Promise<void> {
 
 export async function getAllPengajuan(): Promise<any[]> {
   try {
-    const { data, error } = await sb()
-      .from('pengajuan_sppd')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('getAllPengajuan query error:', error);
-      throw error;
-    }
-
-    if (data && data.length > 0) {
-      return data.map(normPengajuan);
-    }
-    return [];
+    const res: any = await apiRequest('/pengajuan?limit=500');
+    return res.data || [];
   } catch (e) {
     console.error('getAllPengajuan error:', e);
     return [];
