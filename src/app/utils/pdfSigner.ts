@@ -144,8 +144,26 @@ export const signPdf = async (fileKey: string, role: string, approverName: strin
       y = centerY - (size / 2);
 
     } else {
-      // Fallback logic if symbol isn't found
-      console.warn(`[signPdf] ⚠ Symbol "${symbol}" not found, using fallback coordinates`);
+      // Try to find the title or approver name as a dynamic fallback
+      let dynamicTitlePos = await findSymbolWithPdfJs(pdfBytes, 'Kuasa Pengguna Anggaran');
+      if (!dynamicTitlePos && role.includes('KPA')) dynamicTitlePos = await findSymbolWithPdfJs(pdfBytes, 'Kuasa Pengguna Anggaran');
+      if (!dynamicTitlePos && role) dynamicTitlePos = await findSymbolWithPdfJs(pdfBytes, role);
+      
+      let dynamicNamePos = await findSymbolWithPdfJs(pdfBytes, approverName);
+
+      if (dynamicTitlePos) {
+        console.log(`[signPdf] ⚠ Symbol "${symbol}" not found. Dynamic fallback using title at (${dynamicTitlePos.x}, ${dynamicTitlePos.y})`);
+        size = fileKey.includes('kwitansi') || fileKey.includes('rincian') ? 25 : 35;
+        x = dynamicTitlePos.x + (dynamicTitlePos.width / 2) - (size / 2);
+        y = dynamicTitlePos.y - size - 15; // Place below the title
+      } else if (dynamicNamePos) {
+        console.log(`[signPdf] ⚠ Symbol "${symbol}" not found. Dynamic fallback using name at (${dynamicNamePos.x}, ${dynamicNamePos.y})`);
+        size = fileKey.includes('kwitansi') || fileKey.includes('rincian') ? 25 : 35;
+        x = dynamicNamePos.x + (dynamicNamePos.width / 2) - (size / 2);
+        y = dynamicNamePos.y + dynamicNamePos.height + 15; // Place above the name
+      } else {
+        // Fallback logic if symbol isn't found at all
+        console.warn(`[signPdf] ⚠ Symbol "${symbol}", title, and name not found, using static fallback coordinates`);
       
       if (fileKey.includes('kwitansi')) {
         const margin = 7.2;
