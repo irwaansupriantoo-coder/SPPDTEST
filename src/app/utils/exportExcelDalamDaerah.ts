@@ -293,7 +293,7 @@ export const exportRincianDalamDaerah = async (
   worksheet.mergeCells(`A${currentRow + 5}:B${currentRow + 5}`);
   const bendaharaPlaceholder = worksheet.getCell(`A${currentRow + 5}`);
   bendaharaPlaceholder.value = '@@';
-  bendaharaPlaceholder.font = { name: 'Times New Roman', size: 10, color: { argb: 'FFFFFFFF' } }; // hidden text
+  bendaharaPlaceholder.font = { name: 'Times New Roman', size: 1, color: { argb: 'FFF0F0F0' } }; 
   bendaharaPlaceholder.alignment = { horizontal: 'center' };
 
   worksheet.mergeCells(`A${currentRow + 7}:B${currentRow + 7}`);
@@ -422,7 +422,7 @@ export const exportRincianDalamDaerah = async (
   worksheet.mergeCells(`L${sigRow + 7}:M${sigRow + 7}`);
   const kpaPlaceholder = worksheet.getCell(`L${sigRow + 7}`);
   kpaPlaceholder.value = '@@@@';
-  kpaPlaceholder.font = { name: 'Times New Roman', size: 10, color: { argb: 'FFFFFFFF' } }; // hidden text
+  kpaPlaceholder.font = { name: 'Times New Roman', size: 1, color: { argb: 'FFF0F0F0' } }; 
   kpaPlaceholder.alignment = { horizontal: 'center' };
 
   worksheet.mergeCells(`L${sigRow + 9}:M${sigRow + 9}`);

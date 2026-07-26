@@ -156,11 +156,19 @@ export const signPdf = async (fileKey: string, role: string, approverName: strin
         size = fileKey.includes('kwitansi') || fileKey.includes('rincian') ? 25 : 35;
         x = dynamicTitlePos.x + (dynamicTitlePos.width / 2) - (size / 2);
         y = dynamicTitlePos.y - size - 15; // Place below the title
+        
+        // Ensure it doesn't go off-page
+        if (y < 10) y = 10;
+        if (x < 10) x = 10;
       } else if (dynamicNamePos) {
         console.log(`[signPdf] ⚠ Symbol "${symbol}" not found. Dynamic fallback using name at (${dynamicNamePos.x}, ${dynamicNamePos.y})`);
         size = fileKey.includes('kwitansi') || fileKey.includes('rincian') ? 25 : 35;
         x = dynamicNamePos.x + (dynamicNamePos.width / 2) - (size / 2);
         y = dynamicNamePos.y + dynamicNamePos.height + 15; // Place above the name
+        
+        // Ensure it doesn't go off-page
+        if (y < 10) y = 10;
+        if (x < 10) x = 10;
       } else {
         // Fallback logic if symbol isn't found at all
         console.warn(`[signPdf] ⚠ Symbol "${symbol}", title, and name not found, using static fallback coordinates`);
