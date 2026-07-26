@@ -217,6 +217,7 @@ export const signPdf = async (fileKey: string, role: string, approverName: strin
         else x = Math.round(width * 0.5);
       }
     }
+    }
 
     console.log(`[signPdf] Drawing QR at (${Math.round(x)}, ${Math.round(y)}), size=${size}, page=${width}x${height}`);
 
