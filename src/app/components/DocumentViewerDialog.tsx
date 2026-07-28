@@ -216,7 +216,7 @@ export function DocumentViewerDialog({ isOpen, onClose, rincianData, pelaksana, 
                       <p className="text-[11px] text-slate-500 truncate">{item.name}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     {isEditable && (
                       <div className="relative">
                         <input 
@@ -229,19 +229,19 @@ export function DocumentViewerDialog({ isOpen, onClose, rincianData, pelaksana, 
                         />
                         <label 
                           htmlFor={`reupload-${idx}`}
-                          className="shrink-0 px-4 py-2 bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 text-xs font-bold rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
+                          className="px-3 py-2 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200 shadow-sm text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                         >
                           <Upload className="w-3.5 h-3.5" />
-                          Upload Ulang
+                          <span>Upload Ulang</span>
                         </label>
                       </div>
                     )}
                     <button 
                       onClick={() => handleOpenDokumen(item)}
-                      className="shrink-0 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
+                      className="px-3 py-2 bg-[#00475e] text-white hover:bg-[#00384a] shadow-sm text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap"
                     >
                       <Download className="w-3.5 h-3.5" />
-                      Buka File
+                      <span>Buka File</span>
                     </button>
                   </div>
                 </div>
