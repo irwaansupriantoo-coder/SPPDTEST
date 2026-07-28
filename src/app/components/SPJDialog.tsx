@@ -76,8 +76,32 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
 
   const [dokumentasiFile, setDokumentasiFile] = useState<File | null>(null);
   const [laporanFile, setLaporanFile] = useState<File | null>(null);
+  const [dokumentasiUrl, setDokumentasiUrl] = useState<string>("");
+  const [laporanUrl, setLaporanUrl] = useState<string>("");
   const dokumentasiRef = useRef<HTMLInputElement | null>(null);
   const laporanRef = useRef<HTMLInputElement | null>(null);
+
+  React.useEffect(() => {
+    if (data?.noSppd) {
+      const loadServerFiles = async () => {
+        try {
+          const { getSupabaseClient } = await import('../utils/supabaseClient');
+          const sb = getSupabaseClient();
+          
+          const dokKey = `sppd_dokumentasi_${data.noSppd}`;
+          const { data: dokUrl } = await sb.storage.from('sppd-documents').createSignedUrl(dokKey, 3600);
+          if (dokUrl?.signedUrl) setDokumentasiUrl(dokUrl.signedUrl);
+          
+          const lapKey = `sppd_laporan_${data.noSppd}`;
+          const { data: lapUrl } = await sb.storage.from('sppd-documents').createSignedUrl(lapKey, 3600);
+          if (lapUrl?.signedUrl) setLaporanUrl(lapUrl.signedUrl);
+        } catch (e) {
+          console.error("Failed to load server files", e);
+        }
+      };
+      loadServerFiles();
+    }
+  }, [data?.noSppd]);
 
   if (!isOpen) return null;
 
@@ -719,6 +743,24 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
                           {dokumentasiFile.name}
                         </span>
                       </>
+                    ) : dokumentasiUrl ? (
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-xs font-bold text-green-600 tracking-tight truncate max-w-[200px]">
+                            Tersimpan di Server
+                          </span>
+                        </div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(dokumentasiUrl, '_blank');
+                          }}
+                          className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded text-xs font-bold transition-colors"
+                        >
+                          Lihat
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <Upload className="w-5 h-5 text-slate-500 group-hover:text-[#00475e]" />
@@ -758,6 +800,24 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
                           {laporanFile.name}
                         </span>
                       </>
+                    ) : laporanUrl ? (
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-xs font-bold text-green-600 tracking-tight truncate max-w-[200px]">
+                            Tersimpan di Server
+                          </span>
+                        </div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(laporanUrl, '_blank');
+                          }}
+                          className="px-3 py-1 bg-green-50 text-green-700 hover:bg-green-100 rounded text-xs font-bold transition-colors"
+                        >
+                          Lihat
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <Upload className="w-5 h-5 text-slate-500 group-hover:text-[#00475e]" />

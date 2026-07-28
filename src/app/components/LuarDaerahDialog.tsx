@@ -43,6 +43,9 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [dokumentasiFile, setDokumentasiFile] = useState<File | null>(null);
   const [laporanFile, setLaporanFile] = useState<File | null>(null);
+  
+  const [dokumentasiUrl, setDokumentasiUrl] = useState<string>("");
+  const [laporanUrl, setLaporanUrl] = useState<string>("");
 
   React.useEffect(() => {
     if (data?.noSppd) {
@@ -61,8 +64,20 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
           }
           if (savedDokumentasi) setDokumentasiFile(savedDokumentasi);
           if (savedLaporan) setLaporanFile(savedLaporan);
+          
+          // Check server for existing files
+          const { getSupabaseClient } = await import('../utils/supabaseClient');
+          const sb = getSupabaseClient();
+          
+          const dokKey = `sppd_dokumentasi_${data.noSppd}`;
+          const { data: dokUrl } = await sb.storage.from('sppd-documents').createSignedUrl(dokKey, 3600);
+          if (dokUrl?.signedUrl) setDokumentasiUrl(dokUrl.signedUrl);
+          
+          const lapKey = `sppd_laporan_${data.noSppd}`;
+          const { data: lapUrl } = await sb.storage.from('sppd-documents').createSignedUrl(lapKey, 3600);
+          if (lapUrl?.signedUrl) setLaporanUrl(lapUrl.signedUrl);
         } catch (e) {
-          console.error("Failed to load from IndexedDB", e);
+          console.error("Failed to load data", e);
         }
       };
       load();
@@ -374,18 +389,26 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
               <div>
                 <p className="text-xs font-bold text-slate-700">Dokumentasi</p>
                 <p className="text-[10px] text-slate-500 mt-1">Upload foto kegiatan</p>
-                {dokumentasiFile && (
+                {dokumentasiFile ? (
                   <p className="text-xs text-[#00475e] font-semibold mt-2 max-w-[150px] truncate">
                     {dokumentasiFile.name}
                   </p>
-                )}
+                ) : dokumentasiUrl ? (
+                  <p className="text-xs text-[#00475e] font-semibold mt-2 max-w-[150px] truncate">
+                    Tersimpan di Server
+                  </p>
+                ) : null}
               </div>
               <div className="flex gap-2">
-                {dokumentasiFile && (
+                {(dokumentasiFile || dokumentasiUrl) && (
                   <button 
                     onClick={() => {
-                      const url = URL.createObjectURL(dokumentasiFile);
-                      window.open(url, '_blank');
+                      if (dokumentasiFile) {
+                        const url = URL.createObjectURL(dokumentasiFile);
+                        window.open(url, '_blank');
+                      } else if (dokumentasiUrl) {
+                        window.open(dokumentasiUrl, '_blank');
+                      }
                     }}
                     className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors" title="Lihat">
                     <Eye className="w-4 h-4" />
@@ -421,18 +444,26 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
               <div>
                 <p className="text-xs font-bold text-slate-700">Laporan Perjalanan Dinas</p>
                 <p className="text-[10px] text-slate-500 mt-1">Upload dokumen laporan</p>
-                {laporanFile && (
+                {laporanFile ? (
                   <p className="text-xs text-[#00475e] font-semibold mt-2 max-w-[150px] truncate">
                     {laporanFile.name}
                   </p>
-                )}
+                ) : laporanUrl ? (
+                  <p className="text-xs text-[#00475e] font-semibold mt-2 max-w-[150px] truncate">
+                    Tersimpan di Server
+                  </p>
+                ) : null}
               </div>
               <div className="flex gap-2">
-                {laporanFile && (
+                {(laporanFile || laporanUrl) && (
                   <button 
                     onClick={() => {
-                      const url = URL.createObjectURL(laporanFile);
-                      window.open(url, '_blank');
+                      if (laporanFile) {
+                        const url = URL.createObjectURL(laporanFile);
+                        window.open(url, '_blank');
+                      } else if (laporanUrl) {
+                        window.open(laporanUrl, '_blank');
+                      }
                     }}
                     className="p-2 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 transition-colors" title="Lihat">
                     <Eye className="w-4 h-4" />
