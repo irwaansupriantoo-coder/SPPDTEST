@@ -47,66 +47,55 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
         ];
 
         const newUploadedFiles: Record<string, string> = {};
-        for (const item of keysToCheck) {
+        
+        const promises = keysToCheck.map(async (item) => {
           try {
             let file = await getFile(item.key);
-            // Files are strictly fetched from Supabase now.
             if (file) {
-              newUploadedFiles[item.id] = file instanceof File ? file.name : 'Terunggah';
+              return { id: item.id, value: file instanceof File ? file.name : 'Terunggah' };
             } else if (item.id === 'bukti_pembayaran' && bp) {
-              newUploadedFiles[item.id] = bp;
+              return { id: item.id, value: bp };
             }
           } catch (e) {
             if (item.id === 'bukti_pembayaran' && bp) {
-              newUploadedFiles[item.id] = bp;
+              return { id: item.id, value: bp };
+            }
+          }
+          return null;
+        });
+
+        const pelaksanaPromises: Promise<{ id: string, value: string } | null>[] = [];
+        if (data.pelaksana && Array.isArray(data.pelaksana)) {
+          for (const p of data.pelaksana) {
+            const types = [
+              { id: 'penginapan', prefix: 'hotel' },
+              { id: 'transportasi', prefix: 'kendaraan' },
+              { id: 'pesawat_pergi', prefix: 'pesawat_pergi' },
+              { id: 'pesawat_pulang', prefix: 'pesawat_pulang' },
+              { id: 'kereta_api', prefix: 'kereta' },
+              { id: 'taxi_pergi', prefix: 'taxi_pergi' },
+              { id: 'taxi_pulang', prefix: 'taxi_pulang' },
+              { id: 'biaya_tol', prefix: 'tol' },
+              { id: 'representatif', prefix: 'representatif' },
+            ];
+
+            for (const type of types) {
+              pelaksanaPromises.push(
+                getFile(`sppd_${type.prefix}_${data.noSppd}_${p.nip}`)
+                  .then(f => f ? { id: type.id, value: 'Terunggah' } : null)
+                  .catch(() => null)
+              );
             }
           }
         }
 
-        if (data.pelaksana && Array.isArray(data.pelaksana)) {
-          let foundFiles: Record<string, boolean> = {};
-          for (const p of data.pelaksana) {
-            try {
-              if (!foundFiles['penginapan']) {
-                const f = await getFile(`sppd_hotel_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['penginapan'] = true; newUploadedFiles['penginapan'] = 'Terunggah'; }
-              }
-              if (!foundFiles['transportasi']) {
-                const f = await getFile(`sppd_kendaraan_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['transportasi'] = true; newUploadedFiles['transportasi'] = 'Terunggah'; }
-              }
-              if (!foundFiles['pesawat_pergi']) {
-                const f = await getFile(`sppd_pesawat_pergi_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['pesawat_pergi'] = true; newUploadedFiles['pesawat_pergi'] = 'Terunggah'; }
-              }
-              if (!foundFiles['pesawat_pulang']) {
-                const f = await getFile(`sppd_pesawat_pulang_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['pesawat_pulang'] = true; newUploadedFiles['pesawat_pulang'] = 'Terunggah'; }
-              }
-              if (!foundFiles['kereta_api']) {
-                const f = await getFile(`sppd_kereta_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['kereta_api'] = true; newUploadedFiles['kereta_api'] = 'Terunggah'; }
-              }
-              if (!foundFiles['taxi_pergi']) {
-                const f = await getFile(`sppd_taxi_pergi_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['taxi_pergi'] = true; newUploadedFiles['taxi_pergi'] = 'Terunggah'; }
-              }
-              if (!foundFiles['taxi_pulang']) {
-                const f = await getFile(`sppd_taxi_pulang_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['taxi_pulang'] = true; newUploadedFiles['taxi_pulang'] = 'Terunggah'; }
-              }
-              if (!foundFiles['biaya_tol']) {
-                const f = await getFile(`sppd_tol_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['biaya_tol'] = true; newUploadedFiles['biaya_tol'] = 'Terunggah'; }
-              }
-              if (!foundFiles['representatif']) {
-                const f = await getFile(`sppd_representatif_${data.noSppd}_${p.nip}`);
-                if (f) { foundFiles['representatif'] = true; newUploadedFiles['representatif'] = 'Terunggah'; }
-              }
-              
-              // Files are now uploaded directly to Supabase.
-              // We no longer read them from IndexedDB to avoid overwriting real PDFs with string placeholders.
-            } catch(e) {}
+        const results = await Promise.all([...promises, ...pelaksanaPromises]);
+        
+        for (const res of results) {
+          if (res && res.id) {
+            if (!newUploadedFiles[res.id]) {
+              newUploadedFiles[res.id] = res.value;
+            }
           }
         }
         
