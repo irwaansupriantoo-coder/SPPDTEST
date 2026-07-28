@@ -45,22 +45,15 @@ export function DocumentViewerDialog({ isOpen, onClose, rincianData, pelaksana, 
           { key: `sppd_representatif_${noSppd}_${nip}`, label: 'Biaya Representatif', keyPath: 'biayaRepresentatif.file' }
         ];
 
-        const { data: listData, error: listError } = await sb.storage.from('sppd-documents').list('', {
-          search: noSppd
-        });
-
-        if (listError || !listData) {
-          setServerFiles([]);
-          return;
-        }
-
         const loadedFiles: typeof serverFiles = [];
         
-        for (const fileDef of expectedFiles) {
-          const found = listData.find(f => f.name === fileDef.key);
-          if (found && found.id) {
-            const { data: urlData } = await sb.storage.from('sppd-documents').createSignedUrl(fileDef.key, 3600);
-            if (urlData?.signedUrl) {
+        // Use Promise.all to fetch signed URLs in parallel.
+        // It correctly handles files in subfolders (if noSppd contains slashes)
+        // and returns null data if the file does not exist.
+        await Promise.all(expectedFiles.map(async (fileDef) => {
+          try {
+            const { data: urlData, error } = await sb.storage.from('sppd-documents').createSignedUrl(fileDef.key, 3600);
+            if (urlData?.signedUrl && !error) {
               loadedFiles.push({
                 label: fileDef.label,
                 url: urlData.signedUrl,
@@ -68,8 +61,13 @@ export function DocumentViewerDialog({ isOpen, onClose, rincianData, pelaksana, 
                 keyPath: fileDef.keyPath
               });
             }
+          } catch (e) {
+            // Ignore errors for individual files
           }
-        }
+        }));
+        
+        // Sort files to maintain consistent order
+        loadedFiles.sort((a, b) => expectedFiles.findIndex(f => f.key === a.name) - expectedFiles.findIndex(f => f.key === b.name));
         
         setServerFiles(loadedFiles);
       } catch (err) {
