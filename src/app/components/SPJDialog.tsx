@@ -217,7 +217,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
 
     toast.info('Menyimpan laporan beserta file dokumen...');
     try {
-      // Save files to IndexedDB
+      // Upload files to Supabase Storage
       if (dokumentasiFile) await saveFile(`sppd_dokumentasi_${data.noSppd}`, dokumentasiFile);
       if (laporanFile) await saveFile(`sppd_laporan_${data.noSppd}`, laporanFile);
 
@@ -226,12 +226,12 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
         if (td.uploadedFiles.kendaraan) await saveFile(`sppd_kendaraan_${data.noSppd}_${nip}`, td.uploadedFiles.kendaraan);
       }
 
-      toast.success('Laporan realisasi berhasil disimpan ke dalam Draf.');
+      toast.success('Laporan realisasi berhasil disimpan ke server.');
       onSave(travelerData);
       onClose();
     } catch (error) {
       console.error('Failed to save files', error);
-      toast.error('Gagal menyimpan file ke database lokal.');
+      toast.error('Gagal mengunggah file dokumen ke server.');
     }
   };
 

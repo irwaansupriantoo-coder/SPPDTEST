@@ -119,51 +119,51 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
       try {
         if (processedData.hotelFile instanceof File) {
           await saveFile(`sppd_hotel_${data.noSppd}_${nip}`, processedData.hotelFile);
-          processedData.hotelFile = 'uploaded';
+          delete processedData.hotelFile;
         }
         if (processedData.sewaKendaraan?.file instanceof File) {
           await saveFile(`sppd_kendaraan_${data.noSppd}_${nip}`, processedData.sewaKendaraan.file);
-          processedData.sewaKendaraan.file = 'uploaded';
+          delete processedData.sewaKendaraan.file;
         }
         if (processedData.pesawat?.filePergi instanceof File) {
           await saveFile(`sppd_pesawat_pergi_${data.noSppd}_${nip}`, processedData.pesawat.filePergi);
-          processedData.pesawat.filePergi = 'uploaded';
+          delete processedData.pesawat.filePergi;
         }
         if (processedData.pesawat?.filePulang instanceof File) {
           await saveFile(`sppd_pesawat_pulang_${data.noSppd}_${nip}`, processedData.pesawat.filePulang);
-          processedData.pesawat.filePulang = 'uploaded';
+          delete processedData.pesawat.filePulang;
         }
         if (processedData.keretaApi?.file instanceof File) {
           await saveFile(`sppd_kereta_${data.noSppd}_${nip}`, processedData.keretaApi.file);
-          processedData.keretaApi.file = 'uploaded';
+          delete processedData.keretaApi.file;
         }
         if (processedData.taxiBandara?.filePergi instanceof File) {
           await saveFile(`sppd_taxi_pergi_${data.noSppd}_${nip}`, processedData.taxiBandara.filePergi);
-          processedData.taxiBandara.filePergi = 'uploaded';
+          delete processedData.taxiBandara.filePergi;
         }
         if (processedData.taxiBandara?.filePulang instanceof File) {
           await saveFile(`sppd_taxi_pulang_${data.noSppd}_${nip}`, processedData.taxiBandara.filePulang);
-          processedData.taxiBandara.filePulang = 'uploaded';
+          delete processedData.taxiBandara.filePulang;
         }
         if (processedData.biayaTol?.file instanceof File) {
           await saveFile(`sppd_tol_${data.noSppd}_${nip}`, processedData.biayaTol.file);
-          processedData.biayaTol.file = 'uploaded';
+          delete processedData.biayaTol.file;
         }
         if (processedData.biayaRepresentatif?.file instanceof File) {
           await saveFile(`sppd_representatif_${data.noSppd}_${nip}`, processedData.biayaRepresentatif.file);
-          processedData.biayaRepresentatif.file = 'uploaded';
+          delete processedData.biayaRepresentatif.file;
         }
         if (processedData.kwitansiFile instanceof File) {
           await saveFile(`sppd_kwitansi_${data.noSppd}`, processedData.kwitansiFile);
-          processedData.kwitansiFile = 'uploaded';
+          delete processedData.kwitansiFile;
         }
         if (processedData.rincianFile instanceof File) {
           await saveFile(`sppd_rincian_${data.noSppd}`, processedData.rincianFile);
-          processedData.rincianFile = 'uploaded';
+          delete processedData.rincianFile;
         }
         if (processedData.sppdVisumFile instanceof File) {
           await saveFile(`sppd_tervisum_${data.noSppd}`, processedData.sppdVisumFile);
-          processedData.sppdVisumFile = 'uploaded';
+          delete processedData.sppdVisumFile;
         }
       } catch (err) {
         toast.error('Gagal mengunggah file ke server.');
@@ -216,12 +216,12 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
         if (td.sppdVisumFile instanceof File) await saveFile(`sppd_tervisum_${data.noSppd}`, td.sppdVisumFile);
       }
       
-      toast.success('Laporan kolektif berhasil disimpan ke dalam Draf');
+      toast.success('Laporan kolektif dan dokumen berhasil diunggah ke server.');
       onSave(travelerData);
       onClose();
     } catch (error) {
       console.error('Failed to save files', error);
-      toast.error('Gagal menyimpan file dokumen.');
+      toast.error('Gagal mengunggah file dokumen ke server.');
     }
   };
 
@@ -408,7 +408,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                       setDokumentasiFile(file);
                       if (data?.noSppd) {
                         toast.info('Mengunggah file ke server...');
-                        saveFile(`draft_dokumentasi_${data.noSppd}`, file).catch(console.error);
+                        saveFile(`sppd_dokumentasi_${data.noSppd}`, file).catch(console.error);
                       }
                     }
                   }} 
@@ -455,7 +455,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                       setLaporanFile(file);
                       if (data?.noSppd) {
                         toast.info('Mengunggah file ke server...');
-                        saveFile(`draft_laporan_${data.noSppd}`, file).catch(console.error);
+                        saveFile(`sppd_laporan_${data.noSppd}`, file).catch(console.error);
                       }
                     }
                   }} 

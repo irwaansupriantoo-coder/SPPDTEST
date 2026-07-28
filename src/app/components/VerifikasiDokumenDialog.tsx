@@ -50,9 +50,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
         for (const item of keysToCheck) {
           try {
             let file = await getFile(item.key);
-            if (!file && (item.id === 'laporan' || item.id === 'dokumentasi')) {
-              file = await get(`draft_${item.id}_${data.noSppd}`);
-            }
+            // Files are strictly fetched from Supabase now.
             if (file) {
               newUploadedFiles[item.id] = file instanceof File ? file.name : 'Terunggah';
             } else if (item.id === 'bukti_pembayaran' && bp) {
@@ -106,58 +104,8 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                 if (f) { foundFiles['representatif'] = true; newUploadedFiles['representatif'] = 'Terunggah'; }
               }
               
-              const travelerData = await get(`draft_traveler_data_${data.noSppd}`);
-              if (travelerData && travelerData[p.nip]) {
-                const td = travelerData[p.nip];
-                if (!newUploadedFiles['kwitansi'] && td.kwitansiFile) {
-                  await saveFile(`sppd_kwitansi_${data.noSppd}`, td.kwitansiFile);
-                  newUploadedFiles['kwitansi'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['rincian'] && td.rincianFile) {
-                  await saveFile(`sppd_rincian_${data.noSppd}`, td.rincianFile);
-                  newUploadedFiles['rincian'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['pesawat_pergi'] && td.pesawat?.filePergi) {
-                  await saveFile(`sppd_pesawat_pergi_${data.noSppd}_${p.nip}`, td.pesawat.filePergi);
-                  newUploadedFiles['pesawat_pergi'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['pesawat_pulang'] && td.pesawat?.filePulang) {
-                  await saveFile(`sppd_pesawat_pulang_${data.noSppd}_${p.nip}`, td.pesawat.filePulang);
-                  newUploadedFiles['pesawat_pulang'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['kereta_api'] && td.keretaApi?.file) {
-                  await saveFile(`sppd_kereta_${data.noSppd}_${p.nip}`, td.keretaApi.file);
-                  newUploadedFiles['kereta_api'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['taxi_pergi'] && td.taxiBandara?.filePergi) {
-                  await saveFile(`sppd_taxi_pergi_${data.noSppd}_${p.nip}`, td.taxiBandara.filePergi);
-                  newUploadedFiles['taxi_pergi'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['taxi_pulang'] && td.taxiBandara?.filePulang) {
-                  await saveFile(`sppd_taxi_pulang_${data.noSppd}_${p.nip}`, td.taxiBandara.filePulang);
-                  newUploadedFiles['taxi_pulang'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['biaya_tol'] && td.biayaTol?.file) {
-                  await saveFile(`sppd_tol_${data.noSppd}_${p.nip}`, td.biayaTol.file);
-                  newUploadedFiles['biaya_tol'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['representatif'] && td.biayaRepresentatif?.file) {
-                  await saveFile(`sppd_representatif_${data.noSppd}_${p.nip}`, td.biayaRepresentatif.file);
-                  newUploadedFiles['representatif'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['penginapan'] && td.hotelFile) {
-                  await saveFile(`sppd_hotel_${data.noSppd}_${p.nip}`, td.hotelFile);
-                  newUploadedFiles['penginapan'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['transportasi'] && td.sewaKendaraan?.file) {
-                  await saveFile(`sppd_kendaraan_${data.noSppd}_${p.nip}`, td.sewaKendaraan.file);
-                  newUploadedFiles['transportasi'] = 'Terunggah';
-                }
-                if (!newUploadedFiles['sppd'] && td.sppdVisumFile) {
-                  await saveFile(`sppd_tervisum_${data.noSppd}`, td.sppdVisumFile);
-                  newUploadedFiles['sppd'] = 'Terunggah';
-                }
-              }
+              // Files are now uploaded directly to Supabase.
+              // We no longer read them from IndexedDB to avoid overwriting real PDFs with string placeholders.
             } catch(e) {}
           }
         }

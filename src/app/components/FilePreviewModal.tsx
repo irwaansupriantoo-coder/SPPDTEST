@@ -28,9 +28,7 @@ export function FilePreviewModal({ isOpen, onClose, fileKey, title }: FilePrevie
     const loadFile = async () => {
       try {
         let file: any = await getFile(fileKey);
-        if (!file && fileKey.startsWith('draft_')) {
-          file = await get(fileKey);
-        }
+        // Files are strictly fetched from Supabase now.
         if (!file) {
           setError('Dokumen belum diunggah.');
         } else if (typeof file === 'string') {
