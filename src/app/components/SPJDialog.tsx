@@ -13,7 +13,7 @@ interface Pelaksana {
 interface SPJDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (travelerData: any) => void;
+  onSave: (travelerData: any, targetStatus?: string) => void;
   data: {
     noSpt: string;
     noSppd: string;
@@ -24,6 +24,7 @@ interface SPJDialogProps {
     tanggalMulai?: Date;
     tanggalSelesai?: Date;
   };
+  isEditable?: boolean;
 }
 
 interface TravelerData {
@@ -46,7 +47,7 @@ interface TravelerData {
   };
 }
 
-export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
+export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: SPJDialogProps) {
   const [travelerData, setTravelerData] = useState<{ [key: string]: TravelerData }>(
     data.pelaksana.reduce((acc, p) => ({
       ...acc,
@@ -251,7 +252,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
       }
 
       toast.success('Laporan realisasi berhasil disimpan ke server.');
-      onSave(travelerData);
+      onSave(travelerData, 'menunggu_verifikasi_pegawai');
       onClose();
     } catch (error) {
       console.error('Failed to save files', error);
@@ -857,15 +858,17 @@ export function SPJDialog({ isOpen, onClose, onSave, data }: SPJDialogProps) {
             >
               Batal
             </button>
-            <button
-              onClick={handleSave}
-              className="px-8 py-3 bg-gradient-to-br from-[#00475e] to-[#1a5f7a] text-white font-bold rounded-xl shadow-lg shadow-[#00475e]/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 order-1 sm:order-3"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Simpan Semua Laporan
-            </button>
+            {isEditable && (
+              <button
+                onClick={handleSave}
+                className="px-8 py-3 bg-gradient-to-br from-[#00475e] to-[#1a5f7a] text-white font-bold rounded-xl shadow-lg shadow-[#00475e]/20 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 order-1 sm:order-3"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Simpan Semua Laporan
+              </button>
+            )}
           </div>
         </div>
       </div>

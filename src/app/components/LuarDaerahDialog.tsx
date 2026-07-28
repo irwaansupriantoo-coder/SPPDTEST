@@ -17,7 +17,7 @@ interface Pelaksana {
 interface LuarDaerahDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (travelerData?: any) => void;
+  onSave: (travelerData?: any, targetStatus?: string) => void;
   data: {
     noSpt: string;
     noSppd: string;
@@ -27,9 +27,10 @@ interface LuarDaerahDialogProps {
     tanggalKembali?: string;
     kota?: string;
   };
+  isEditable?: boolean;
 }
 
-export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDialogProps) {
+export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = true }: LuarDaerahDialogProps) {
   const [travelerStatus, setTravelerStatus] = useState<{ [key: string]: 'sudah_lengkap' | 'belum_lengkap' }>(
     data.pelaksana.reduce((acc, p) => ({
       ...acc,
@@ -232,7 +233,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
       }
       
       toast.success('Laporan kolektif dan dokumen berhasil diunggah ke server.');
-      onSave(travelerData);
+      onSave(travelerData, 'menunggu_verifikasi_pegawai');
       onClose();
     } catch (error) {
       console.error('Failed to save files', error);
@@ -306,15 +307,76 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                     )}
                   </td>
                   <td className="px-4 py-4 last:rounded-r-xl border-y border-r border-slate-100 text-right">
-                    {travelerStatus[pelaksana.nip] === 'sudah_lengkap' ? (
-                      <div className="flex items-center justify-end gap-2">
+                    {isEditable ? (
+                      travelerStatus[pelaksana.nip] === 'sudah_lengkap' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEditLaporan(pelaksana)}
+                            className="text-[#00475e] font-bold hover:bg-slate-50 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Edit Laporan
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedPelaksana(pelaksana);
+                              setIsViewerOpen(true);
+                            }}
+                            className="bg-blue-100 text-blue-700 font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          >
+                            <Eye className="w-4 h-4" />
+                            View Dokumen
+                          </button>
+                          <button
+                            onClick={() => {
+                              const rincian = travelerData[pelaksana.nip];
+                              if (rincian) {
+                                toast.promise(
+                                  exportRincianExcel(pelaksana, data, rincian),
+                                  {
+                                    loading: 'Menyiapkan Excel...',
+                                    success: 'Excel berhasil diunduh',
+                                    error: 'Gagal mengunduh Excel. Pastikan template tersedia di server.'
+                                  }
+                                );
+                              }
+                            }}
+                            className="bg-green-100 text-green-700 font-bold hover:bg-green-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Unduh Rincian
+                          </button>
+                          <button
+                            onClick={() => {
+                              const rincian = travelerData[pelaksana.nip];
+                              if (rincian) {
+                                toast.promise(
+                                  exportKwitansiLuarDaerah(pelaksana, data, rincian),
+                                  {
+                                    loading: 'Menyiapkan Kwitansi...',
+                                    success: 'Kwitansi berhasil diunduh',
+                                    error: 'Gagal mengunduh Kwitansi. Pastikan template tersedia di server.'
+                                  }
+                                );
+                              }
+                            }}
+                            className="bg-purple-100 text-purple-700 font-bold hover:bg-purple-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Unduh Kwitansi
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          onClick={() => handleEditLaporan(pelaksana)}
-                          className="text-[#00475e] font-bold hover:bg-slate-50 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          onClick={() => handleLengkapiLaporan(pelaksana)}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00475e] text-white text-xs font-bold rounded-lg hover:bg-[#00384a] transition-all"
                         >
                           <FileText className="w-4 h-4" />
-                          Edit Laporan
+                          Lengkapi Laporan Perorangan
                         </button>
+                      )
+                    ) : (
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
                             setSelectedPelaksana(pelaksana);
@@ -364,14 +426,6 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
                           Unduh Kwitansi
                         </button>
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => handleLengkapiLaporan(pelaksana)}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#00475e] text-white text-xs font-bold rounded-lg hover:bg-[#00384a] transition-all"
-                      >
-                        <FileText className="w-4 h-4" />
-                        Lengkapi Laporan Perorangan
-                      </button>
                     )}
                   </td>
                 </tr>
@@ -523,18 +577,20 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
             >
               Tutup
             </button>
-            <button
-              onClick={handleSubmit}
-              disabled={!isAllComplete}
-              className={`px-6 py-2.5 rounded-lg font-bold text-sm inline-flex items-center gap-2 transition-colors ${
-                isAllComplete
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-              Submit Laporan Kolektif
-            </button>
+            {isEditable && (
+              <button
+                onClick={handleSubmit}
+                disabled={!isAllComplete}
+                className={`px-6 py-2.5 rounded-lg font-bold text-sm inline-flex items-center gap-2 transition-colors ${
+                  isAllComplete
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                <Send className="w-4 h-4" />
+                Submit Laporan Kolektif
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -565,6 +621,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
           rincianData={travelerData[selectedPelaksana.nip]}
           pelaksana={selectedPelaksana}
           sppdData={data}
+          isEditable={isEditable}
           onUploadFile={async (key, file) => {
             if (selectedPelaksana) {
               const nip = selectedPelaksana.nip;

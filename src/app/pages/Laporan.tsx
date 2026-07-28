@@ -682,14 +682,7 @@ export default function Laporan() {
                           {item.status === "belum_spj" || item.status === "draft_laporan" || item.status === "perbaikan" || item.status === "Menunggu Persetujuan" as any ? (
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => {
-                                  if (item.status === "draft_laporan") {
-                                    setSelectedLaporan(item);
-                                    setIsVerifikasiDialogOpen(true);
-                                  } else {
-                                    handleBuatLaporan(item);
-                                  }
-                                }}
+                                onClick={() => handleBuatLaporan(item)}
                                 className="px-4 py-2 bg-[#00475e] text-white rounded-lg text-xs font-bold hover:bg-[#1a5f7a] shadow-sm transition-all active:scale-95 flex items-center gap-2"
                               >
                                 <FileText className="w-4 h-4" />
@@ -707,10 +700,7 @@ export default function Laporan() {
                           ) : (
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => {
-                                  setSelectedLaporan(item);
-                                  setIsVerifikasiDialogOpen(true);
-                                }}
+                                onClick={() => handleBuatLaporan(item)}
                                 className="px-4 py-2 bg-white border border-[#00475e]/20 text-[#00475e] rounded-lg text-xs font-bold hover:bg-slate-50 shadow-sm transition-all active:scale-95 flex items-center gap-2"
                               >
                                 <Eye className="w-4 h-4" />
@@ -913,6 +903,7 @@ export default function Laporan() {
             tanggalMulai: selectedLaporan.tanggalPergi ? new Date(selectedLaporan.tanggalPergi) : new Date(),
             tanggalSelesai: selectedLaporan.tanggalKembali ? new Date(selectedLaporan.tanggalKembali) : new Date(),
           }}
+          isEditable={['belum_spj', 'draft_laporan', 'perbaikan'].includes(selectedLaporan.status)}
         />
       )}
 
@@ -934,6 +925,7 @@ export default function Laporan() {
             tanggalKembali: selectedLaporan.tanggalKembali,
             kota: selectedLaporan.kota,
           }}
+          isEditable={['belum_spj', 'draft_laporan', 'perbaikan'].includes(selectedLaporan.status)}
         />
       )}
 
