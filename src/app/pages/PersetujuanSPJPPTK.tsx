@@ -850,11 +850,18 @@ export default function PersetujuanSPJPPTK() {
                   const toastId = toast.loading("Menandatangani dokumen...");
                   try {
                     if (selectedLaporanToReview.tipePerjalanan === "Luar Daerah") {
-                      await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
+                      const successRincian = await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
+                      if (!successRincian) throw new Error("Gagal menandatangani Rincian.");
                     }
-                    await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
-                    await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
-                  } catch(err) { console.error(err); }
+                    const successKwitansi = await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
+                    if (!successKwitansi) throw new Error("Gagal menandatangani Kwitansi.");
+                    
+                    const successLaporan = await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "PPTK", "Rahmawati", "199511302022032030");
+                  } catch(err: any) { 
+                    console.error(err);
+                    toast.error(err.message || "Terjadi kesalahan saat menandatangani dokumen.", { id: toastId });
+                    return;
+                  }
 
                   toast.success("SPJ Disetujui & Diteruskan ke KPA!", { id: toastId });
                   

@@ -1029,12 +1029,18 @@ export default function PersetujuanSPJPegawai() {
                       const userNip = (user?.nip || "").replace(/[\s-]/g, "");
                       const pelaksanaIndex = selectedLaporanToReview.pelaksana.findIndex((p: any) => (p.nip || "").replace(/[\s-]/g, "") === userNip);
                       const customSymbol = pelaksanaIndex >= 0 ? '#'.repeat(pelaksanaIndex + 1) : undefined;
-                      await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Pelaksana", user?.nama || "Pegawai", user?.nip || "-", customSymbol);
+                      const successRincian = await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Pelaksana", user?.nama || "Pegawai", user?.nip || "-", customSymbol);
+                      if (!successRincian) throw new Error("Gagal menandatangani Rincian. Dokumen mungkin belum diunggah oleh Pengelola.");
                       
                       if (pelaksanaIndex === 0) {
-                        await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Pelaksana", user?.nama || "Pegawai", user?.nip || "-", "$$$$");
+                        const successKwitansi = await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Pelaksana", user?.nama || "Pegawai", user?.nip || "-", "$$$$");
+                        if (!successKwitansi) throw new Error("Gagal menandatangani Kwitansi. Dokumen mungkin belum diunggah oleh Pengelola.");
                       }
-                    } catch(err) { console.error(err); }
+                    } catch(err: any) { 
+                      console.error(err); 
+                      toast.error(err.message || "Terjadi kesalahan saat menandatangani dokumen.", { id: toastId });
+                      return; // Stop execution, do not update status!
+                    }
                     
                     // Add this user's approval
                     if (user?.nip) {

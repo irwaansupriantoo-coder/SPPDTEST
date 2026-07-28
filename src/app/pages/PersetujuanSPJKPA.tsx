@@ -840,10 +840,18 @@ export default function PersetujuanSPJKPA() {
                 onClick={async () => {
                   const toastId = toast.loading("Menandatangani dokumen...");
                   try {
-                    await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
-                    await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
-                    await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
-                  } catch(err) { console.error(err); }
+                    const successRincian = await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
+                    if (!successRincian) throw new Error("Gagal menandatangani Rincian.");
+                    
+                    const successLaporan = await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
+                    
+                    const successKwitansi = await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Kepala Bidang", "Wahid Hasyim", "198202082005021002");
+                    if (!successKwitansi) throw new Error("Gagal menandatangani Kwitansi.");
+                  } catch(err: any) { 
+                    console.error(err);
+                    toast.error(err.message || "Terjadi kesalahan saat menandatangani dokumen.", { id: toastId });
+                    return;
+                  }
 
                   toast.success("SPJ Disetujui! Status diubah menjadi Menunggu Pembayaran.", { id: toastId });
                   

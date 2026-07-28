@@ -971,10 +971,18 @@ export default function PersetujuanSPJBendahara() {
                 onClick={async () => {
                   const toastId = toast.loading("Menandatangani dokumen...");
                   try {
-                    await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
-                    await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
-                    await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
-                  } catch(err) { console.error(err); }
+                    const successRincian = await signPdf(`sppd_rincian_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
+                    if (!successRincian) throw new Error("Gagal menandatangani Rincian. Dokumen mungkin belum diunggah.");
+                    
+                    const successLaporan = await signPdf(`sppd_laporan_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
+                    
+                    const successKwitansi = await signPdf(`sppd_kwitansi_${selectedLaporanToReview.noSppd}`, "Bendahara", "Wenry Adeputra, S.E.", "19910627 202321 1 019");
+                    if (!successKwitansi) throw new Error("Gagal menandatangani Kwitansi. Dokumen mungkin belum diunggah.");
+                  } catch(err: any) { 
+                    console.error(err);
+                    toast.error(err.message || "Terjadi kesalahan saat menandatangani dokumen.", { id: toastId });
+                    return; // Stop execution
+                  }
                   
                   toast.success("SPJ Disetujui & Diteruskan ke PPTK!", { id: toastId });
                   

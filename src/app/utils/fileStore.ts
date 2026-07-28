@@ -13,18 +13,15 @@ export const saveFile = async (key: string, file: File | Blob | string): Promise
   } else if (file instanceof Blob) {
     contentType = file.type;
   } else if (typeof file === 'string') {
-    // If it's a string (e.g. base64 or just text), we keep it as is, or we can convert it.
-    // For simplicity, we just pass the string.
     contentType = 'text/plain';
   }
 
-  // Replace slashes in the key to avoid nested folders, or keep them?
-  // Supabase supports nested folders. We'll keep them, but ensure no leading slash.
   const cleanKey = key.replace(/^\//, '');
 
   const { error } = await sb.storage.from(BUCKET_NAME).upload(cleanKey, fileBody, {
     upsert: true,
-    contentType
+    contentType,
+    cacheControl: '0' // Prevent CDN caching so new signatures appear immediately
   });
 
   if (error) {
@@ -37,6 +34,23 @@ export const getFile = async (key: string): Promise<File | Blob | string | undef
   const sb = getSupabaseClient();
   const cleanKey = key.replace(/^\//, '');
 
+  try {
+    // Try to get a signed URL to bypass any CDN caching
+    const { data: urlData } = await sb.storage.from(BUCKET_NAME).createSignedUrl(cleanKey, 60);
+    
+    if (urlData?.signedUrl) {
+      // Append timestamp to bypass browser cache
+      const cacheBustUrl = `${urlData.signedUrl}&t=${Date.now()}`;
+      const res = await fetch(cacheBustUrl, { cache: 'no-store' });
+      if (res.ok) {
+        return await res.blob();
+      }
+    }
+  } catch (e) {
+    console.warn('Error fetching signed URL, falling back to download API', e);
+  }
+
+  // Fallback to standard download if fetch fails
   const { data, error } = await sb.storage.from(BUCKET_NAME).download(cleanKey);
 
   if (error || !data) {
