@@ -533,6 +533,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data }: LuarDaerahDi
           }}
           rincianData={travelerData[selectedPelaksana.nip]}
           pelaksana={selectedPelaksana}
+          sppdData={data}
           onUploadFile={async (key, file) => {
             if (selectedPelaksana) {
               const nip = selectedPelaksana.nip;
