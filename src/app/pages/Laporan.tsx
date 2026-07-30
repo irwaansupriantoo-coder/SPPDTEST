@@ -229,7 +229,7 @@ export default function Laporan() {
   };
 
   const handleBuatLaporan = (data: LaporanData) => {
-    if (data.status === "draft_laporan" || data.status === "perbaikan") {
+    if (data.status === "draft_laporan") {
       setSelectedLaporan(data);
       setIsVerifikasiDialogOpen(true);
       return;
