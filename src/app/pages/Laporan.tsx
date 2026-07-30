@@ -226,6 +226,12 @@ export default function Laporan() {
   };
 
   const handleBuatLaporan = (data: LaporanData) => {
+    if (data.status === "draft_laporan" || data.status === "perbaikan") {
+      setSelectedLaporan(data);
+      setIsVerifikasiDialogOpen(true);
+      return;
+    }
+
     if (data.tipePerjalanan === "Dalam Daerah") {
       setSelectedLaporan(data);
       setIsDialogOpen(true);
@@ -700,7 +706,10 @@ export default function Laporan() {
                           ) : (
                             <div className="flex justify-center gap-2">
                               <button
-                                onClick={() => handleBuatLaporan(item)}
+                                onClick={() => {
+                                  setSelectedLaporan(item);
+                                  setIsVerifikasiDialogOpen(true);
+                                }}
                                 className="px-4 py-2 bg-white border border-[#00475e]/20 text-[#00475e] rounded-lg text-xs font-bold hover:bg-slate-50 shadow-sm transition-all active:scale-95 flex items-center gap-2"
                               >
                                 <Eye className="w-4 h-4" />

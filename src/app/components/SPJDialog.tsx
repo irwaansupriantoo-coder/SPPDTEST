@@ -252,7 +252,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
       }
 
       toast.success('Laporan realisasi berhasil disimpan ke server.');
-      onSave(travelerData, 'menunggu_verifikasi_pegawai');
+      onSave(travelerData, 'draft_laporan');
       onClose();
     } catch (error) {
       console.error('Failed to save files', error);
@@ -856,7 +856,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
               onClick={onClose}
               className="px-6 py-3 bg-transparent text-slate-600 hover:bg-slate-200 font-bold text-sm rounded-xl transition-colors order-2 sm:order-2"
             >
-              Batal
+              Tutup
             </button>
             {isEditable && (
               <button
@@ -866,7 +866,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Simpan Semua Laporan
+                Simpan Laporan
               </button>
             )}
           </div>
