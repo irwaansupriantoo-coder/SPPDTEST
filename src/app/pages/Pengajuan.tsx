@@ -28,7 +28,7 @@ import {
 import { Toaster, toast } from "sonner";
 import { processFileForOCR, SptData } from "../utils/sptParser";
 import { saveFileToDB } from "../utils/db";
-import { getSubKegiatanByPengelola, buildProgramData } from "../utils/anggaranStore";
+import { getSubKegiatanByPengelola, buildProgramData, loadSubKegiatanData } from "../utils/anggaranStore";
 import { logActivity } from "../utils/activityStore";
 import { setProgramData as saveProgramDataToStore } from "../utils/supabaseDataStore";
 
@@ -136,15 +136,31 @@ export default function Pengajuan() {
   
   const [programData, setProgramData] = useState<Record<string, Record<string, string[]>>>({});
 
-  useEffect(() => {
-    const pengelolaNip = user?.nip || "19970610 202521 1 001";
+  const [isLoadingPrograms, setIsLoadingPrograms] = useState(true);
 
-    const assigned = getSubKegiatanByPengelola(pengelolaNip);
-    if (assigned.length > 0) {
-      setProgramData(buildProgramData(assigned));
-    } else {
-      setProgramData({});
-    }
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      if (!user) return;
+      setIsLoadingPrograms(true);
+      try {
+        const pengelolaNip = user?.nip || "19970610 202521 1 001";
+        // Ensure data is loaded from Supabase first
+        await loadSubKegiatanData();
+        
+        const assigned = getSubKegiatanByPengelola(pengelolaNip);
+        if (assigned.length > 0) {
+          setProgramData(buildProgramData(assigned));
+        } else {
+          setProgramData({});
+        }
+      } catch (err) {
+        console.error("Failed to load programs", err);
+      } finally {
+        setIsLoadingPrograms(false);
+      }
+    };
+
+    fetchPrograms();
   }, [user]);
 
   // Extract data with OCR
@@ -881,7 +897,12 @@ export default function Pengajuan() {
                     />
                   </div>
 
-                  {Object.keys(programData).length === 0 ? (
+                  {isLoadingPrograms ? (
+                    <div className="col-span-2 mt-4 p-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-sm font-medium flex items-center gap-2">
+                      <div className="w-5 h-5 flex-shrink-0 animate-spin rounded-full border-2 border-blue-700 border-t-transparent"></div>
+                      Memuat data program & sub kegiatan...
+                    </div>
+                  ) : Object.keys(programData).length === 0 ? (
                     <div className="col-span-2 mt-4 p-4 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-sm font-medium flex items-center gap-2">
                       <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                       Anda belum memiliki Sub Kegiatan yang ditugaskan oleh PPTK. Silakan hubungi PPTK Anda.

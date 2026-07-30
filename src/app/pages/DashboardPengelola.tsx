@@ -11,7 +11,7 @@ import { Eye, CheckCircle, XCircle, Timer, Database, X, MapPin, FileText, Clock,
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
 import { batchGetStatusPengajuan, batchGetTanggalPersetujuan } from '../utils/statusStore';
-import { SubKegiatan, getSubKegiatanByPengelola } from '../utils/anggaranStore';
+import { SubKegiatan, getSubKegiatanByPengelola, loadSubKegiatanData } from '../utils/anggaranStore';
 import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getProgramData, getPelaksanaData , getAllPengajuan } from "../utils/supabaseDataStore";
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router';
@@ -123,6 +123,7 @@ export default function DashboardPengelola() {
         let msk: SubKegiatan[] = [];
 
         if (user?.role === 'pengelola') {
+          await loadSubKegiatanData();
           msk = getSubKegiatanByPengelola(user.nip);
         }
 
