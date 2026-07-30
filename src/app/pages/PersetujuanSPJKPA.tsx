@@ -962,14 +962,6 @@ export default function PersetujuanSPJKPA() {
                       body: JSON.stringify({ status: "perbaikan", catatan_perbaikan: revisiNote }),
                     }).catch(console.error);
                   }
-                  
-                  // Optimistically update backend
-                  if ((selectedLaporanToReview as any).id) {
-                    apiRequest(`/laporan/${(selectedLaporanToReview as any).id}`, {
-                      method: 'POST',
-                      body: JSON.stringify({ status: "perbaikan" }),
-                    }).catch(console.error);
-                  }
 
                   setIsRevisiNoteOpen(false);
                   setIsReviewDialogOpen(false);
