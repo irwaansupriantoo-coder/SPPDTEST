@@ -18,6 +18,7 @@ import {
   setLaporanStatus,
   batchGetStatusPengajuan,
   getAllPengajuan,
+  setCatatanPerbaikan,
 } from "../utils/supabaseDataStore";
 import { getSubKegiatanData as getSubKegiatanSync } from "../utils/anggaranStore";
 import {
@@ -68,6 +69,7 @@ interface LaporanData {
   tanggalPergi?: string;
   tanggalKembali?: string;
   subKegiatan?: string;
+  catatanPerbaikan?: string;
 }
 
 import { useAuth } from '../context/AuthContext';
@@ -954,13 +956,22 @@ export default function PersetujuanSPJPPTK() {
                     selectedLaporanToReview.noSppd
                   );
 
-                  const updateLocal = (prevData: LaporanData[]) => prevData.map(d => d.noSppd === selectedLaporanToReview.noSppd ? { ...d, status: "perbaikan" as const } : d);
+                  const updateLocal = (prevData: LaporanData[]) => prevData.map(d => d.noSppd === selectedLaporanToReview.noSppd ? { ...d, status: "perbaikan" as const, catatanPerbaikan: revisiNote } : d);
                   if (selectedLaporanToReview.tipePerjalanan === "Dalam Daerah") setDalamDaerahData(updateLocal);
                   else setLuarDaerahData(updateLocal);
                   
                   try {
                     await setLaporanStatus(selectedLaporanToReview.noSppd, "perbaikan");
+                    await setCatatanPerbaikan(selectedLaporanToReview.noSppd, revisiNote);
                   } catch(e) {}
+
+                  // Optimistically update backend
+                  if ((selectedLaporanToReview as any).id) {
+                    apiRequest(`/laporan/${(selectedLaporanToReview as any).id}`, {
+                      method: 'POST',
+                      body: JSON.stringify({ status: "perbaikan", catatan_perbaikan: revisiNote }),
+                    }).catch(console.error);
+                  }
                   
                   setIsRevisiNoteOpen(false);
                   setRevisiNote("");
