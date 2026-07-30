@@ -299,8 +299,10 @@ export default function DashboardPengelola() {
         }
       }
     };
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   const handleRunMigration = async () => {
     try {

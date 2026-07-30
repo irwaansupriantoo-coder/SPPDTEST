@@ -145,7 +145,7 @@ export default function Pengajuan() {
     } else {
       setProgramData({});
     }
-  }, []);
+  }, [user]);
 
   // Extract data with OCR
   const handleSptUpload = async (
