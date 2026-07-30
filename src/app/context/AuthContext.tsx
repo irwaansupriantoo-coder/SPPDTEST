@@ -16,8 +16,32 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({ user: null, isLoading: true });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<UserData | null>(() => {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.endsWith('-auth-token')) {
+          const stored = localStorage.getItem(key);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            const metadata = parsed?.user?.user_metadata;
+            if (metadata) {
+              return {
+                nama: metadata.nama || parsed.user?.email?.split('@')[0] || '-',
+                nip: metadata.nip || '-',
+                role: metadata.role || 'pegawai',
+                ...metadata
+              };
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Fast auth load failed', e);
+    }
+    return null;
+  });
+  const [isLoading, setIsLoading] = useState(!user);
 
   useEffect(() => {
     const supabase = getSupabaseClient();
