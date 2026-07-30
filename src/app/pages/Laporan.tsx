@@ -8,7 +8,7 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
-import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList, setTotalAnggaranPengajuan, setCatatanPerbaikan } from "../utils/supabaseDataStore";
+import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList, setTotalAnggaranPengajuan, setCatatanPerbaikan, resetPegawaiApprovals } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -296,6 +296,7 @@ export default function Laporan() {
       await setPelaksanaData(selectedLaporan.noSppd, updatedPelaksana);
       if (newStatus === "menunggu_verifikasi_pegawai") {
          await setCatatanPerbaikan(selectedLaporan.noSppd, null);
+         await resetPegawaiApprovals(selectedLaporan.noSppd);
       }
     } catch(e) {}
 

@@ -100,6 +100,20 @@ export async function getTanggalPersetujuan(noSppd: string): Promise<string> {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+export async function resetPegawaiApprovals(noSppd: string): Promise<void> {
+  try {
+    const { error } = await sb()
+      .from('sppd_pegawai_approvals')
+      .delete()
+      .eq('no_sppd', noSppd);
+      
+    if (error) throw error;
+  } catch (e) {
+    console.error('resetPegawaiApprovals error:', e);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // PEGAWAI APPROVALS
 // ═══════════════════════════════════════════════════════════════════════════
 
