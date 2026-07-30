@@ -8,7 +8,7 @@ import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
 import { hydrateLaporanDataAsync } from "../utils/hydrateData";
 import { logActivity } from "../utils/activityStore";
-import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList, setTotalAnggaranPengajuan } from "../utils/supabaseDataStore";
+import {  getHiddenSppdIds, addHiddenSppdId, addHiddenSppdIds, setLaporanStatus, setPelaksanaData , getAllPengajuan, deletePengajuanByNoSppd, deletePengajuanByNoSppdList, setTotalAnggaranPengajuan, setCatatanPerbaikan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -59,6 +59,7 @@ interface LaporanData {
   tanggalPergi?: string;
   tanggalKembali?: string;
   subKegiatan?: string;
+  catatanPerbaikan?: string;
 }
 
 import { useAuth } from '../context/AuthContext';
@@ -86,6 +87,8 @@ export default function Laporan() {
   const [isLuarDaerahDialogOpen, setIsLuarDaerahDialogOpen] =
     useState(false);
   const [isVerifikasiDialogOpen, setIsVerifikasiDialogOpen] = useState(false);
+  const [isRevisiNoteOpen, setIsRevisiNoteOpen] = useState(false);
+  const [selectedCatatan, setSelectedCatatan] = useState("");
   const [isLoadingData, setIsLoadingData] = useState(true);
 
   const [dalamDaerahData, setDalamDaerahData] = useState<LaporanData[]>([]);
@@ -291,12 +294,15 @@ export default function Laporan() {
     try {
       await setLaporanStatus(selectedLaporan.noSppd, newStatus);
       await setPelaksanaData(selectedLaporan.noSppd, updatedPelaksana);
+      if (newStatus === "menunggu_verifikasi_pegawai") {
+         await setCatatanPerbaikan(selectedLaporan.noSppd, null);
+      }
     } catch(e) {}
 
     const updateLocal = (prevData: LaporanData[]) =>
       prevData.map((item) =>
         item.noSppd === selectedLaporan.noSppd
-          ? { ...item, status: newStatus, pelaksana: updatedPelaksana, totalAnggaran: newTotalAnggaran }
+          ? { ...item, status: newStatus, pelaksana: updatedPelaksana, totalAnggaran: newTotalAnggaran, ...(newStatus === "menunggu_verifikasi_pegawai" ? { catatanPerbaikan: undefined } : {}) }
           : item,
       );
 
@@ -694,6 +700,18 @@ export default function Laporan() {
                                 <FileText className="w-4 h-4" />
                                 {item.status === "draft_laporan" ? "Lengkapi Laporan" : "Buat Laporan"}
                               </button>
+                              {item.catatanPerbaikan && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedCatatan(item.catatanPerbaikan || "");
+                                    setIsRevisiNoteOpen(true);
+                                  }}
+                                  className="px-3 py-1.5 bg-amber-50 text-amber-600 rounded-lg text-xs font-bold hover:bg-amber-100 shadow-sm transition-all active:scale-95 flex items-center gap-1"
+                                >
+                                  <Info className="w-4 h-4" />
+                                  Lihat Catatan
+                                </button>
+                              )}
                               {user?.role === 'admin' && (
                                 <button
                                   onClick={() => handleDeleteItem(item.noSppd)}
@@ -967,6 +985,35 @@ export default function Laporan() {
             toast.success("Dokumen berhasil disubmit");
           }}
         />
+      )}
+
+      {/* Revisi Note Dialog */}
+      {isRevisiNoteOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
+            <div className="p-5 border-b border-slate-200">
+              <h3 className="text-lg font-bold text-[#5f3800] flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" /> Catatan Revisi Pegawai
+              </h3>
+            </div>
+            <div className="p-5">
+              <p className="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
+                {selectedCatatan || "Tidak ada catatan."}
+              </p>
+            </div>
+            <div className="p-5 border-t border-slate-200 bg-slate-50 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setIsRevisiNoteOpen(false);
+                  setSelectedCatatan("");
+                }}
+                className="px-4 py-2 bg-slate-200 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-300 transition-colors"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

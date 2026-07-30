@@ -193,6 +193,19 @@ export async function setLaporanStatus(noSppd: string, status: string): Promise<
   }
 }
 
+export async function setCatatanPerbaikan(noSppd: string, catatan: string | null): Promise<void> {
+  try {
+    const { error } = await sb()
+      .from('pengajuan_sppd')
+      .update({ catatan_perbaikan: catatan })
+      .eq('no_sppd', noSppd);
+    
+    if (error) throw error;
+  } catch (e) {
+    console.error('setCatatanPerbaikan error:', e);
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // PELAKSANA DATA (biaya per pelaksana per SPPD)
 // ═══════════════════════════════════════════════════════════════════════════
