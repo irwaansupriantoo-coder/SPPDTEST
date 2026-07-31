@@ -38,7 +38,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 lg:left-64 flex justify-between items-center px-4 lg:px-6 h-16 bg-white/70 backdrop-blur-xl z-30">
+    <header className="fixed top-0 w-full flex justify-between items-center px-4 lg:px-6 h-16 bg-white/70 backdrop-blur-xl z-40 lg:z-50">
       <div className="flex items-center gap-3 lg:gap-4">
         <button
           onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
@@ -47,9 +47,8 @@ export function Header() {
           <Menu className="w-6 h-6 text-[#164E63]" />
         </button>
         <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
-          <h1 className="text-lg lg:text-xl font-bold tracking-tight text-[#083344] truncate max-w-[200px] sm:max-w-xs lg:max-w-none">
-            SIM Perjalanan Dinas
-            <span className="hidden sm:inline"> Berau</span>
+          <h1 className="text-sm lg:text-base font-black tracking-tight text-[#083344] leading-tight">
+            Sistem Informasi Manajemen<br />Perjalanan Dinas
           </h1>
         </Link>
       </div>

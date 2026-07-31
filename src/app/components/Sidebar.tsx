@@ -75,11 +75,11 @@ export function Sidebar() {
     <>
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
-      <aside className={`fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <aside className={`fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-50 lg:z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       }`}>
         <div className="flex items-center justify-between px-2 mb-8">
