@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Badge, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -195,7 +195,7 @@ export default function Login() {
           <div className="inline-flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm mb-6 border border-gray-100">
             <img src="/logo-berau-1.png" alt="Logo Kabupaten Berau" className="h-20 w-auto object-contain" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#00475e] mb-2">SIM Perjalanan Dinas</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#00475e] mb-2" style={{ WebkitTextStroke: '1.5px white' }}>SIM Perjalanan Dinas</h1>
           <p className="text-[#00475e] font-medium">Diskoperindag Kabupaten Berau</p>
         </div>
 
