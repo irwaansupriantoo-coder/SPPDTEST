@@ -1,4 +1,4 @@
-import { Header } from '../components/Header';
+﻿import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { GuideSection } from '../components/GuideSection';
 
@@ -7,7 +7,7 @@ export default function Panduan() {
     <div className="min-h-screen bg-[#f7f9fb]">
       <Header />
       <Sidebar />
-      <main className="ml-64 pt-24 pb-16 px-8">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-24 pb-16 px-4 lg:px-8 transition-all duration-300">
         <div className="space-y-8">
           <div>
             <h2 className="text-3xl font-bold text-[#00475e] tracking-tight">Panduan Penggunaan</h2>

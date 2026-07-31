@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { KPICard } from '../components/KPICard';
@@ -486,7 +486,7 @@ export default function DashboardPengelola() {
       <Header />
       <Sidebar />
 
-      <main className="ml-64 pt-20 p-8 min-h-screen">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-20 p-4 lg:p-8 min-h-screen transition-all duration-300">
         {dbReady === 'needs_migration' && (
           <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-4">
             <Database className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />

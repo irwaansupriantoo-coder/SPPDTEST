@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { getSupabaseClient } from "../utils/supabaseClient";
 
 export default function ResetPage() {
@@ -50,7 +50,7 @@ export default function ResetPage() {
       >
         {done ? (
           <>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✅</div>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>âœ…</div>
             <h2 style={{ color: "#00475e", marginBottom: "0.5rem" }}>
               Reset Berhasil!
             </h2>
@@ -74,7 +74,7 @@ export default function ResetPage() {
           </>
         ) : (
           <>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>⏳</div>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>â³</div>
             <h2 style={{ color: "#00475e" }}>Membersihkan data...</h2>
           </>
         )}

@@ -1,5 +1,6 @@
-import { Building2, LayoutDashboard, FileText, ClipboardCheck, LogOut, Archive } from 'lucide-react';
+import { Building2, LayoutDashboard, FileText, ClipboardCheck, LogOut, Archive, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
+import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '../utils/supabaseClient';
 
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,17 @@ import { useAuth } from '../context/AuthContext';
 export function Sidebar() {
   const location = useLocation();
   const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen(prev => !prev);
+    window.addEventListener('toggle-sidebar', handleToggle);
+    return () => window.removeEventListener('toggle-sidebar', handleToggle);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
   
   let menuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' }
@@ -60,16 +72,33 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-40">
-      <div className="flex items-center gap-3 px-2 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-[#00475e] flex items-center justify-center text-white">
-          <Building2 className="w-6 h-6" />
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+      <aside className={`fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
+      }`}>
+        <div className="flex items-center justify-between px-2 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#00475e] flex items-center justify-center text-white">
+              <Building2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="font-black text-[#164e63] leading-tight uppercase text-xs tracking-wider">Diskoperindag</h2>
+              <p className="text-[10px] text-slate-500 font-medium">Kabupaten Berau</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="p-1 rounded-lg hover:bg-slate-200 lg:hidden text-slate-500"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
-        <div>
-          <h2 className="font-black text-[#164e63] leading-tight uppercase text-xs tracking-wider">Diskoperindag</h2>
-          <p className="text-[10px] text-slate-500 font-medium">Kabupaten Berau</p>
-        </div>
-      </div>
       <nav className="flex-1 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -106,5 +135,6 @@ export function Sidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import { apiRequest } from "../utils/supabaseClient";
 import { createPengajuan } from "../utils/supabaseDataStore";
 import { Header } from "../components/Header";
@@ -515,7 +515,7 @@ export default function Pengajuan() {
       <Header />
       <Sidebar />
 
-      <main className="ml-64 pt-24 pb-16 px-8">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-24 pb-16 px-4 lg:px-8 transition-all duration-300">
         <div>
           {/* Page Header */}
           <header className="mb-10">

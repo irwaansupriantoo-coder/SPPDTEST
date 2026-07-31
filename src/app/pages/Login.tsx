@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Badge, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
@@ -30,7 +30,7 @@ const DEMO_ACCOUNTS = [
   { nip: 'admin', password: 'admin', nama: 'Administrator', role: 'admin' }
 ];
 
-// NIP → email mapping (known ahead of time)
+// NIP â†’ email mapping (known ahead of time)
 const EMAIL_MAP: Record<string, string> = {
   '198202082005021002': 'wahid@berau.go.id',
   '199509012022031013': 'irwan@berau.go.id',
@@ -63,7 +63,7 @@ export default function Login() {
       return;
     }
 
-    // Validate NIP + password locally first — no network needed
+    // Validate NIP + password locally first â€” no network needed
     const localUser = DEMO_ACCOUNTS.find(a => a.nip === nip);
     if (!localUser) {
       toast.error('NIP tidak terdaftar dalam sistem');
@@ -87,7 +87,7 @@ export default function Login() {
       profilePicture: existingProfile.profilePicture 
     };
 
-    // ── Layer 1: server endpoint (creates Auth user if needed + returns session) ──
+    // â”€â”€ Layer 1: server endpoint (creates Auth user if needed + returns session) â”€â”€
     try {
       const result = await apiRequest<{
         session: { access_token: string; refresh_token: string };
@@ -110,10 +110,10 @@ export default function Login() {
       setTimeout(() => navigate('/dashboard'), 800);
       return;
     } catch (_) {
-      // server unreachable or not deployed — continue to next layer
+      // server unreachable or not deployed â€” continue to next layer
     }
 
-    // ── Layer 2: direct Supabase Auth (user already exists from a prior login) ──
+    // â”€â”€ Layer 2: direct Supabase Auth (user already exists from a prior login) â”€â”€
     let email = EMAIL_MAP[nip] || `${nip.toLowerCase()}@berau.go.id`;
     let sbPassword = password;
     
@@ -241,7 +241,7 @@ export default function Login() {
                   <input
                     id="password"
                     type="password"
-                    placeholder="••••••••••••"
+                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     disabled={isLoading}

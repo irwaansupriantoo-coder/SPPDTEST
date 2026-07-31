@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+﻿import React, { useState, useEffect, useCallback } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { ProfileCard } from "../components/ProfileCard";
@@ -452,7 +452,7 @@ export default function PersetujuanSPJPegawai() {
       <Header />
       <Sidebar />
 
-      <main className="ml-64 pt-24 pb-16 px-8">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-24 pb-16 px-4 lg:px-8 transition-all duration-300">
         <div className={`grid grid-cols-1 ${user?.role === 'pegawai' ? 'xl:grid-cols-4' : ''} gap-8 items-start`}>
           <div className={`${user?.role === 'pegawai' ? 'xl:col-span-3' : ''} space-y-10`}>
           {/* Page Header */}

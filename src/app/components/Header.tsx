@@ -1,4 +1,4 @@
-import { Bell, User, LogOut } from 'lucide-react';
+import { Bell, User, LogOut, Menu } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { useState, useRef, useEffect } from 'react';
 import { logActivity } from '../utils/activityStore';
@@ -38,10 +38,19 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-white/70 backdrop-blur-xl z-50">
-      <div className="flex items-center gap-4">
+    <header className="fixed top-0 w-full flex justify-between items-center px-4 lg:px-6 h-16 bg-white/70 backdrop-blur-xl z-30">
+      <div className="flex items-center gap-3 lg:gap-4">
+        <button
+          onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
+          className="p-2 -ml-2 rounded-xl hover:bg-slate-100 transition-colors lg:hidden"
+        >
+          <Menu className="w-6 h-6 text-[#164E63]" />
+        </button>
         <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
-          <h1 className="text-xl font-bold tracking-tight text-[#083344]">SIM Perjalanan Dinas Berau</h1>
+          <h1 className="text-lg lg:text-xl font-bold tracking-tight text-[#083344] truncate max-w-[200px] sm:max-w-xs lg:max-w-none">
+            SIM Perjalanan Dinas
+            <span className="hidden sm:inline"> Berau</span>
+          </h1>
         </Link>
       </div>
       <div className="flex items-center gap-3">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { User, Lock, Bell, Database, CheckCircle } from 'lucide-react';
@@ -19,7 +19,7 @@ export default function Pengaturan() {
       const res = await apiRequest<{ tables: Record<string, boolean>; allExist: boolean; message: string }>('/setup-db', { method: 'POST' });
       setDbStatus(res.message);
       if (res.allExist) toast.success('Semua tabel database aktif');
-      else toast.warning('Beberapa tabel belum ada — jalankan migration SQL');
+      else toast.warning('Beberapa tabel belum ada â€” jalankan migration SQL');
     } catch {
       setDbStatus('Server tidak dapat dijangkau. Edge Function belum di-deploy.');
       toast.error('Tidak dapat menghubungi server');
@@ -40,7 +40,7 @@ export default function Pengaturan() {
       <Toaster position="top-right" richColors />
       <Header />
       <Sidebar />
-      <main className="ml-64 pt-24 pb-16 px-8">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-24 pb-16 px-4 lg:px-8 transition-all duration-300">
         <div className="space-y-6">
           <div>
             <h2 className="text-3xl font-bold text-[#00475e] tracking-tight">Pengaturan</h2>
