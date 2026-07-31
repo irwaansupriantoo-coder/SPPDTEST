@@ -47,7 +47,7 @@ export function Header() {
           <Menu className="w-6 h-6 text-[#164E63]" />
         </button>
         <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
-          <h1 className="text-sm lg:text-base font-black tracking-tight text-[#083344] leading-tight">
+          <h1 className="text-sm lg:text-base font-black tracking-wider text-[#164e63] leading-tight uppercase">
             Sistem Informasi Manajemen<br />Perjalanan Dinas
           </h1>
         </Link>
