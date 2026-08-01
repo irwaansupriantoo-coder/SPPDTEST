@@ -99,32 +99,29 @@ export function ProfileCard() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-[#00475e] to-[#1a5f7a] p-8 rounded-xl text-white shadow-xl shadow-[#00475e]/10">
+      <section className="bg-[#0B1B32] p-8 rounded-xl text-white shadow-xl shadow-[#0B1B32]/10 h-full">
         <div className="flex flex-col items-center text-center">
           <div className="relative mb-4">
             <img 
               alt={user?.nama || "User"} 
-              className="w-24 h-24 rounded-full border-4 border-white/20 object-cover bg-white/10" 
+              className="w-24 h-24 rounded-full border-4 border-white/10 object-cover bg-white/10" 
               src={displayFoto}
             />
-            <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"></div>
+            <div className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-[#0B1B32] rounded-full"></div>
           </div>
-          <h3 className="text-xl font-bold">{user?.nama || 'User'}</h3>
-          {user?.nip && <p className="text-sm text-white/80 font-medium mt-0.5">{user.nip}</p>}
-          {displayPangkat !== '-' && (
-            <p className="text-sm text-[#92cfee] font-medium mt-0.5">{displayPangkat}</p>
-          )}
-          <p className="text-[#92cfee] text-xs font-medium uppercase tracking-widest mt-1">{roleDisplay}</p>
+          <h3 className="text-xl font-bold text-white">{user?.nama || 'User'}</h3>
+          {user?.nip && <p className="text-[10px] text-[#94a3b8] font-medium mt-1">{user.nip}</p>}
+          <p className="text-[#94a3b8] text-[10px] font-bold uppercase tracking-wider mt-1">{displayPangkat !== '-' ? `${displayPangkat} | ` : ''}{roleDisplay}</p>
           
           {user?.role === 'pengelola' && (
-            <div className="w-full mt-8 pt-6 border-t border-white/10 flex flex-col items-center">
-              <p className="text-[10px] text-white/60 font-bold uppercase">PPTK</p>
-              <p className="text-sm font-semibold">{pptkName}</p>
+            <div className="w-full mt-6 flex flex-col items-center">
+              <p className="text-[10px] text-[#94a3b8] font-bold uppercase tracking-widest">PPTK</p>
+              <p className="text-sm font-bold mt-0.5 text-white">{pptkName}</p>
             </div>
           )}
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="w-full mt-8 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl text-sm font-bold transition-all"
+            className="w-full mt-8 py-3 bg-[#1e293b] hover:bg-[#334155] rounded-lg text-xs font-bold transition-all text-white border border-slate-700"
           >
             Kelola Profil Akun
           </button>

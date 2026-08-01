@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { KPICard } from '../components/KPICard';
@@ -481,7 +481,7 @@ export default function DashboardPengelola() {
   const paginatedArsip = filteredArsipData.slice((pageArsip - 1) * itemsPerPage, pageArsip * itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-[#f7f9fb]">
+    <div className="min-h-screen bg-[#f8fafc]">
       <Toaster position="top-right" richColors />
       <Header />
       <Sidebar />
@@ -506,14 +506,13 @@ export default function DashboardPengelola() {
         )}
 
         <header className="mb-10">
-          <p className="text-[#4c616d] font-semibold uppercase tracking-[0.15em] text-[10px] mb-2">Selamat Datang</p>
-          <h2 className="text-4xl font-bold tracking-tight text-[#00475e] mb-1">Beranda Dashboard</h2>
-          <p className="text-[#40484d] max-w-2xl">
-            Pantau status pengajuan perjalanan dinas, realisasi anggaran, dan panduan operasional terbaru di lingkungan Diskoperindag Berau.
+          <h2 className="text-3xl font-bold tracking-tight text-slate-800 mb-2">Beranda Dashboard</h2>
+          <p className="text-slate-500 text-xs">
+            Pantau status pengajuan perjalanan dinas, realisasi anggaran, dan panduan operasional terbaru
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {kpiData.map((kpi, index) => (
             <KPICard key={index} {...kpi} />
           ))}
@@ -724,10 +723,10 @@ export default function DashboardPengelola() {
                 
                 <button
                   onClick={() => window.location.href = '/daftar-pengajuan'}
-                  className="text-xs font-semibold text-[#00475e] hover:text-[#003344] flex items-center gap-1 bg-[#e6f3f8] px-4 py-2 rounded-lg transition-colors"
+                  className="text-[9px] font-bold text-slate-800 hover:text-black flex items-center gap-1 uppercase tracking-wider transition-colors"
                 >
                   Lihat Semua Data
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -852,10 +851,10 @@ export default function DashboardPengelola() {
                 
                 <button
                   onClick={() => window.location.href = '/laporan'}
-                  className="text-xs font-semibold text-[#00475e] hover:text-[#003344] flex items-center gap-1 bg-[#e6f3f8] px-4 py-2 rounded-lg transition-colors"
+                  className="text-[9px] font-bold text-slate-800 hover:text-black flex items-center gap-1 uppercase tracking-wider transition-colors"
                 >
                   Lihat Semua Data
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -980,10 +979,10 @@ export default function DashboardPengelola() {
                 
                 <button
                   onClick={() => window.location.href = '/arsip-spj-pengelola'}
-                  className="text-xs font-semibold text-[#00475e] hover:text-[#003344] flex items-center gap-1 bg-[#e6f3f8] px-4 py-2 rounded-lg transition-colors"
+                  className="text-[9px] font-bold text-slate-800 hover:text-black flex items-center gap-1 uppercase tracking-wider transition-colors"
                 >
                   Lihat Semua Data
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
             </div>

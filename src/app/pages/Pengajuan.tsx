@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { apiRequest } from "../utils/supabaseClient";
 import { createPengajuan } from "../utils/supabaseDataStore";
 import { Header } from "../components/Header";
@@ -519,7 +519,7 @@ export default function Pengajuan() {
         <div>
           {/* Page Header */}
           <header className="mb-10">
-            <h2 className="text-4xl font-bold tracking-tight text-[#00475e] mb-1">
+            <h2 className="text-4xl font-bold tracking-tight text-[#0B1B32] mb-1">
               Form Pengajuan Perjalanan Dinas
             </h2>
             <p className="text-[#40484d]">
@@ -534,10 +534,10 @@ export default function Pengajuan() {
               {/* Section 1: Upload SPT */}
               <section className="bg-white p-8 rounded-xl border border-slate-200/10 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="w-8 h-8 rounded-full bg-[#00475e] text-white flex items-center justify-center text-xs font-bold shadow-md">
+                  <span className="w-8 h-8 rounded-full bg-[#0B1B32] text-white flex items-center justify-center text-xs font-bold shadow-md">
                     1
                   </span>
-                  <h3 className="text-xl font-bold text-[#00475e]">
+                  <h3 className="text-xl font-bold text-[#0B1B32]">
                     Upload Surat Perintah Tugas (SPT)
                   </h3>
                 </div>
@@ -553,7 +553,7 @@ export default function Pengajuan() {
                   className="border-2 border-dashed border-[#c0c8cd] rounded-xl p-10 flex flex-col items-center justify-center text-center bg-[#f2f4f6]/30 hover:bg-[#f2f4f6] transition-colors cursor-pointer group"
                 >
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform border border-slate-200">
-                    <Upload className="w-8 h-8 text-[#00475e]" />
+                    <Upload className="w-8 h-8 text-[#0B1B32]" />
                   </div>
                   <p className="text-[#191c1e] font-semibold">
                     Klik untuk upload atau drag berkas SPT
@@ -606,10 +606,10 @@ export default function Pengajuan() {
               {/* Section 2: Upload Dasar Surat */}
               <section className="bg-white p-8 rounded-xl border border-slate-200/10 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="w-8 h-8 rounded-full bg-[#00475e] text-white flex items-center justify-center text-xs font-bold shadow-md">
+                  <span className="w-8 h-8 rounded-full bg-[#0B1B32] text-white flex items-center justify-center text-xs font-bold shadow-md">
                     2
                   </span>
-                  <h3 className="text-xl font-bold text-[#00475e]">
+                  <h3 className="text-xl font-bold text-[#0B1B32]">
                     Dasar Surat (Surat Undangan / Telaahan Staf)
                   </h3>
                 </div>
@@ -627,7 +627,7 @@ export default function Pengajuan() {
                   className="border-2 border-dashed border-[#c0c8cd] rounded-xl p-10 flex flex-col items-center justify-center text-center bg-[#f2f4f6]/30 hover:bg-[#f2f4f6] transition-colors cursor-pointer group"
                 >
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform border border-slate-200">
-                    <CloudUpload className="w-8 h-8 text-[#00475e]" />
+                    <CloudUpload className="w-8 h-8 text-[#0B1B32]" />
                   </div>
                   <p className="text-[#191c1e] font-semibold">
                     Klik untuk upload atau drag berkas Dasar
@@ -681,10 +681,10 @@ export default function Pengajuan() {
               {/* Section 3: Data Detail */}
               <section className="bg-white p-8 rounded-xl border border-slate-200/10 shadow-sm relative overflow-hidden">
                 <div className="flex items-center gap-3 mb-8">
-                  <span className="w-8 h-8 rounded-full bg-[#00475e] text-white flex items-center justify-center text-xs font-bold shadow-md">
+                  <span className="w-8 h-8 rounded-full bg-[#0B1B32] text-white flex items-center justify-center text-xs font-bold shadow-md">
                     3
                   </span>
-                  <h3 className="text-xl font-bold text-[#00475e]">
+                  <h3 className="text-xl font-bold text-[#0B1B32]">
                     Detail Perjalanan & Pelaksana
                   </h3>
                 </div>
@@ -710,7 +710,7 @@ export default function Pengajuan() {
                         />
                         <div
                           className={`p-4 border rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm
-                          ${tipePerjalanan === "Dalam Daerah" ? "bg-[#00475e] text-white border-[#00475e]" : "border-[#c0c8cd]/30 hover:border-[#00475e]"}`}
+                          ${tipePerjalanan === "Dalam Daerah" ? "bg-[#0B1B32] text-white border-[#0B1B32]" : "border-[#c0c8cd]/30 hover:border-[#0B1B32]"}`}
                         >
                           <MapPin className="w-5 h-5" />
                           <span className="font-bold text-sm">
@@ -732,7 +732,7 @@ export default function Pengajuan() {
                         />
                         <div
                           className={`p-4 border rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm
-                          ${tipePerjalanan === "Luar Daerah" ? "bg-[#00475e] text-white border-[#00475e]" : "border-[#c0c8cd]/30 hover:border-[#00475e]"}`}
+                          ${tipePerjalanan === "Luar Daerah" ? "bg-[#0B1B32] text-white border-[#0B1B32]" : "border-[#c0c8cd]/30 hover:border-[#0B1B32]"}`}
                         >
                           <Plane className="w-5 h-5" />
                           <span className="font-bold text-sm">
@@ -865,7 +865,7 @@ export default function Pengajuan() {
                           />
                           <div
                             className={`p-4 border rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm
-                            ${alatAngkut === mode ? "bg-[#00475e] text-white border-[#00475e]" : "border-[#c0c8cd]/30 hover:border-[#00475e]"}`}
+                            ${alatAngkut === mode ? "bg-[#0B1B32] text-white border-[#0B1B32]" : "border-[#c0c8cd]/30 hover:border-[#0B1B32]"}`}
                           >
                             {mode === 'Transportasi Darat' && <Car className="w-5 h-5" />}
                             {mode === 'Pesawat Udara' && <Plane className="w-5 h-5" />}
@@ -997,7 +997,7 @@ export default function Pengajuan() {
                       </select>
                       <button
                         onClick={handleAddPelaksana}
-                        className="px-6 py-3 bg-[#00475e] text-white rounded-lg font-bold text-sm hover:bg-[#1a5f7a] transition-all hover:shadow-md active:scale-95 flex items-center gap-2"
+                        className="px-6 py-3 bg-[#0B1B32] text-white rounded-lg font-bold text-sm hover:bg-[#1e293b] transition-all hover:shadow-md active:scale-95 flex items-center gap-2"
                       >
                         <Users className="w-4 h-4" />
                         Tambah
@@ -1078,7 +1078,7 @@ export default function Pengajuan() {
                           }
                           className="peer hidden"
                         />
-                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#00475e] peer-checked:bg-[#1a5f7a] peer-checked:text-white peer-checked:border-[#00475e] transition-all text-xs font-bold hover:shadow-md">
+                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#0B1B32] peer-checked:bg-[#0B1B32] peer-checked:text-white peer-checked:border-[#0B1B32] transition-all text-xs font-bold hover:shadow-md">
                           <Car className="w-5 h-5" />
                           Transportasi Darat
                         </div>
@@ -1095,7 +1095,7 @@ export default function Pengajuan() {
                           }
                           className="peer hidden"
                         />
-                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#00475e] peer-checked:bg-[#1a5f7a] peer-checked:text-white peer-checked:border-[#00475e] transition-all text-xs font-bold hover:shadow-md">
+                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#0B1B32] peer-checked:bg-[#0B1B32] peer-checked:text-white peer-checked:border-[#0B1B32] transition-all text-xs font-bold hover:shadow-md">
                           <Plane className="w-5 h-5" />
                           Pesawat Udara
                         </div>
@@ -1112,7 +1112,7 @@ export default function Pengajuan() {
                           }
                           className="peer hidden"
                         />
-                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#00475e] peer-checked:bg-[#1a5f7a] peer-checked:text-white peer-checked:border-[#00475e] transition-all text-xs font-bold hover:shadow-md">
+                        <div className="px-4 py-3 border border-[#c0c8cd]/30 rounded-lg flex items-center justify-center gap-2 group-hover:border-[#0B1B32] peer-checked:bg-[#0B1B32] peer-checked:text-white peer-checked:border-[#0B1B32] transition-all text-xs font-bold hover:shadow-md">
                           <Ship className="w-5 h-5" />
                           Transportasi Laut
                         </div>
@@ -1125,16 +1125,16 @@ export default function Pengajuan() {
               {/* Section 4: Finalisasi */}
               <section className="bg-white p-8 rounded-xl border border-slate-200/10 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="w-8 h-8 rounded-full bg-[#00475e] text-white flex items-center justify-center text-xs font-bold shadow-md">
+                  <span className="w-8 h-8 rounded-full bg-[#0B1B32] text-white flex items-center justify-center text-xs font-bold shadow-md">
                     4
                   </span>
-                  <h3 className="text-xl font-bold text-[#00475e]">
+                  <h3 className="text-xl font-bold text-[#0B1B32]">
                     Konfirmasi Akhir
                   </h3>
                 </div>
                 <div className="bg-gradient-to-b from-[#f2f4f6]/50 to-[#f2f4f6] p-10 rounded-xl flex flex-col items-center justify-center text-center border border-slate-200">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-slate-100">
-                    <ShieldCheck className="w-10 h-10 text-[#00475e]" />
+                    <ShieldCheck className="w-10 h-10 text-[#0B1B32]" />
                   </div>
                   <h4 className="text-lg font-bold text-[#191c1e] mb-2">
                     Siap untuk Mengajukan?
@@ -1148,7 +1148,7 @@ export default function Pengajuan() {
                   <button
                     onClick={handleReviewClick}
                     disabled={pelaksanaList.length === 0}
-                    className={`px-8 py-3.5 font-bold rounded-xl transition-all flex items-center gap-2 mb-2 ${pelaksanaList.length === 0 ? "bg-slate-200 text-slate-400 cursor-not-allowed" : "bg-[#00475e] text-white hover:bg-[#1a5f7a] hover:shadow-lg hover:-translate-y-0.5 active:scale-95"}`}
+                    className={`px-8 py-3.5 font-bold rounded-xl transition-all flex items-center gap-2 mb-2 ${pelaksanaList.length === 0 ? "bg-slate-200 text-slate-400 cursor-not-allowed" : "bg-[#0B1B32] text-white hover:bg-[#1e293b] hover:shadow-lg hover:-translate-y-0.5 active:scale-95"}`}
                   >
                     <Eye className="w-5 h-5" />
                     Review Draft SPPD
@@ -1164,8 +1164,8 @@ export default function Pengajuan() {
             {/* Right: Summary Sidebar */}
             <div className="lg:col-span-4 space-y-6">
               <div className="sticky top-24">
-                <section className="bg-gradient-to-br from-[#00475e] to-[#1a5f7a] p-8 rounded-xl text-white shadow-xl shadow-[#00475e]/10 relative overflow-hidden">
-                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+                <section className="bg-[#0B1B32] p-8 rounded-xl text-white shadow-xl shadow-[#0B1B32]/10 relative overflow-hidden">
+                  <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
                   <div className="absolute bottom-10 -left-10 w-24 h-24 bg-white/5 rounded-full blur-xl"></div>
 
                   <h3 className="text-sm font-black uppercase tracking-widest mb-6 border-b border-white/10 pb-4 flex items-center gap-2">
@@ -1300,7 +1300,7 @@ export default function Pengajuan() {
                   </div>
                   <div className="w-full bg-slate-100 h-2.5 rounded-full mb-3 overflow-hidden shadow-inner">
                     <div
-                      className="bg-[#00475e] h-full rounded-full transition-all duration-1000"
+                      className="bg-[#0B1B32] h-full rounded-full transition-all duration-1000"
                       style={{ width: "65%" }}
                     ></div>
                   </div>

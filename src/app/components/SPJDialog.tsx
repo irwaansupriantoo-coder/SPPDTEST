@@ -88,11 +88,11 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
         try {
           const { getSupabaseClient } = await import('../utils/supabaseClient');
           const sb = getSupabaseClient();
-          
+
           const dokKey = `sppd_dokumentasi_${data.noSppd}`;
           const { data: dokUrl } = await sb.storage.from('sppd-documents').createSignedUrl(dokKey, 3600);
           if (dokUrl?.signedUrl) setDokumentasiUrl(dokUrl.signedUrl);
-          
+
           const lapKey = `sppd_laporan_${data.noSppd}`;
           const { data: lapUrl } = await sb.storage.from('sppd-documents').createSignedUrl(lapKey, 3600);
           if (lapUrl?.signedUrl) setLaporanUrl(lapUrl.signedUrl);
@@ -118,10 +118,10 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
       const standard = 170000; // Locked value
       updatedData.totalUangHarian = hari * standard;
       updatedData.standardUangHarian = '170000'; // Keep locked
-      
+
       // Calculate jumlah malam (hari - 1)
       updatedData.jumlahMalam = Math.max(0, hari - 1);
-      
+
       // Recalculate hotel based on nights
       if (!currentData.tidakSewaKamar) {
         const standardHotel = parseInt(currentData.standardBiayaHotel || '0');
@@ -288,7 +288,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
 
     const maxHari = Math.max(...travelersList.map(t => t.jumlahHari));
     const effectiveLamaHari = maxHari > 0 ? maxHari : (data.lamaHari || 3);
-    
+
     const startDate = data.tanggalMulai ? new Date(data.tanggalMulai) : new Date();
     const endDate = data.tanggalSelesai ? new Date(data.tanggalSelesai) : new Date();
 
@@ -503,11 +503,10 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                             value={travelerData[pelaksana.nip]?.standardBiayaHotel ? formatCurrency(travelerData[pelaksana.nip].standardBiayaHotel) : ''}
                             onChange={(e) => handleInputChange(pelaksana.nip, 'standardBiayaHotel', e.target.value)}
                             disabled={travelerData[pelaksana.nip]?.tidakSewaKamar}
-                            className={`w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00475e]/20 text-sm font-bold transition-all outline-none ${
-                              travelerData[pelaksana.nip]?.tidakSewaKamar 
-                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed' 
+                            className={`w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00475e]/20 text-sm font-bold transition-all outline-none ${travelerData[pelaksana.nip]?.tidakSewaKamar
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                 : 'bg-[#f2f4f6] text-[#191c1e]'
-                            }`}
+                              }`}
                             placeholder="Standar biaya"
                           />
                         </div>
@@ -522,11 +521,10 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                         <button
                           onClick={() => hotelFileRefs.current[pelaksana.nip]?.click()}
                           disabled={travelerData[pelaksana.nip]?.tidakSewaKamar}
-                          className={`w-full flex items-center justify-center gap-2 border-2 border-dashed p-2 rounded-xl transition-all group ${
-                            travelerData[pelaksana.nip]?.tidakSewaKamar
+                          className={`w-full flex items-center justify-center gap-2 border-2 border-dashed p-2 rounded-xl transition-all group ${travelerData[pelaksana.nip]?.tidakSewaKamar
                               ? 'border-slate-200 bg-slate-50 cursor-not-allowed'
                               : 'border-slate-300 hover:border-[#00475e]/50 bg-white hover:bg-[#00475e]/5'
-                          }`}
+                            }`}
                         >
                           {travelerData[pelaksana.nip]?.uploadedFiles.hotel ? (
                             <>
@@ -650,11 +648,10 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                             value={travelerData[pelaksana.nip]?.sewaKendaraan ? formatCurrency(travelerData[pelaksana.nip].sewaKendaraan) : ''}
                             onChange={(e) => handleInputChange(pelaksana.nip, 'sewaKendaraan', e.target.value)}
                             disabled={travelerData[pelaksana.nip]?.tidakSewaKendaraan}
-                            className={`w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00475e]/20 text-sm font-bold transition-all outline-none ${
-                              travelerData[pelaksana.nip]?.tidakSewaKendaraan
+                            className={`w-full pl-11 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00475e]/20 text-sm font-bold transition-all outline-none ${travelerData[pelaksana.nip]?.tidakSewaKendaraan
                                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                 : 'bg-[#f2f4f6] text-[#191c1e]'
-                            }`}
+                              }`}
                             placeholder="Standar biaya"
                           />
                         </div>
@@ -669,11 +666,10 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                         <button
                           onClick={() => kendaraanFileRefs.current[pelaksana.nip]?.click()}
                           disabled={travelerData[pelaksana.nip]?.tidakSewaKendaraan}
-                          className={`w-full flex items-center justify-center gap-2 border-2 border-dashed p-2 rounded-xl transition-all group ${
-                            travelerData[pelaksana.nip]?.tidakSewaKendaraan
+                          className={`w-full flex items-center justify-center gap-2 border-2 border-dashed p-2 rounded-xl transition-all group ${travelerData[pelaksana.nip]?.tidakSewaKendaraan
                               ? 'border-slate-200 bg-slate-50 cursor-not-allowed'
                               : 'border-slate-300 hover:border-[#00475e]/50 bg-white hover:bg-[#00475e]/5'
-                          }`}
+                            }`}
                         >
                           {travelerData[pelaksana.nip]?.uploadedFiles.kendaraan ? (
                             <>
@@ -752,7 +748,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                             Tersimpan di Server
                           </span>
                         </div>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             window.open(dokumentasiUrl, '_blank');
@@ -809,7 +805,7 @@ export function SPJDialog({ isOpen, onClose, onSave, data, isEditable = true }: 
                             Tersimpan di Server
                           </span>
                         </div>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             window.open(laporanUrl, '_blank');

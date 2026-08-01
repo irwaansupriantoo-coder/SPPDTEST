@@ -79,18 +79,13 @@ export function Sidebar() {
           onClick={() => setIsOpen(false)}
         />
       )}
-      <aside className={`fixed left-0 top-0 h-screen flex flex-col p-4 pt-20 bg-slate-50 w-64 z-50 lg:z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <aside className={`fixed left-0 top-0 h-screen flex flex-col p-4 pt-8 bg-[#0B1B32] w-64 z-50 lg:z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'
       }`}>
-        <div className="flex items-center justify-between px-2 mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00475e] flex items-center justify-center text-white">
-              <Building2 className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-black text-[#164e63] leading-tight uppercase text-xs tracking-wider">Diskoperindag</h2>
-              <p className="text-[10px] text-slate-500 font-medium">Kabupaten Berau</p>
-            </div>
+        <div className="flex items-center justify-between px-2 mb-8 mt-2">
+          <div className="flex flex-col">
+            <h2 className="font-black text-white leading-tight uppercase text-[15px] tracking-wide mb-1">SIMPERDIN BERAU</h2>
+            <p className="text-[9px] text-[#94a3b8] font-bold uppercase tracking-widest">Diskoperindag Kabupaten Berau</p>
           </div>
           <button 
             onClick={() => setIsOpen(false)}
@@ -108,10 +103,10 @@ export function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ease-in-out font-bold text-sm ${
                 isActive
-                  ? 'bg-white text-[#0e7490] shadow-sm'
-                  : 'text-slate-600 hover:text-[#0891b2] hover:bg-white/50'
+                  ? 'bg-[#facc15] text-black shadow-sm'
+                  : 'text-white hover:bg-white/10'
               }`}
             >
               <Icon className="w-5 h-5" />
@@ -128,7 +123,7 @@ export function Sidebar() {
               window.location.href = '/login';
             }
           }}
-          className="flex items-center gap-3 w-full px-3 py-2.5 text-[#ba1a1a] hover:bg-[#ffdad6]/20 rounded-lg transition-all duration-200 ease-in-out font-medium text-sm"
+          className="flex items-center gap-3 w-full px-3 py-2.5 text-white hover:bg-white/10 rounded-lg transition-all duration-200 ease-in-out font-bold text-sm"
         >
           <LogOut className="w-5 h-5" />
           Keluar

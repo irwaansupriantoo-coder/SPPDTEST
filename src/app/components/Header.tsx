@@ -38,21 +38,16 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full flex justify-between items-center px-4 lg:px-6 h-16 bg-white/70 backdrop-blur-xl z-40 lg:z-50">
-      <div className="flex items-center gap-3 lg:gap-4">
+    <header className="fixed top-0 w-full flex justify-between items-center px-4 lg:px-6 h-16 bg-transparent z-40 lg:z-50 pointer-events-none">
+      <div className="flex items-center gap-3 lg:gap-4 pointer-events-auto">
         <button
           onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
           className="p-2 -ml-2 rounded-xl hover:bg-slate-100 transition-colors lg:hidden"
         >
           <Menu className="w-6 h-6 text-[#164E63]" />
         </button>
-        <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
-          <h1 className="text-sm lg:text-base font-black tracking-wider text-[#164e63] leading-tight uppercase">
-            Sistem Informasi Manajemen<br />Perjalanan Dinas
-          </h1>
-        </Link>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pointer-events-auto">
         <button className="p-2 rounded-full hover:bg-slate-100 transition-colors relative">
           <Bell className="w-5 h-5 text-[#164E63]" />
           <span className="absolute top-2 right-2 w-2 h-2 bg-[#ba1a1a] rounded-full"></span>

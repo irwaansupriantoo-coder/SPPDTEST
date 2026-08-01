@@ -11,15 +11,15 @@ interface KPICardProps {
 
 export function KPICard({ icon: Icon, value, label, bgColor, iconColor, hoverColor }: KPICardProps) {
   return (
-    <button className="flex flex-col p-6 rounded-xl bg-white transition-all hover:scale-[1.02] active:scale-95 text-left group">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`w-12 h-12 rounded-xl ${bgColor} flex items-center justify-center ${iconColor}`}>
+    <button className="flex flex-col p-6 rounded-xl bg-white border border-slate-200 shadow-sm transition-all hover:scale-[1.02] active:scale-95 text-left group">
+      <div className="flex justify-between items-start mb-6 w-full">
+        <div className={`w-12 h-12 rounded-full border border-slate-100 flex items-center justify-center ${iconColor} bg-slate-50`}>
           <Icon className="w-6 h-6" />
         </div>
-        <ArrowUpRight className={`w-6 h-6 text-slate-400 ${hoverColor} transition-colors`} />
+        <ArrowUpRight className={`w-4 h-4 text-slate-300 ${hoverColor} transition-colors`} />
       </div>
-      <p className="text-4xl font-bold text-[#191c1e] mb-1">{value}</p>
-      <p className="text-[11px] font-semibold text-[#4c616d] uppercase tracking-wider">{label}</p>
+      <p className="text-3xl font-black text-slate-800 mb-1">{value}</p>
+      <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">{label}</p>
     </button>
   );
 }
