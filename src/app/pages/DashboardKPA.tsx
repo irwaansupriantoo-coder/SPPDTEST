@@ -64,8 +64,8 @@ const DetailPengurusModal = ({ isOpen, onClose, data }: { isOpen: boolean, onClo
           <Users className="w-5 h-5" /> Detail Pengurus
         </h3>
         <div className="space-y-4">
-          <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-            <h4 className="text-[10px] uppercase font-bold text-blue-600 mb-1">Pejabat Pelaksana Teknis Kegiatan (PPTK)</h4>
+          <div className="bg-[#e6f3f8]/50 p-4 rounded-xl border border-blue-100">
+            <h4 className="text-[10px] uppercase font-bold text-[#00475e] mb-1">Pejabat Pelaksana Teknis Kegiatan (PPTK)</h4>
             <p className="font-medium text-[#00475e] text-sm">{pptkName}</p>
             {data.pptkNip && <p className="text-xs text-slate-500 mt-0.5">NIP: {data.pptkNip}</p>}
           </div>
@@ -388,16 +388,16 @@ export default function DashboardKPA() {
       case "belum_spj":
       case "draft_laporan":
       case "Menunggu Persetujuan":
-        return <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">{spjStatus === "draft_laporan" ? "Draft Laporan" : "Belum SPJ"}</span>;
+        return <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">{spjStatus === "draft_laporan" ? "Draft Laporan" : "Belum SPJ"}</span>;
       case "menunggu_verifikasi_pegawai": return <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-max mx-auto block text-center">Menunggu Pegawai</span>;
       case "menunggu_verifikasi_bendahara": return <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-max mx-auto block text-center">Menunggu Bendahara</span>;
-      case "menunggu_verifikasi_pptk": return <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">Menunggu PPTK</span>;
+      case "menunggu_verifikasi_pptk": return <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">Menunggu PPTK</span>;
       case "menunggu_verifikasi_kpa": return <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs font-bold rounded-full border border-purple-200 w-max mx-auto block text-center">Menunggu KPA</span>;
       case "menunggu_pembayaran": return <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 w-max mx-auto block text-center">Menunggu Pembayaran</span>;
       case "perbaikan": return <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200 w-max mx-auto block text-center">Perbaikan</span>;
       default:
         if (spjStatus?.startsWith("menunggu_verifikasi")) return <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-max mx-auto block text-center">Menunggu Verifikasi</span>;
-        return <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">Belum SPJ</span>;
+        return <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">Belum SPJ</span>;
     }
   };
 

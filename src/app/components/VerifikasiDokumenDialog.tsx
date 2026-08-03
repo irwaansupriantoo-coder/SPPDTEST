@@ -365,7 +365,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
               {visibleDocuments.map((doc, index) => (
                 <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors gap-3 sm:gap-4">
                   <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0 mt-0.5 sm:mt-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#cde7f0] flex items-center justify-center text-[#00475e] shrink-0 mt-0.5 sm:mt-0">
                       <doc.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -384,7 +384,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     {uploadedFiles[doc.docId] && (
                       <button 
                         onClick={() => handleViewDoc(doc.docId, doc.name)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-colors border border-blue-200"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f3f8] hover:bg-[#cde7f0] text-[#003344] rounded-lg transition-colors border border-[#00475e]/20"
                       >
                         <Eye className="w-4 h-4" />
                         <span className="text-xs font-bold">Lihat</span>
@@ -431,7 +431,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                 </div>
               ))}
             </div>
-            <div className={`${data.status === "selesai" ? "bg-emerald-50 border-emerald-200" : "bg-blue-100/50 border-blue-100"} border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mt-2`}>
+            <div className={`${data.status === "selesai" ? "bg-emerald-50 border-emerald-200" : "bg-[#cde7f0]/50 border-blue-100"} border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mt-2`}>
               <div>
                 <p className="text-xs font-bold text-[#475569] mb-1">Total Anggaran SPJ</p>
                 <p className="text-xl sm:text-2xl font-bold text-[#1e293b]">Rp {(data.totalAnggaran !== undefined && data.totalAnggaran !== null ? data.totalAnggaran : 3450000).toLocaleString('id-ID')}</p>

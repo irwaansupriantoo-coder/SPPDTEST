@@ -898,7 +898,7 @@ export default function Pengajuan() {
                   </div>
 
                   {isLoadingPrograms ? (
-                    <div className="col-span-2 mt-4 p-4 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-sm font-medium flex items-center gap-2">
+                    <div className="col-span-2 mt-4 p-4 bg-[#e6f3f8] text-[#003344] border border-[#00475e]/20 rounded-xl text-sm font-medium flex items-center gap-2">
                       <div className="w-5 h-5 flex-shrink-0 animate-spin rounded-full border-2 border-blue-700 border-t-transparent"></div>
                       Memuat data program & sub kegiatan...
                     </div>

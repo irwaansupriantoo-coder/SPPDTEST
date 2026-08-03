@@ -406,7 +406,7 @@ export default function DashboardPengelola() {
       case "draft_laporan":
       case "Menunggu Persetujuan":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">
             {spjStatus === "draft_laporan" ? "Draft Laporan" : "Belum SPJ"}
           </span>
         );
@@ -424,7 +424,7 @@ export default function DashboardPengelola() {
         );
       case "menunggu_verifikasi_pptk":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">
             Menunggu PPTK
           </span>
         );
@@ -455,7 +455,7 @@ export default function DashboardPengelola() {
           );
         }
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200 w-max mx-auto block text-center">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20 w-max mx-auto block text-center">
             Belum SPJ
           </span>
         );

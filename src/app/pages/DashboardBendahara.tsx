@@ -314,7 +314,7 @@ export default function DashboardBendahara() {
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {isAdding && (
-                  <tr className="bg-blue-50/50">
+                  <tr className="bg-[#e6f3f8]/50">
                     <td className="px-6 py-4 align-top">
                       <div className="space-y-4">
                         <div>
@@ -432,7 +432,7 @@ export default function DashboardBendahara() {
                       {isEditing === item.id ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs w-24 text-blue-700 font-bold bg-blue-100 px-2 py-1 rounded">Dalam Daerah</span>
+                            <span className="text-xs w-24 text-[#003344] font-bold bg-[#cde7f0] px-2 py-1 rounded">Dalam Daerah</span>
                             <input 
                               type="number" 
                               className="w-full text-sm p-1 border rounded"
@@ -453,7 +453,7 @@ export default function DashboardBendahara() {
                       ) : (
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between border-b pb-1">
-                            <span className="text-blue-700 font-bold text-xs bg-blue-50 px-2 rounded-full mr-2">Dalam</span>
+                            <span className="text-[#003344] font-bold text-xs bg-[#e6f3f8] px-2 rounded-full mr-2">Dalam</span>
                             <span>Rp {item.paguDalamDaerah.toLocaleString('id-ID')}</span>
                           </div>
                           <div className="flex justify-between">
@@ -526,7 +526,7 @@ export default function DashboardBendahara() {
                                 pptkNip: item.pptkNip 
                               });
                             }} 
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
+                            className="p-1.5 text-[#00475e] hover:bg-[#e6f3f8] rounded"
                             title="Edit Data"
                           >
                             <Edit className="w-4 h-4" />

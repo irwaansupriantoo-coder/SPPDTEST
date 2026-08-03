@@ -353,7 +353,7 @@ export default function Laporan() {
       case "Menunggu Persetujuan" as any:
       case "draft_laporan":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20">
             {status === "draft_laporan" ? "Draft Laporan" : "Belum SPJ"}
           </span>
         );
@@ -371,7 +371,7 @@ export default function Laporan() {
         );
       case "menunggu_verifikasi_pptk":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20">
             Menunggu PPTK
           </span>
         );
@@ -514,12 +514,12 @@ export default function Laporan() {
                 }
                 className={`bg-white p-4 rounded-xl shadow-sm border transition-all hover:shadow-md ${
                   statusFilter === "belum_spj"
-                    ? "border-blue-300 ring-2 ring-blue-100"
+                    ? "border-[#00475e]/30 ring-2 ring-blue-100"
                     : "border-slate-200"
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+                  <div className="w-10 h-10 rounded-lg bg-[#e6f3f8] flex items-center justify-center text-[#00475e]">
                     <Timer className="w-5 h-5" />
                   </div>
                   <div className="text-left">
@@ -853,7 +853,7 @@ export default function Laporan() {
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex gap-5 items-start">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
+              <div className="w-12 h-12 bg-[#e6f3f8] rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
                 <Info className="w-6 h-6" />
               </div>
               <div>

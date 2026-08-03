@@ -102,7 +102,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
     const colors = [
       { bg: 'bg-[#00475e]/10', text: 'text-[#00475e]' },
       { bg: 'bg-red-100', text: 'text-red-700' },
-      { bg: 'bg-blue-100', text: 'text-blue-700' },
+      { bg: 'bg-[#cde7f0]', text: 'text-[#003344]' },
       { bg: 'bg-purple-100', text: 'text-purple-700' },
       { bg: 'bg-orange-100', text: 'text-orange-700' },
     ];
@@ -322,7 +322,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
                               setSelectedPelaksana(pelaksana);
                               setIsViewerOpen(true);
                             }}
-                            className="bg-blue-100 text-blue-700 font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                            className="bg-[#cde7f0] text-[#003344] font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                             View Dokumen
@@ -382,7 +382,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
                             setSelectedPelaksana(pelaksana);
                             setIsViewerOpen(true);
                           }}
-                          className="bg-blue-100 text-blue-700 font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          className="bg-[#cde7f0] text-[#003344] font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                           View Dokumen
@@ -583,7 +583,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
                 disabled={!isAllComplete}
                 className={`px-6 py-2.5 rounded-lg font-bold text-sm inline-flex items-center gap-2 transition-colors ${
                   isAllComplete
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-md'
+                    ? 'bg-[#00475e] hover:bg-[#003344] text-white shadow-md'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >

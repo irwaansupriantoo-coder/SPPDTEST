@@ -7,7 +7,7 @@ import { VerifikasiDokumenDialog } from "../components/VerifikasiDokumenDialog";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../utils/supabaseClient";
 import { getStatusPengajuan, batchGetStatusPengajuan } from "../utils/statusStore";
-import {  batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds , getAllPengajuan } from "../utils/supabaseDataStore";
+import { batchGetLaporanStatus, batchGetPelaksanaData, batchGetProgramData, getHiddenSppdIds, getAllPengajuan } from "../utils/supabaseDataStore";
 import {
   FileDown,
   Search,
@@ -38,11 +38,11 @@ interface LaporanData {
   kota: string;
   totalAnggaran: number;
   status:
-    | "belum_spj"
-    | "menunggu_verifikasi_kpa"
-    | "menunggu_pembayaran"
-    | "selesai"
-    | "perbaikan";
+  | "belum_spj"
+  | "menunggu_verifikasi_kpa"
+  | "menunggu_pembayaran"
+  | "selesai"
+  | "perbaikan";
   tipePerjalanan: "Dalam Daerah" | "Luar Daerah";
   statusPengajuan?: string;
   version?: string;
@@ -106,7 +106,7 @@ export default function ArsipSPJPPTK() {
 
       const hydrateData = (d: any) => {
         const status = laporanStatusMap[d.noSppd] || d.status || "belum_spj";
-        
+
         let hydratedPelaksana = d.pelaksana;
         let hydratedTotalAnggaran = d.totalAnggaran;
 
@@ -116,7 +116,7 @@ export default function ArsipSPJPPTK() {
             hydratedPelaksana = storedPelaksana;
             hydratedTotalAnggaran = hydratedPelaksana.reduce((sum: number, p: any) => sum + (p.totalBiayaHotel || 0) + (p.totalSewaKendaraan || 0) + (p.totalUangHarian || 0) + (p.totalPesawat || 0) + (p.totalKeretaApi || 0) + (p.totalBiayaTol || 0), 0);
           }
-        } catch(e) {}
+        } catch (e) { }
 
         try {
           const parsedProgram = programDataMap[d.noSppd] || {};
@@ -172,8 +172,8 @@ export default function ArsipSPJPPTK() {
     tipePerjalanan === "Semua Laporan"
       ? [...dalamDaerahData, ...luarDaerahData]
       : tipePerjalanan === "Dalam Daerah"
-      ? dalamDaerahData
-      : luarDaerahData;
+        ? dalamDaerahData
+        : luarDaerahData;
 
   const filteredData = allData.filter((item) => {
     const matchesStatus =
@@ -264,7 +264,7 @@ export default function ArsipSPJPPTK() {
   };
 
   const handleDeleteItem = (noSppd: string) => {
-    if(window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
+    if (window.confirm('Yakin ingin menghapus data ini secara permanen?')) {
       const currentHidden = JSON.parse(localStorage.getItem('hidden_sppd_ids') || '[]');
       localStorage.setItem('hidden_sppd_ids', JSON.stringify([...currentHidden, noSppd]));
       setDalamDaerahData(prev => prev.filter(item => item.noSppd !== noSppd));
@@ -277,7 +277,7 @@ export default function ArsipSPJPPTK() {
     switch (status) {
       case "belum_spj":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20">
             Belum SPJ
           </span>
         );
@@ -354,9 +354,9 @@ export default function ArsipSPJPPTK() {
                   onChange={(e) =>
                     setTipePerjalanan(
                       e.target.value as
-                        | "Semua Laporan"
-                        | "Dalam Daerah"
-                        | "Luar Daerah",
+                      | "Semua Laporan"
+                      | "Dalam Daerah"
+                      | "Luar Daerah",
                     )
                   }
                   className="w-full appearance-none bg-white border-none rounded-xl py-3.5 px-5 pr-12 text-[#191c1e] font-medium shadow-sm focus:ring-2 focus:ring-[#00475e]/20 cursor-pointer outline-none"
@@ -581,11 +581,10 @@ export default function ArsipSPJPPTK() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-xs transition-colors ${
-                        currentPage === page
-                          ? "bg-[#00475e] text-white"
-                          : "hover:bg-slate-100 text-slate-500"
-                      }`}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg font-bold text-xs transition-colors ${currentPage === page
+                        ? "bg-[#00475e] text-white"
+                        : "hover:bg-slate-100 text-slate-500"
+                        }`}
                     >
                       {page}
                     </button>
@@ -621,7 +620,7 @@ export default function ArsipSPJPPTK() {
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex gap-5 items-start">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
+              <div className="w-12 h-12 bg-[#e6f3f8] rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
                 <Info className="w-6 h-6" />
               </div>
               <div>

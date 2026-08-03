@@ -288,7 +288,7 @@ export default function ArsipSPJPengelola() {
     switch (status) {
       case "belum_spj":
         return (
-          <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200">
+          <span className="px-3 py-1 bg-[#e6f3f8] text-[#003344] text-xs font-bold rounded-full border border-[#00475e]/20">
             Belum SPJ
           </span>
         );
@@ -632,7 +632,7 @@ export default function ArsipSPJPengelola() {
           {/* Info Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex gap-5 items-start">
-              <div className="w-12 h-12 bg-blue-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
+              <div className="w-12 h-12 bg-[#e6f3f8] rounded-2xl flex-shrink-0 flex items-center justify-center text-[#00475e]">
                 <Info className="w-6 h-6" />
               </div>
               <div>

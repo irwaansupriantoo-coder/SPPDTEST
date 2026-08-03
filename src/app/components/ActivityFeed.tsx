@@ -54,8 +54,8 @@ export function ActivityFeed() {
             iconColor = 'text-slate-600';
           } else if (log.type === 'pengajuan_sppd') {
             icon = Send;
-            bgColor = 'bg-blue-100';
-            iconColor = 'text-blue-700';
+            bgColor = 'bg-[#cde7f0]';
+            iconColor = 'text-[#003344]';
           } else if (log.type === 'status_sppd') {
             if (log.title.toLowerCase().includes('ditolak')) {
               icon = AlertTriangle;
@@ -192,7 +192,7 @@ export function ActivityFeed() {
               {selectedDate && (
                 <button 
                   onClick={() => setSelectedDate("")} 
-                  className="text-sm text-blue-600 hover:underline font-medium"
+                  className="text-sm text-[#00475e] hover:underline font-medium"
                 >
                   Reset Filter
                 </button>
@@ -230,6 +230,6 @@ export function ActivityFeed() {
 const FALLBACK: UnifiedActivity[] = [
   { id: '1', timestamp: new Date().toISOString(), icon: CheckCircle2, bgColor: 'bg-green-100', iconColor: 'text-green-700',
     title: 'Pengajuan SPPD Disetujui', time: 'Belum ada data terbaru', dateStr: new Date().toISOString().split('T')[0] },
-  { id: '2', timestamp: new Date().toISOString(), icon: FileEdit, bgColor: 'bg-blue-100', iconColor: 'text-blue-700',
+  { id: '2', timestamp: new Date().toISOString(), icon: FileEdit, bgColor: 'bg-[#cde7f0]', iconColor: 'text-[#003344]',
     title: 'Buat pengajuan untuk melihat aktivitas', time: 'Halaman Pengajuan', dateStr: new Date().toISOString().split('T')[0] },
 ];
