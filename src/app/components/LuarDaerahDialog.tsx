@@ -102,7 +102,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
     const colors = [
       { bg: 'bg-[#00475e]/10', text: 'text-[#00475e]' },
       { bg: 'bg-red-100', text: 'text-red-700' },
-      { bg: 'bg-[#cde7f0]', text: 'text-[#003344]' },
+      { bg: 'bg-[#00475e]', text: 'text-white' },
       { bg: 'bg-purple-100', text: 'text-purple-700' },
       { bg: 'bg-orange-100', text: 'text-orange-700' },
     ];
@@ -322,7 +322,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
                               setSelectedPelaksana(pelaksana);
                               setIsViewerOpen(true);
                             }}
-                            className="bg-[#cde7f0] text-[#003344] font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                            className="bg-[#00475e] text-white font-bold hover:bg-[#003344] px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
                           >
                             <Eye className="w-4 h-4" />
                             View Dokumen
@@ -382,7 +382,7 @@ export function LuarDaerahDialog({ isOpen, onClose, onSave, data, isEditable = t
                             setSelectedPelaksana(pelaksana);
                             setIsViewerOpen(true);
                           }}
-                          className="bg-[#cde7f0] text-[#003344] font-bold hover:bg-blue-200 px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
+                          className="bg-[#00475e] text-white font-bold hover:bg-[#003344] px-3 py-2 rounded-md inline-flex items-center gap-1.5 text-xs transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                           View Dokumen

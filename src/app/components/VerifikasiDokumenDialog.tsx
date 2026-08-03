@@ -365,7 +365,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
               {visibleDocuments.map((doc, index) => (
                 <div key={index} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 sm:p-4 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl transition-colors gap-3 sm:gap-4">
                   <div className="flex items-start sm:items-center gap-3">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#cde7f0] flex items-center justify-center text-[#00475e] shrink-0 mt-0.5 sm:mt-0">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#00475e] flex items-center justify-center text-white shrink-0 mt-0.5 sm:mt-0">
                       <doc.icon className="w-4 h-4 sm:w-5 sm:h-5" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -384,7 +384,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     {uploadedFiles[doc.docId] && (
                       <button 
                         onClick={() => handleViewDoc(doc.docId, doc.name)}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f3f8] hover:bg-[#cde7f0] text-[#003344] rounded-lg transition-colors border border-[#00475e]/20"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#00475e] hover:bg-[#003344] text-white rounded-lg transition-colors"
                       >
                         <Eye className="w-4 h-4" />
                         <span className="text-xs font-bold">Lihat</span>
@@ -403,7 +403,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     {['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId) && isEditable && (
                       <button 
                         onClick={() => fileInputRefs.current[doc.docId]?.click()}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-600 rounded-lg transition-colors border border-slate-300"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-[#00475e] rounded-lg transition-colors border border-[#00475e]"
                       >
                         <Upload className="w-4 h-4" />
                         <span className="text-xs font-bold">{uploadedFiles[doc.docId] ? 'Ganti File' : 'Unggah'}</span>
@@ -412,7 +412,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     {doc.docId === 'rincian' && (
                       <button
                         onClick={handleDownloadRincian}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f4f1] hover:bg-[#d0ece5] text-[#00475e] rounded-lg transition-colors border border-[#00475e]/20"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#00475e] hover:bg-[#003344] text-white rounded-lg transition-colors"
                       >
                         <FileDown className="w-4 h-4" />
                         <span className="text-xs font-bold">Unduh</span>
@@ -421,7 +421,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                     {doc.docId === 'kwitansi' && (
                       <button
                         onClick={handleDownloadKwitansi}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#e6f4f1] hover:bg-[#d0ece5] text-[#00475e] rounded-lg transition-colors border border-[#00475e]/20"
+                        className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#00475e] hover:bg-[#003344] text-white rounded-lg transition-colors"
                       >
                         <FileDown className="w-4 h-4" />
                         <span className="text-xs font-bold">Unduh</span>
