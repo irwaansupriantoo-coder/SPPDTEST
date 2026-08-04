@@ -38,7 +38,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full lg:w-[calc(100%-16rem)] lg:ml-64 flex justify-between items-center px-4 lg:px-6 h-16 bg-white z-40 border-b border-slate-200 transition-all duration-300">
+    <header className="fixed top-0 w-full lg:w-[calc(100%-16rem)] lg:ml-64 flex justify-between items-center px-4 lg:px-6 h-16 bg-white z-[60] border-b border-slate-200 shadow-sm transition-all duration-300">
       <div className="flex items-center gap-3 lg:gap-4">
         <button
           onClick={() => window.dispatchEvent(new Event('toggle-sidebar'))}
