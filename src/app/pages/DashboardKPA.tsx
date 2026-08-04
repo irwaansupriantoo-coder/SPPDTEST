@@ -437,7 +437,7 @@ export default function DashboardKPA() {
       <Header />
       <Sidebar />
 
-      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-28 p-4 lg:p-8 min-h-screen transition-all duration-300">
+      <main className="w-full lg:w-[calc(100%-16rem)] lg:ml-64 pt-28 pb-8 px-4 lg:px-8 min-h-screen transition-all duration-300">
         <header className="mb-10">
           <p className="text-[#4c616d] font-semibold uppercase tracking-[0.15em] text-[10px] mb-2">Selamat Datang</p>
           <h2 className="text-4xl font-bold tracking-tight text-[#00475e] mb-1">Dashboard Kepala Bidang</h2>
