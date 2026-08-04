@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
 import { SPJDialog } from "../components/SPJDialog";
@@ -129,19 +129,8 @@ export default function ArsipSPJPegawai() {
       const hydratedDalam = combinedDalam.filter(isApproved).map(hydrateData);
       const hydratedLuar = combinedLuar.filter(isApproved).map(hydrateData);
 
-      const isPegawai = user?.role === 'pegawai';
-      const userNip = (user?.nip || "").replace(/\D/g, "");
-
-      const filterByNip = (item: LaporanData) => {
-        if (!isPegawai || !userNip) return true;
-        if (Array.isArray(item.pelaksana)) {
-          return item.pelaksana.some((p: any) => (p.nip || "").replace(/\D/g, "") === userNip);
-        }
-        return false;
-      };
-
-      setDalamDaerahData(hydratedDalam.filter(filterByNip).filter(d => d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
-      setLuarDaerahData(hydratedLuar.filter(filterByNip).filter(d => d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
+      setDalamDaerahData(hydratedDalam.filter(d => d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
+      setLuarDaerahData(hydratedLuar.filter(d => d.status !== 'belum_spj' && d.status !== 'draft_laporan'));
     } catch (err) {
       console.log('Error loading laporan data:', err);
       setDalamDaerahData(MOCK_DATA_DALAM_DAERAH);
