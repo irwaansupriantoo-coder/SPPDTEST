@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Badge, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Lock, User, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 import { getSupabaseClient, apiRequest } from '../utils/supabaseClient';
 import { logActivity } from '../utils/activityStore';
@@ -46,6 +46,7 @@ export default function Login() {
   const [nip, setNip] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const logLogin = (user: { nama: string; nip: string, role?: string }) => {
     logActivity('login', `${user.nama} Login`, 'Sistem', undefined, { 
@@ -185,89 +186,106 @@ export default function Login() {
 
 
   return (
-    <div className="min-h-screen bg-[#f7f9fb] flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex relative overflow-hidden bg-white">
       <Toaster position="top-center" richColors />
-      <div className="absolute top-0 left-0 w-full h-96 bg-[#00475e] -skew-y-6 transform origin-top-left -translate-y-24 z-0" />
-
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center bg-white p-4 rounded-2xl shadow-sm mb-6 border border-gray-100">
-            <img src="/logo-berau-1.png" alt="Logo Kabupaten Berau" className="h-20 w-auto object-contain" />
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#00475e] mb-2">SIM Perjalanan Dinas</h1>
-          <p className="text-[#00475e] font-medium">Diskoperindag Kabupaten Berau</p>
+      
+      {/* Left side - Background Image */}
+      <div className="hidden lg:block lg:w-1/2 relative">
+        <img src="/fotologin.jpg" alt="Background" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute bottom-12 left-12 right-12 text-white">
+          <h1 className="text-4xl font-bold mb-4">Portal Resmi</h1>
+          <p className="text-lg opacity-90 max-w-lg">Akses sistem manajemen administrasi perjalanan dinas terpadu untuk efisiensi dan transparansi birokrasi.</p>
         </div>
+      </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-[2rem] shadow-xl border border-gray-100 p-8 sm:p-10">
-          <div className="mb-8 text-center">
-            <h2 className="text-xl font-bold text-[#00475e] mb-2">Selamat Datang</h2>
-            <p className="text-sm text-[#4c616d]">Silakan masuk ke akun Anda</p>
+      {/* Right side - Login Form */}
+      <div className="w-full lg:w-1/2 flex flex-col items-center justify-center p-8 lg:p-12">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-10">
+            <img src="/logo-berau-1.png" alt="Logo Kabupaten Berau" className="h-24 w-auto object-contain mx-auto mb-6" />
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Sistem Informasi<br/>Manajemen<br/>Perjalanan Dinas</h1>
+            <p className="text-gray-500 font-medium mt-4">Diskoperindag Kabupaten Berau</p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* NIP */}
               <div>
-                <label className="block text-xs font-bold text-[#4c616d] uppercase tracking-wider mb-2" htmlFor="nip">
-                  Nomor Induk Pegawai
+                <label className="block text-sm font-semibold text-gray-700 mb-2" htmlFor="nip">
+                  NIP
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#4c616d]">
-                    <Badge className="w-5 h-5" />
+                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+                    <User className="w-5 h-5" />
                   </span>
                   <input
                     id="nip"
                     type="text"
-                    placeholder="Masukkan NIP Anda"
+                    placeholder="Masukkan Nomor Induk Pegawai"
                     value={nip}
                     onChange={e => setNip(e.target.value)}
                     disabled={isLoading}
-                    className="block w-full pl-12 pr-4 py-3.5 bg-[#f7f9fb] border border-gray-200 rounded-xl text-[#00475e] font-medium placeholder:text-gray-400 focus:bg-white focus:border-[#00475e] focus:ring-4 focus:ring-[#00475e]/10 transition-all outline-none disabled:opacity-60"
+                    className="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-0 transition-all outline-none disabled:opacity-60"
                   />
                 </div>
               </div>
 
               {/* Password */}
               <div>
-                <label className="block text-xs font-bold text-[#4c616d] uppercase tracking-wider mb-2" htmlFor="password">
-                  Kata Sandi
+                <label className="block text-sm font-semibold text-gray-700 mb-2" htmlFor="password">
+                  Password
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#4c616d]">
+                  <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
                     <Lock className="w-5 h-5" />
                   </span>
                   <input
                     id="password"
-                    type="password"
-                    placeholder="Masukkan Kata Sandi Anda"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Masukkan password Anda"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     disabled={isLoading}
-                    className="block w-full pl-12 pr-4 py-3.5 bg-[#f7f9fb] border border-gray-200 rounded-xl text-[#00475e] font-medium placeholder:text-gray-400 focus:bg-white focus:border-[#00475e] focus:ring-4 focus:ring-[#00475e]/10 transition-all outline-none disabled:opacity-60"
+                    className="block w-full pl-11 pr-11 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-0 transition-all outline-none disabled:opacity-60"
                   />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 outline-none"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
                 </div>
               </div>
             </div>
 
-
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" className="rounded border-gray-300 text-[#0a0a0a] shadow-sm focus:border-gray-300 focus:ring focus:ring-gray-200 focus:ring-opacity-50" />
+                <span className="text-gray-600">Ingat saya</span>
+              </label>
+              <a href="#" className="font-semibold text-[#3b5998] hover:text-[#2d4373]">
+                Lupa Password?
+              </a>
+            </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#00475e] hover:bg-[#00384a] text-white font-bold rounded-xl shadow-lg shadow-[#00475e]/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0a0a0a] hover:bg-black text-white font-semibold rounded-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed mt-8"
             >
               {isLoading
                 ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Memproses...</span></>
                 : <><span>Masuk ke Sistem</span><ArrowRight className="w-5 h-5" /></>}
             </button>
           </form>
-        </div>
 
-        <p className="text-center text-sm text-[#4c616d] mt-8 font-medium">
-          &copy; 2026 Diskoperindag Kabupaten Berau
-        </p>
+          <p className="text-center text-xs text-gray-400 mt-12 font-medium">
+            &copy; 2026 Diskoperindag Kabupaten Berau
+          </p>
+        </div>
       </div>
     </div>
   );
