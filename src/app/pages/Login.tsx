@@ -190,8 +190,10 @@ export default function Login() {
       <Toaster position="top-center" richColors />
       
       {/* Left side - Background Image */}
-      <div className="hidden lg:block lg:w-1/2 relative">
-        <img src="/fotologin.jpg" alt="Background" className="absolute inset-0 w-full h-full object-cover" />
+      <div 
+        className="hidden lg:block lg:w-1/2 relative bg-cover bg-center"
+        style={{ backgroundImage: `url('/fotologin.jpg')` }}
+      >
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute bottom-12 left-12 right-12 text-white">
           <h1 className="text-4xl font-bold mb-4">Portal Resmi</h1>
