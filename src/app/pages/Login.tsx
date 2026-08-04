@@ -194,7 +194,7 @@ export default function Login() {
         className="hidden lg:block lg:w-1/2 relative bg-cover bg-center"
         style={{ backgroundImage: `url('/fotologin.jpg')` }}
       >
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/60"></div>
         <div className="absolute bottom-12 left-12 right-12 text-white">
           <h1 className="text-4xl font-bold mb-4">Portal Resmi</h1>
           <p className="text-lg opacity-90 max-w-lg">Akses sistem manajemen administrasi perjalanan dinas terpadu untuk efisiensi dan transparansi birokrasi.</p>
