@@ -9,16 +9,12 @@ import { ActivityFeed } from '../components/ActivityFeed';
 import { BudgetDialog, BudgetData } from '../components/BudgetDialog';
 import { Eye, CheckCircle, XCircle, Timer, Database, MapPin, FileText, Clock, Users, Search, Filter, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
   Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer,
-  Line,
-  ComposedChart
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
@@ -338,7 +334,8 @@ export default function DashboardKPA() {
 
         // --- Calculate Rekap & Grafik Perjalanan Dinas ---
         const rawPerjalanan: any[] = [];
-        const grafikMap: Record<string, any> = {};
+        let totalLuarDaerah = 0;
+        let totalDalamDaerah = 0;
         
         validData.forEach(row => {
           const sppdStr = row.noSppd || row.no_sppd || '';
@@ -347,23 +344,13 @@ export default function DashboardKPA() {
           
           if (hiddenIds.includes(sppdStr) || !sppdStr.includes('SPPD') || (row.isDuplicated && status !== 'Disetujui')) return;
           
-          if (status === 'Disetujui' || spjStatus === 'selesai' || status === 'Menunggu Persetujuan') {
+          if (spjStatus === 'selesai') {
              const date = new Date(row.createdAt || new Date());
              const bulan = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
              
              // Grafik processing
-             if (!grafikMap[bulan]) {
-                grafikMap[bulan] = { bulan, luarDaerah: 0, dalamDaerah: 0, totalLamaPenyelesaian: 0, countLaporan: 0 };
-             }
-             if (row.tipePerjalanan === 'Luar Daerah') grafikMap[bulan].luarDaerah++;
-             else if (row.tipePerjalanan === 'Dalam Daerah') grafikMap[bulan].dalamDaerah++;
-             
-             if (spjStatus === 'selesai' && row.updatedAt && row.createdAt) {
-                const diffTime = Math.abs(new Date(row.updatedAt).getTime() - new Date(row.createdAt).getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                grafikMap[bulan].totalLamaPenyelesaian += diffDays;
-                grafikMap[bulan].countLaporan++;
-             }
+             if (row.tipePerjalanan === 'Luar Daerah') totalLuarDaerah++;
+             else if (row.tipePerjalanan === 'Dalam Daerah') totalDalamDaerah++;
 
              // Rekap processing
              try {
@@ -378,11 +365,11 @@ export default function DashboardKPA() {
         
         setRekapPerjalanan(rawPerjalanan); 
         
-        const grafikArray = Object.values(grafikMap).sort((a, b) => a.bulan.localeCompare(b.bulan)).map(data => ({
-           ...data,
-           rataRataPenyelesaian: data.countLaporan > 0 ? (data.totalLamaPenyelesaian / data.countLaporan).toFixed(1) : 0
-        }));
-        setGrafikPerjalanan(grafikArray);
+        const pieData = [
+          { name: 'Luar Daerah', value: totalLuarDaerah, fill: '#00475e' },
+          { name: 'Dalam Daerah', value: totalDalamDaerah, fill: '#5eead4' }
+        ];
+        setGrafikPerjalanan(pieData);
         // ------------------------------------------------
 
         setDbReady('ready');
@@ -520,10 +507,105 @@ export default function DashboardKPA() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {kpiData.map((kpi, index) => (
             <KPICard key={index} {...kpi} />
           ))}
+        </div>
+
+        {/* Dashboard Kabid Features: Rekap Perjalanan & Grafik (Moved to Top) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
+          <div className="lg:col-span-8">
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm h-full">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
+                    Rekapitulasi Perjalanan Dinas
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 ml-4">Data perjalanan dinas pegawai per bulan (Status: Selesai)</p>
+                </div>
+                <div className="relative w-full sm:w-48">
+                  <Filter className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="month" 
+                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00475e]/20 focus:border-[#00475e]" 
+                    value={bulanFilter}
+                    onChange={(e) => setBulanFilter(e.target.value)} 
+                  />
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#f2f4f6]">
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">No</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nama Pegawai</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Luar Daerah</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Dalam Daerah</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {rekapDisplay.length > 0 ? (
+                      rekapDisplay.map((rekap, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-4 py-4 text-xs font-medium text-slate-600">{idx + 1}</td>
+                          <td className="px-4 py-4 text-sm font-semibold text-[#00475e]">{rekap.nama}</td>
+                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.luarDaerah}</td>
+                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.dalamDaerah}</td>
+                          <td className="px-4 py-4 text-center text-xs font-bold text-[#00475e]">{rekap.luarDaerah + rekap.dalamDaerah}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                          <p className="text-sm font-medium">Tidak ada data perjalanan dinas untuk filter ini</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div className="lg:col-span-4">
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm h-full flex flex-col">
+              <div className="mb-2">
+                <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
+                  Statistik Keseluruhan
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 ml-4">Proporsi Perjalanan Dinas Selesai</p>
+              </div>
+              <div className="flex-1 min-h-[250px] w-full mt-4 flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={grafikPerjalanan}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {grafikPerjalanan.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip 
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      itemStyle={{ color: '#191c1e', fontWeight: 600 }}
+                    />
+                    <Legend verticalAlign="bottom" height={36} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -1037,90 +1119,7 @@ export default function DashboardKPA() {
               </div>
             </div>
 
-            {/* Dashboard Kabid Features: Rekap Perjalanan & Grafik */}
-            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm mt-8">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-                <div>
-                  <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
-                    Rekapitulasi Perjalanan Dinas
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 ml-4">Data perjalanan dinas pegawai per bulan</p>
-                </div>
-                <div className="relative w-full sm:w-48">
-                  <Filter className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input 
-                    type="month" 
-                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00475e]/20 focus:border-[#00475e]" 
-                    value={bulanFilter}
-                    onChange={(e) => setBulanFilter(e.target.value)} 
-                  />
-                </div>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#f2f4f6]">
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">No</th>
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nama Pegawai</th>
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Luar Daerah</th>
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Dalam Daerah</th>
-                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {rekapDisplay.length > 0 ? (
-                      rekapDisplay.map((rekap, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-4 py-4 text-xs font-medium text-slate-600">{idx + 1}</td>
-                          <td className="px-4 py-4 text-sm font-semibold text-[#00475e]">{rekap.nama}</td>
-                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.luarDaerah}</td>
-                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.dalamDaerah}</td>
-                          <td className="px-4 py-4 text-center text-xs font-bold text-[#00475e]">{rekap.luarDaerah + rekap.dalamDaerah}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
-                          <p className="text-sm font-medium">Tidak ada data perjalanan dinas untuk filter ini</p>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm mt-8">
-              <div className="mb-6">
-                <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
-                  Grafik Statistik Perjalanan Dinas
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 ml-4">Perbandingan rata-rata lama penyelesaian laporan dengan total perjalanan</p>
-              </div>
-              <div style={{ height: '350px', width: '100%', marginTop: '20px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <ComposedChart
-                    data={grafikPerjalanan}
-                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
-                    <XAxis dataKey="bulan" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="left" orientation="left" stroke="#8884d8" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis yAxisId="right" orientation="right" stroke="#ff7300" fontSize={12} tickLine={false} axisLine={false} />
-                    <RechartsTooltip 
-                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'rgba(0,0,0,0.1)', color: '#333', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
-                    <Bar yAxisId="left" dataKey="luarDaerah" name="Luar Daerah" stackId="a" fill="#00475e" radius={[2, 2, 0, 0]} barSize={40} />
-                    <Bar yAxisId="left" dataKey="dalamDaerah" name="Dalam Daerah" stackId="a" fill="#5eead4" radius={[2, 2, 0, 0]} barSize={40} />
-                    <Line yAxisId="right" type="monotone" dataKey="rataRataPenyelesaian" name="Rata-rata Penyelesaian (Hari)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 5, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 7 }} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
 
             <GuideSection />
           </div>
