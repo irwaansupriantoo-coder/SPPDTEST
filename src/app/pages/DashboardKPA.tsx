@@ -513,10 +513,10 @@ export default function DashboardKPA() {
           ))}
         </div>
 
-        {/* Dashboard Kabid Features: Rekap Perjalanan & Grafik (Moved to Top) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
-          <div className="lg:col-span-8">
-            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-8 space-y-8">
+            {/* Dashboard Kabid Features: Rekap Perjalanan */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm">
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
                 <div>
                   <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
@@ -569,48 +569,9 @@ export default function DashboardKPA() {
                 </table>
               </div>
             </div>
-          </div>
-          
-          <div className="lg:col-span-4">
-            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm h-full flex flex-col">
-              <div className="mb-2">
-                <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
-                  Statistik Keseluruhan
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 ml-4">Proporsi Perjalanan Dinas Selesai</p>
-              </div>
-              <div className="flex-1 min-h-[250px] w-full mt-4 flex items-center justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={grafikPerjalanan}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {grafikPerjalanan.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <RechartsTooltip 
-                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                      itemStyle={{ color: '#191c1e', fontWeight: 600 }}
-                    />
-                    <Legend verticalAlign="bottom" height={36} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-8 space-y-8">
             <BudgetSection 
+
               dalamDaerahTotal={dalamDaerah.total}
               dalamDaerahUsed={dalamDaerah.used}
               luarDaerahTotal={luarDaerah.total}
@@ -1125,6 +1086,49 @@ export default function DashboardKPA() {
           </div>
 
           <div className="lg:col-span-4 space-y-8">
+            {/* Dashboard Kabid Features: Statistik (Pie Chart) */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm">
+              <div className="mb-2">
+                <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
+                  Statistik Keseluruhan
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 ml-4">Proporsi Perjalanan Dinas Selesai</p>
+              </div>
+              <div className="h-[250px] w-full mt-4 flex items-center justify-center">
+                {grafikPerjalanan.reduce((sum, item) => sum + item.value, 0) > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={grafikPerjalanan}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                        nameKey="name"
+                      >
+                        {grafikPerjalanan.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.fill} />
+                        ))}
+                      </Pie>
+                      <RechartsTooltip 
+                        contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                        itemStyle={{ color: '#191c1e', fontWeight: 600 }}
+                      />
+                      <Legend verticalAlign="bottom" height={36} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 opacity-80 h-full">
+                    <FileText className="w-10 h-10 mb-2 opacity-50" />
+                    <p className="text-sm font-medium">Belum ada data perjalanan</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <ProfileCard />
             <ActivityFeed />
           </div>
