@@ -8,6 +8,18 @@ import { ProfileCard } from '../components/ProfileCard';
 import { ActivityFeed } from '../components/ActivityFeed';
 import { BudgetDialog, BudgetData } from '../components/BudgetDialog';
 import { Eye, CheckCircle, XCircle, Timer, Database, MapPin, FileText, Clock, Users, Search, Filter, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip as RechartsTooltip,
+  Legend,
+  ResponsiveContainer,
+  Line,
+  ComposedChart
+} from 'recharts';
 import { apiRequest } from '../utils/supabaseClient';
 import { toast, Toaster } from 'sonner';
 import { getStatusPengajuan, getTanggalPersetujuan, batchGetStatusPengajuan } from '../utils/statusStore';
@@ -138,6 +150,10 @@ export default function DashboardKPA() {
   
   const [isPengurusModalOpen, setIsPengurusModalOpen] = useState(false);
   const [selectedSkData, setSelectedSkData] = useState<SubKegiatan | null>(null);
+
+  const [bulanFilter, setBulanFilter] = useState('');
+  const [rekapPerjalanan, setRekapPerjalanan] = useState<any[]>([]);
+  const [grafikPerjalanan, setGrafikPerjalanan] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -308,7 +324,7 @@ export default function DashboardKPA() {
         const arsipList = validData.filter(d => {
            const sppd = d.noSppd || d.no_sppd || '';
            const status = statusMap[sppd] || 'Menunggu Persetujuan';
-           const spjStatus = laporanStatusMap[sppd] || d.status || "belum_spj";
+           const spjStatus = laporanStatusMapState[sppd] || d.status || "belum_spj";
 
            if (hiddenIds.includes(sppd)) return false;
            if (hiddenIds.includes(sppd)) return false;
@@ -319,6 +335,55 @@ export default function DashboardKPA() {
            return spjStatus === 'selesai';
         }).map(hydrateTotalAnggaran).sort((a, b) => new Date(b.updatedAt ?? b.createdAt).getTime() - new Date(a.updatedAt ?? a.createdAt).getTime());
         setLatestArsip(arsipList);
+
+        // --- Calculate Rekap & Grafik Perjalanan Dinas ---
+        const rawPerjalanan: any[] = [];
+        const grafikMap: Record<string, any> = {};
+        
+        validData.forEach(row => {
+          const sppdStr = row.noSppd || row.no_sppd || '';
+          const status = statusMap[sppdStr] || 'Menunggu Persetujuan';
+          const spjStatus = laporanStatusMap[sppdStr] || row.status || "belum_spj";
+          
+          if (hiddenIds.includes(sppdStr) || !sppdStr.includes('SPPD') || (row.isDuplicated && status !== 'Disetujui')) return;
+          
+          if (status === 'Disetujui' || spjStatus === 'selesai' || status === 'Menunggu Persetujuan') {
+             const date = new Date(row.createdAt || new Date());
+             const bulan = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+             
+             // Grafik processing
+             if (!grafikMap[bulan]) {
+                grafikMap[bulan] = { bulan, luarDaerah: 0, dalamDaerah: 0, totalLamaPenyelesaian: 0, countLaporan: 0 };
+             }
+             if (row.tipePerjalanan === 'Luar Daerah') grafikMap[bulan].luarDaerah++;
+             else if (row.tipePerjalanan === 'Dalam Daerah') grafikMap[bulan].dalamDaerah++;
+             
+             if (spjStatus === 'selesai' && row.updatedAt && row.createdAt) {
+                const diffTime = Math.abs(new Date(row.updatedAt).getTime() - new Date(row.createdAt).getTime());
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                grafikMap[bulan].totalLamaPenyelesaian += diffDays;
+                grafikMap[bulan].countLaporan++;
+             }
+
+             // Rekap processing
+             try {
+                const pelaksanaList = pelaksanaMap[sppdStr] || [row.pembuat];
+                pelaksanaList.forEach((p: any) => {
+                  if (!p || !p.nama) return;
+                  rawPerjalanan.push({ nama: p.nama, tipePerjalanan: row.tipePerjalanan, bulan });
+                });
+             } catch(e) {}
+          }
+        });
+        
+        setRekapPerjalanan(rawPerjalanan); 
+        
+        const grafikArray = Object.values(grafikMap).sort((a, b) => a.bulan.localeCompare(b.bulan)).map(data => ({
+           ...data,
+           rataRataPenyelesaian: data.countLaporan > 0 ? (data.totalLamaPenyelesaian / data.countLaporan).toFixed(1) : 0
+        }));
+        setGrafikPerjalanan(grafikArray);
+        // ------------------------------------------------
 
         setDbReady('ready');
       } catch (err: any) {
@@ -430,6 +495,15 @@ export default function DashboardKPA() {
 
   const filteredArsipData = filterData(latestArsip, searchArsip, filterArsip);
   const paginatedArsip = filteredArsipData.slice((pageArsip - 1) * itemsPerPage, pageArsip * itemsPerPage);
+
+  const filteredRekap = rekapPerjalanan.filter(p => !bulanFilter || p.bulan === bulanFilter);
+  const rekapGrouped: Record<string, any> = {};
+  filteredRekap.forEach(p => {
+    if (!rekapGrouped[p.nama]) rekapGrouped[p.nama] = { nama: p.nama, luarDaerah: 0, dalamDaerah: 0 };
+    if (p.tipePerjalanan === 'Luar Daerah') rekapGrouped[p.nama].luarDaerah++;
+    else if (p.tipePerjalanan === 'Dalam Daerah') rekapGrouped[p.nama].dalamDaerah++;
+  });
+  const rekapDisplay = Object.values(rekapGrouped).sort((a, b) => a.nama.localeCompare(b.nama));
 
   return (
     <div className="min-h-screen bg-[#f7f9fb]">
@@ -960,6 +1034,91 @@ export default function DashboardKPA() {
                   Lihat Semua Data
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
+              </div>
+            </div>
+
+            {/* Dashboard Kabid Features: Rekap Perjalanan & Grafik */}
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm mt-8">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
+                    Rekapitulasi Perjalanan Dinas
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 ml-4">Data perjalanan dinas pegawai per bulan</p>
+                </div>
+                <div className="relative w-full sm:w-48">
+                  <Filter className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input 
+                    type="month" 
+                    className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00475e]/20 focus:border-[#00475e]" 
+                    value={bulanFilter}
+                    onChange={(e) => setBulanFilter(e.target.value)} 
+                  />
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-[#f2f4f6]">
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">No</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nama Pegawai</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Luar Daerah</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Dalam Daerah</th>
+                      <th className="px-4 py-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {rekapDisplay.length > 0 ? (
+                      rekapDisplay.map((rekap, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-4 py-4 text-xs font-medium text-slate-600">{idx + 1}</td>
+                          <td className="px-4 py-4 text-sm font-semibold text-[#00475e]">{rekap.nama}</td>
+                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.luarDaerah}</td>
+                          <td className="px-4 py-4 text-center text-xs font-medium text-slate-600">{rekap.dalamDaerah}</td>
+                          <td className="px-4 py-4 text-center text-xs font-bold text-[#00475e]">{rekap.luarDaerah + rekap.dalamDaerah}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
+                          <p className="text-sm font-medium">Tidak ada data perjalanan dinas untuk filter ini</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl border border-slate-200/10 shadow-sm mt-8">
+              <div className="mb-6">
+                <h3 className="text-sm font-black text-[#191c1e] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#00475e]"></span>
+                  Grafik Statistik Perjalanan Dinas
+                </h3>
+                <p className="text-xs text-slate-500 mt-1 ml-4">Perbandingan rata-rata lama penyelesaian laporan dengan total perjalanan</p>
+              </div>
+              <div style={{ height: '350px', width: '100%', marginTop: '20px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <ComposedChart
+                    data={grafikPerjalanan}
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
+                    <XAxis dataKey="bulan" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="left" orientation="left" stroke="#8884d8" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis yAxisId="right" orientation="right" stroke="#ff7300" fontSize={12} tickLine={false} axisLine={false} />
+                    <RechartsTooltip 
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderColor: 'rgba(0,0,0,0.1)', color: '#333', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '10px' }} />
+                    <Bar yAxisId="left" dataKey="luarDaerah" name="Luar Daerah" stackId="a" fill="#00475e" radius={[2, 2, 0, 0]} barSize={40} />
+                    <Bar yAxisId="left" dataKey="dalamDaerah" name="Dalam Daerah" stackId="a" fill="#5eead4" radius={[2, 2, 0, 0]} barSize={40} />
+                    <Line yAxisId="right" type="monotone" dataKey="rataRataPenyelesaian" name="Rata-rata Penyelesaian (Hari)" stroke="#f59e0b" strokeWidth={3} dot={{ r: 5, fill: '#f59e0b', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 7 }} />
+                  </ComposedChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
