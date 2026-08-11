@@ -49,10 +49,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const logLogin = (user: { nama: string; nip: string, role?: string }) => {
-    logActivity('login', `${user.nama} Login`, 'Sistem', undefined, { 
-      nama: user.nama, 
-      nip: user.nip, 
-      role: user.role || 'pegawai' 
+    logActivity('login', `${user.nama} Login`, 'Sistem', undefined, {
+      nama: user.nama,
+      nip: user.nip,
+      role: user.role || 'pegawai'
     });
   };
 
@@ -80,12 +80,12 @@ export default function Login() {
     // Fetch saved profile from Supabase
     const existingProfile = await getUserProfile(nip) || {};
 
-    const sessionUser = { 
-      nama: existingProfile.nama || localUser.nama, 
-      nip, 
+    const sessionUser = {
+      nama: existingProfile.nama || localUser.nama,
+      nip,
       role: localUser.role,
       pangkat: existingProfile.pangkat,
-      profilePicture: existingProfile.profilePicture 
+      profilePicture: existingProfile.profilePicture
     };
 
     // â”€â”€ Layer 1: server endpoint (creates Auth user if needed + returns session) â”€â”€
@@ -105,7 +105,7 @@ export default function Login() {
 
       const serverUser = { ...result.user, ...sessionUser, nama: sessionUser.nama || result.user.nama };
       await getSupabaseClient().auth.updateUser({ data: serverUser }); // Push metadata to Supabase
-      
+
       logLogin(serverUser);
       toast.success(`Selamat datang, ${serverUser.nama}!`);
       setTimeout(() => navigate('/dashboard'), 800);
@@ -117,7 +117,7 @@ export default function Login() {
     // â”€â”€ Layer 2: direct Supabase Auth (user already exists from a prior login) â”€â”€
     let email = EMAIL_MAP[nip] || `${nip.toLowerCase()}@berau.go.id`;
     let sbPassword = password;
-    
+
     // Special bypass for admin account to avoid Supabase signup/rate limits
     // We use a known existing user's token but set the local session to admin.
     if (nip === 'admin') {
@@ -128,48 +128,48 @@ export default function Login() {
     if (email) {
       try {
         let { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password: sbPassword });
-        
+
         // Auto-signup if it fails (maybe the user hasn't been created yet)
         if (error && error.message.includes('Invalid login credentials')) {
-          const { data: signUpData, error: signUpError } = await getSupabaseClient().auth.signUp({ 
-            email, 
+          const { data: signUpData, error: signUpError } = await getSupabaseClient().auth.signUp({
+            email,
             password,
             options: {
               data: sessionUser
             }
           });
-          
+
           if (signUpError) {
-             console.error("Signup error:", signUpError);
-             error = signUpError;
+            console.error("Signup error:", signUpError);
+            error = signUpError;
           } else if (signUpData.session) {
-             data = signUpData as any;
-             error = null;
+            data = signUpData as any;
+            error = null;
           } else {
-             // Sign up succeeded but no session (likely email confirmation required)
-             toast.error('Akun berhasil dibuat tetapi membutuhkan verifikasi email. Matikan "Confirm email" di pengaturan Supabase Auth Anda.');
-             setIsLoading(false);
-             return;
+            // Sign up succeeded but no session (likely email confirmation required)
+            toast.error('Akun berhasil dibuat tetapi membutuhkan verifikasi email. Matikan "Confirm email" di pengaturan Supabase Auth Anda.');
+            setIsLoading(false);
+            return;
           }
         }
 
         if (!error && data.session) {
           if (nip === 'admin') {
-             // For admin bypass, push the fake admin metadata instead of overwriting Irwan's
-             await getSupabaseClient().auth.updateUser({ data: sessionUser });
+            // For admin bypass, push the fake admin metadata instead of overwriting Irwan's
+            await getSupabaseClient().auth.updateUser({ data: sessionUser });
           } else {
-             await getSupabaseClient().auth.updateUser({ data: sessionUser });
+            await getSupabaseClient().auth.updateUser({ data: sessionUser });
           }
-          
+
           logLogin(sessionUser);
           toast.success(`Selamat datang, ${sessionUser.nama}!`);
           setTimeout(() => navigate('/dashboard'), 800);
           return;
         } else if (error) {
-           console.error("Auth error:", error);
-           toast.error(`Login gagal: ${error.message}`);
-           setIsLoading(false);
-           return;
+          console.error("Auth error:", error);
+          toast.error(`Login gagal: ${error.message}`);
+          setIsLoading(false);
+          return;
         }
       } catch (err: any) {
         console.error("Auth exception", err);
@@ -188,9 +188,9 @@ export default function Login() {
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-white">
       <Toaster position="top-center" richColors />
-      
+
       {/* Left side - Background Image */}
-      <div 
+      <div
         className="hidden lg:block lg:w-1/2 relative bg-cover bg-center"
         style={{ backgroundImage: `url('/fotologin.jpg')` }}
       >
@@ -207,7 +207,7 @@ export default function Login() {
           {/* Logo */}
           <div className="text-center mb-10">
             <img src="/logo-berau-1.png" alt="Logo Kabupaten Berau" className="h-24 w-auto object-contain mx-auto mb-6" />
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Sistem Informasi<br/>Manajemen<br/>Perjalanan Dinas</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">Sistem Informasi<br />Manajemen<br />Perjalanan Dinas</h1>
             <p className="text-gray-500 font-medium mt-4">Diskoperindag Kabupaten Berau</p>
           </div>
 
@@ -252,9 +252,9 @@ export default function Login() {
                     disabled={isLoading}
                     className="block w-full pl-11 pr-11 py-3 border border-gray-200 rounded-lg text-gray-900 placeholder:text-gray-400 focus:border-gray-400 focus:ring-0 transition-all outline-none disabled:opacity-60"
                   />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)} 
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 outline-none"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
