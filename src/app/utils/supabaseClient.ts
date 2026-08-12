@@ -33,8 +33,20 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`API Error ${res.status}: ${err}`);
+      let errMsg = `API Error ${res.status}`;
+      try {
+        const errText = await res.text();
+        // Try to parse as JSON to extract specific error message
+        try {
+          const errJson = JSON.parse(errText);
+          errMsg = errJson.error || errJson.message || errText;
+        } catch {
+          errMsg = errText || res.statusText;
+        }
+      } catch {
+        errMsg = res.statusText || `HTTP ${res.status}`;
+      }
+      throw new Error(errMsg);
     }
     
     return await res.json();

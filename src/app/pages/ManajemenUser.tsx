@@ -98,7 +98,7 @@ export default function ManajemenUser() {
       };
 
       if (editMode) {
-        await apiRequest(`/users/${formData.nip}`, {
+        await apiRequest(`/users/${encodeURIComponent(formData.nip)}`, {
           method: 'PUT',
           body: JSON.stringify(payload)
         });
@@ -114,7 +114,8 @@ export default function ManajemenUser() {
       setShowModal(false);
       fetchUsers();
     } catch (error: any) {
-      toast.error(`Gagal menyimpan: ${error.message}`);
+      const msg = error.message || 'Terjadi kesalahan';
+      toast.error(`Gagal menyimpan: ${msg}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -124,7 +125,7 @@ export default function ManajemenUser() {
     if (!window.confirm(`Apakah Anda yakin ingin menghapus user ${nama}?`)) return;
     
     try {
-      await apiRequest(`/users/${nip}`, {
+      await apiRequest(`/users/${encodeURIComponent(nip)}`, {
         method: 'DELETE'
       });
       toast.success('User berhasil dihapus');

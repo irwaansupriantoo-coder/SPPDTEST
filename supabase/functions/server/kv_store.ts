@@ -19,32 +19,32 @@ const client = () => createClient(
 
 // Set stores a key-value pair in the database.
 export const set = async (key: string, value: any): Promise<void> => {
-  const supabase = client()
-  const { error } = await supabase.from("kv_store_e15eeec0").upsert({
-    key,
-    value
-  });
-  if (error) {
-    throw new Error(error.message);
+  try {
+    const supabase = client();
+    await supabase.from("kv_store_e15eeec0").upsert({ key, value });
+  } catch (e) {
+    console.error("KV Set Error:", e);
   }
 };
 
-// Get retrieves a key-value pair from the database.
 export const get = async (key: string): Promise<any> => {
-  const supabase = client()
-  const { data, error } = await supabase.from("kv_store_e15eeec0").select("value").eq("key", key).maybeSingle();
-  if (error) {
-    throw new Error(error.message);
+  try {
+    const supabase = client();
+    const { data, error } = await supabase.from("kv_store_e15eeec0").select("value").eq("key", key).maybeSingle();
+    if (error) return null;
+    return data?.value;
+  } catch (e) {
+    console.error("KV Get Error:", e);
+    return null;
   }
-  return data?.value;
 };
 
-// Delete deletes a key-value pair from the database.
 export const del = async (key: string): Promise<void> => {
-  const supabase = client()
-  const { error } = await supabase.from("kv_store_e15eeec0").delete().eq("key", key);
-  if (error) {
-    throw new Error(error.message);
+  try {
+    const supabase = client();
+    await supabase.from("kv_store_e15eeec0").delete().eq("key", key);
+  } catch (e) {
+    console.error("KV Del Error:", e);
   }
 };
 
@@ -76,12 +76,14 @@ export const mdel = async (keys: string[]): Promise<void> => {
   }
 };
 
-// Search for key-value pairs by prefix.
 export const getByPrefix = async (prefix: string): Promise<any[]> => {
-  const supabase = client()
-  const { data, error } = await supabase.from("kv_store_e15eeec0").select("key, value").like("key", prefix + "%");
-  if (error) {
-    throw new Error(error.message);
+  try {
+    const supabase = client();
+    const { data, error } = await supabase.from("kv_store_e15eeec0").select("key, value").like("key", prefix + "%");
+    if (error) return [];
+    return data?.map((d) => d.value) ?? [];
+  } catch (e) {
+    console.error("KV GetByPrefix Error:", e);
+    return [];
   }
-  return data?.map((d) => d.value) ?? [];
 };

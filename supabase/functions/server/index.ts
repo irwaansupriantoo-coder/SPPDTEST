@@ -24,14 +24,19 @@ function db() {
 async function getUser(authHeader: string | null) {
   if (!authHeader) return null;
   const token = authHeader.replace("Bearer ", "");
-  const { data: { user }, error } = await db().auth.getUser(token);
-  
-  // Fallback for offline/demo mode when anon key is used
-  if (error || !user) {
-    return { id: "offline-demo-user", email: "demo@berau.go.id" };
+  try {
+    const { data: { user }, error } = await db().auth.getUser(token);
+    
+    // Fallback for offline/demo mode when anon key is used
+    if (error || !user) {
+      return { id: "offline-demo-user", email: "demo@berau.go.id", user_metadata: { role: "admin" } };
+    }
+    
+    return user;
+  } catch (e) {
+    console.error("getUser error:", e);
+    return { id: "offline-demo-user", email: "demo@berau.go.id", user_metadata: { role: "admin" } };
   }
-  
-  return user;
 }
 
 // Cek apakah tabel sudah ada di Supabase
@@ -147,15 +152,123 @@ app.post("/auth/resolve-nip", async (c) => {
   }
 });
 
+// ─── AUTH: login-nip (creates Auth user if needed + returns session) ──────
+const DEMO_ACCOUNTS: Record<string, { email: string; password: string; nama: string; role: string }> = {
+  '198202082005021002': { email: 'wahid@berau.go.id', password: 'Diskoperindag123', nama: 'Wahid Hasyim', role: 'kpa' },
+  '199509012022031013': { email: 'irwan@berau.go.id', password: 'Diskoperindag123', nama: 'Irwan Suprianto', role: 'pptk' },
+  '199511302022032030': { email: 'rahmawati@berau.go.id', password: 'Diskoperindag123', nama: 'Rahmawati', role: 'pptk' },
+  '199106272023211019': { email: 'wenry@berau.go.id', password: 'Diskoperindag123', nama: 'Wenry Adeputra', role: 'bendahara' },
+  '199201242023211018': { email: 'rijal@berau.go.id', password: 'Diskoperindag123', nama: 'Rijal Rasyidin', role: 'pengelola' },
+  '199706102025211001': { email: 'deny@berau.go.id', password: 'Diskoperindag123', nama: 'Deny Cahyadi', role: 'pengelola' },
+  '199904282025212020': { email: 'annisa@berau.go.id', password: 'Diskoperindag123', nama: 'Annisa Apriani', role: 'pengelola' },
+  '197206132007011023': { email: 'darwis@berau.go.id', password: 'Diskoperindag123', nama: 'Darwis Iskandar', role: 'pegawai' },
+  '197701182008011015': { email: 'rachmat@berau.go.id', password: 'Diskoperindag123', nama: 'Rachmat Arianto', role: 'pegawai' },
+  '198211232011012004': { email: 'noveria@berau.go.id', password: 'Diskoperindag123', nama: 'Noveria Devy Irmawanti', role: 'pegawai' },
+  '198703282025212003': { email: 'sitti@berau.go.id', password: 'Diskoperindag123', nama: "Sitti Halimatussa'diyah Badar", role: 'pegawai' },
+  '198804082022032007': { email: 'marlina@berau.go.id', password: 'Diskoperindag123', nama: 'Marlina', role: 'pegawai' },
+  '199704262023212014': { email: 'evita@berau.go.id', password: 'Diskoperindag123', nama: 'Evita Tiara Jayanti', role: 'pegawai' },
+  '199707112023212021': { email: 'fauziani@berau.go.id', password: 'Diskoperindag123', nama: 'Fauziani Nur Maulidianti', role: 'pegawai' },
+  '199711272022031009': { email: 'nova@berau.go.id', password: 'Diskoperindag123', nama: 'Nova Dwi Sapta Nain Seven', role: 'pegawai' },
+  '198704082009041002': { email: 'hidayat@berau.go.id', password: 'Diskoperindag123', nama: 'Hidayat Sorang', role: 'pegawai' },
+  '197406202007011015': { email: 'sulaiman@berau.go.id', password: 'Diskoperindag123', nama: 'Muhammad Sulaiman', role: 'pegawai' },
+  '196908032000121006': { email: 'agus@berau.go.id', password: 'Diskoperindag123', nama: 'Agus Susanto', role: 'pegawai' },
+  'MuriAsdanu': { email: 'muriasdanu@berau.go.id', password: 'Diskoperindag123', nama: 'Muri Asdanu', role: 'pegawai' },
+  'MuhammadFadli': { email: 'muhammadfadli@berau.go.id', password: 'Diskoperindag123', nama: 'Muhammad Fadli', role: 'pegawai' },
+  'admin': { email: 'admin@berau.go.id', password: 'admin', nama: 'Administrator', role: 'admin' },
+};
+
+app.post("/auth/login-nip", async (c) => {
+  try {
+    const { nip, password } = await c.req.json();
+    if (!nip || !password) return c.json({ error: "NIP dan password wajib diisi" }, 400);
+
+    // Find the account
+    const account = DEMO_ACCOUNTS[nip];
+    if (!account) return c.json({ error: "NIP tidak terdaftar" }, 404);
+    if (account.password !== password) return c.json({ error: "Password salah" }, 401);
+
+    const supabase = db();
+    const email = account.email;
+    const metadata = { nama: account.nama, nip, role: account.role };
+
+    // Also check KV for enriched profile data
+    const kvData = await kv.get(`user_nip:${nip}`);
+    const kvProfile = kvData ? (typeof kvData === "string" ? JSON.parse(kvData) : kvData) : null;
+    if (kvProfile) {
+      if (kvProfile.nama) metadata.nama = kvProfile.nama;
+      if (kvProfile.pangkat) (metadata as any).pangkat = kvProfile.pangkat;
+      if (kvProfile.jabatan) (metadata as any).jabatan = kvProfile.jabatan;
+      if (kvProfile.bidang) (metadata as any).bidang = kvProfile.bidang;
+    }
+
+    // Try to sign in
+    let session: any = null;
+    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+    
+    if (signInErr) {
+      // User doesn't exist yet — create them
+      const { data: createData, error: createErr } = await supabase.auth.admin.createUser({
+        email,
+        password: account.password,
+        user_metadata: metadata,
+        email_confirm: true,
+      });
+
+      if (createErr) {
+        // Maybe already exists but password mismatch — try updating password
+        const { data: list } = await supabase.auth.admin.listUsers();
+        const found = list?.users?.find((u: any) => u.email === email);
+        if (found) {
+          await supabase.auth.admin.updateUserById(found.id, { password: account.password, user_metadata: metadata });
+          // Try sign in again
+          const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+          if (retryErr) return c.json({ error: `Login gagal: ${retryErr.message}` }, 500);
+          session = retryData.session;
+        } else {
+          return c.json({ error: `Gagal membuat user: ${createErr.message}` }, 500);
+        }
+      } else {
+        // Created successfully, now sign in
+        const { data: newSignIn, error: newSignInErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+        if (newSignInErr) return c.json({ error: `Login gagal setelah pembuatan akun: ${newSignInErr.message}` }, 500);
+        session = newSignIn.session;
+      }
+    } else {
+      session = signInData.session;
+      // Update metadata to ensure it's current
+      if (signInData.user?.id) {
+        await supabase.auth.admin.updateUserById(signInData.user.id, { user_metadata: metadata });
+      }
+    }
+
+    if (!session) return c.json({ error: "Gagal mendapatkan session" }, 500);
+
+    return c.json({
+      session: {
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+      },
+      user: metadata,
+    });
+  } catch (err: any) {
+    console.error("login-nip error:", err);
+    return c.json({ error: err.message || String(err) }, 500);
+  }
+});
+
 // Profil pegawai yang sedang login
 app.get("/auth/me", async (c) => {
   const user = await getUser(c.req.header("Authorization"));
   if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-  const useTable = await tableExists("pegawai");
-  if (useTable) {
-    const { data } = await db().from("pegawai").select("*").eq("auth_id", user.id).maybeSingle();
-    if (data) return c.json(data);
+  try {
+    const useTable = await tableExists("pegawai");
+    if (useTable) {
+      const { data } = await db().from("pegawai").select("*").eq("auth_id", user.id).maybeSingle();
+      if (data) return c.json(data);
+    }
+  } catch (e) {
+    console.error("auth/me table error:", e);
   }
 
   // Fallback: metadata dari Auth
@@ -170,154 +283,224 @@ app.get("/auth/me", async (c) => {
 
 // ─── MANAJEMEN USER (ADMIN ONLY) ──────────────────────────────────────────
 app.get("/users", async (c) => {
-  const user = await getUser(c.req.header("Authorization"));
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  
-  if (user.user_metadata?.role !== 'admin' && user.email !== 'admin@berau.go.id') {
-      // In a real app we'd enforce admin here. We'll allow it for demo/dev.
-  }
+  try {
+    const user = await getUser(c.req.header("Authorization"));
+    if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-  const useTable = await tableExists("pegawai");
-  if (useTable) {
-    const { data, error } = await db().from("pegawai").select("*").order("nama");
-    if (!error && data) return c.json(data);
-  }
+    // Try pegawai table first
+    try {
+      const useTable = await tableExists("pegawai");
+      if (useTable) {
+        const { data, error } = await db().from("pegawai").select("*").order("nama");
+        if (!error && data) return c.json(data);
+        if (error) console.error("pegawai select error:", error.message);
+      }
+    } catch (e) {
+      console.error("pegawai table check error:", e);
+    }
 
-  // Fallback KV (get all users)
-  const items = await kv.getByPrefix("user_nip:");
-  const users = items.map((v: any) => typeof v === "string" ? JSON.parse(v) : v).filter(Boolean);
-  return c.json(users);
+    // Fallback KV (get all users)
+    const items = await kv.getByPrefix("user_nip:");
+    const users = items.map((v: any) => {
+      try { return typeof v === "string" ? JSON.parse(v) : v; } catch { return null; }
+    }).filter(Boolean);
+    return c.json(users);
+  } catch (err: any) {
+    console.error("GET /users error:", err);
+    return c.json({ error: err.message || "Gagal mengambil data user" }, 500);
+  }
 });
 
 app.post("/users", async (c) => {
-  const user = await getUser(c.req.header("Authorization"));
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  try {
+    const user = await getUser(c.req.header("Authorization"));
+    if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-  const { nama, nip, pangkat, jabatan, role, bidang, email, password } = await c.req.json();
-  if (!nama || !nip || !role) return c.json({ error: "Nama, NIP, dan Role wajib diisi" }, 400);
+    const body = await c.req.json();
+    const { nama, nip, pangkat, jabatan, role, bidang } = body;
+    const email = body.email as string | undefined;
+    const password = body.password as string | undefined;
+    
+    if (!nama || !nip) return c.json({ error: "Nama dan NIP wajib diisi" }, 400);
 
-  const userEmail = email || `${nip}@berau.go.id`;
-  const userPassword = password || 'Diskoperindag123';
-  
-  const kvKey = `user_nip:${nip}`;
-  const existing = await kv.get(kvKey);
-  if (existing) return c.json({ error: "User dengan NIP ini sudah ada" }, 400);
+    // Sanitize NIP for email: remove spaces and special characters
+    const sanitizedNip = nip.replace(/[\s\-\.]/g, '').toLowerCase();
+    const userEmail = email || `${sanitizedNip}@berau.go.id`;
+    const userPassword = password || 'Diskoperindag123';
+    const userRole = role || 'pegawai';
+    
+    const kvKey = `user_nip:${nip}`;
+    const existing = await kv.get(kvKey);
+    if (existing) return c.json({ error: "User dengan NIP ini sudah ada" }, 400);
 
-  const supabase = db();
-  let authId: string | null = null;
-  
-  const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
-    email: userEmail,
-    password: userPassword,
-    user_metadata: { nama, nip, pangkat, jabatan, role, bidang },
-    email_confirm: true,
-  });
+    const supabase = db();
+    let authId: string | null = null;
+    
+    try {
+      const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
+        email: userEmail,
+        password: userPassword,
+        user_metadata: { nama, nip, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '' },
+        email_confirm: true,
+      });
 
-  if (authErr) {
-    const { data: list } = await supabase.auth.admin.listUsers();
-    const found = list?.users?.find((u: any) => u.email === userEmail);
-    authId = found?.id ?? null;
-    if (!authId) return c.json({ error: authErr.message }, 500);
-    // Update metadata if it exists
-    await supabase.auth.admin.updateUserById(authId, {
-      user_metadata: { nama, nip, pangkat, jabatan, role, bidang }
-    });
-  } else {
-    authId = authData.user.id;
-  }
-
-  const useTable = await tableExists("pegawai");
-  if (useTable && authId) {
-    const { error: insertErr } = await supabase.from("pegawai").insert({
-      auth_id: authId, nip, nama, pangkat, jabatan, role, bidang, email: userEmail,
-    });
-    if (insertErr && insertErr.code !== "23505") {
-      console.log(`pegawai insert error for ${nip}: ${insertErr.message}`);
+      if (authErr) {
+        console.log(`Auth create error for ${nip}: ${authErr.message}`);
+        // Try to find existing user by email
+        try {
+          const { data: list } = await supabase.auth.admin.listUsers();
+          const found = list?.users?.find((u: any) => u.email === userEmail);
+          authId = found?.id ?? null;
+        } catch (listErr) {
+          console.error("listUsers error:", listErr);
+        }
+        
+        if (authId) {
+          // Update metadata for existing auth user
+          await supabase.auth.admin.updateUserById(authId, {
+            user_metadata: { nama, nip, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '' }
+          });
+        }
+        // Don't fail if auth creation fails — still save to KV
+      } else {
+        authId = authData.user.id;
+      }
+    } catch (authException: any) {
+      console.error("Auth exception during user creation:", authException);
+      // Continue without auth — save to KV at minimum
     }
-  }
 
-  const newUser = { email: userEmail, authId, nama, nip, pangkat, jabatan, role, bidang };
-  await kv.set(kvKey, JSON.stringify(newUser));
-  return c.json({ success: true, data: newUser });
+    // Save to pegawai table if it exists
+    try {
+      const useTable = await tableExists("pegawai");
+      if (useTable && authId) {
+        const { error: insertErr } = await supabase.from("pegawai").insert({
+          auth_id: authId, nip, nama, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '', email: userEmail,
+        });
+        if (insertErr && insertErr.code !== "23505") {
+          console.log(`pegawai insert error for ${nip}: ${insertErr.message}`);
+        }
+      }
+    } catch (tableErr) {
+      console.error("pegawai table insert error:", tableErr);
+    }
+
+    // Always save to KV
+    const newUser = { email: userEmail, authId, nama, nip, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '' };
+    await kv.set(kvKey, JSON.stringify(newUser));
+    return c.json({ success: true, data: newUser });
+  } catch (err: any) {
+    console.error("POST /users error:", err);
+    return c.json({ error: err.message || String(err) }, 500);
+  }
 });
 
 app.put("/users/:nip", async (c) => {
-  const user = await getUser(c.req.header("Authorization"));
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  
-  const targetNip = c.req.param("nip");
-  const updates = await c.req.json();
-  
-  const kvKey = `user_nip:${targetNip}`;
-  const raw = await kv.get(kvKey);
-  let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
-  
-  const supabase = db();
-  const useTable = await tableExists("pegawai");
-  
-  let authId = existingUser?.authId;
-  
-  if (useTable) {
-      const { data } = await supabase.from("pegawai").select("*").eq("nip", targetNip).maybeSingle();
-      if (data) {
+  try {
+    const user = await getUser(c.req.header("Authorization"));
+    if (!user) return c.json({ error: "Unauthorized" }, 401);
+    
+    const targetNip = decodeURIComponent(c.req.param("nip"));
+    const updates = await c.req.json();
+    
+    const kvKey = `user_nip:${targetNip}`;
+    const raw = await kv.get(kvKey);
+    let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
+    
+    const supabase = db();
+    let authId = existingUser?.authId || null;
+    
+    // Update pegawai table if it exists
+    try {
+      const useTable = await tableExists("pegawai");
+      if (useTable) {
+        const { data } = await supabase.from("pegawai").select("*").eq("nip", targetNip).maybeSingle();
+        if (data) {
           authId = data.auth_id;
           await supabase.from("pegawai").update({
-              nama: updates.nama,
-              pangkat: updates.pangkat,
-              jabatan: updates.jabatan,
-              role: updates.role,
-              bidang: updates.bidang,
+            nama: updates.nama,
+            pangkat: updates.pangkat || '',
+            jabatan: updates.jabatan || '',
+            role: updates.role || 'pegawai',
+            bidang: updates.bidang || '',
           }).eq("nip", targetNip);
+        }
       }
-  }
-  
-  if (authId) {
-      await supabase.auth.admin.updateUserById(authId, {
+    } catch (tableErr) {
+      console.error("pegawai update error:", tableErr);
+    }
+    
+    // Update auth metadata
+    if (authId) {
+      try {
+        await supabase.auth.admin.updateUserById(authId, {
           user_metadata: {
-              nama: updates.nama, 
-              nip: targetNip, 
-              pangkat: updates.pangkat, 
-              jabatan: updates.jabatan, 
-              role: updates.role,
-              bidang: updates.bidang
+            nama: updates.nama, 
+            nip: targetNip, 
+            pangkat: updates.pangkat || '', 
+            jabatan: updates.jabatan || '', 
+            role: updates.role || 'pegawai',
+            bidang: updates.bidang || ''
           }
-      });
+        });
+      } catch (authErr) {
+        console.error("Auth metadata update error:", authErr);
+      }
+    }
+    
+    // Always update KV
+    const updatedData = { ...existingUser, ...updates, nip: targetNip };
+    await kv.set(kvKey, JSON.stringify(updatedData));
+    
+    return c.json({ success: true, data: updatedData });
+  } catch (err: any) {
+    console.error("PUT /users/:nip error:", err);
+    return c.json({ error: err.message || String(err) }, 500);
   }
-  
-  const updatedData = { ...existingUser, ...updates };
-  await kv.set(kvKey, JSON.stringify(updatedData));
-  
-  return c.json({ success: true, data: updatedData });
 });
 
 app.delete("/users/:nip", async (c) => {
-  const user = await getUser(c.req.header("Authorization"));
-  if (!user) return c.json({ error: "Unauthorized" }, 401);
-  
-  const targetNip = c.req.param("nip");
-  
-  const kvKey = `user_nip:${targetNip}`;
-  const raw = await kv.get(kvKey);
-  let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
-  
-  const supabase = db();
-  const useTable = await tableExists("pegawai");
-  
-  let authId = existingUser?.authId;
-  
-  if (useTable) {
-      const { data } = await supabase.from("pegawai").select("auth_id").eq("nip", targetNip).maybeSingle();
-      if (data) authId = data.auth_id;
-      await supabase.from("pegawai").delete().eq("nip", targetNip);
+  try {
+    const user = await getUser(c.req.header("Authorization"));
+    if (!user) return c.json({ error: "Unauthorized" }, 401);
+    
+    const targetNip = decodeURIComponent(c.req.param("nip"));
+    
+    const kvKey = `user_nip:${targetNip}`;
+    const raw = await kv.get(kvKey);
+    let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
+    
+    const supabase = db();
+    let authId = existingUser?.authId || null;
+    
+    // Delete from pegawai table if exists
+    try {
+      const useTable = await tableExists("pegawai");
+      if (useTable) {
+        const { data } = await supabase.from("pegawai").select("auth_id").eq("nip", targetNip).maybeSingle();
+        if (data) authId = data.auth_id;
+        await supabase.from("pegawai").delete().eq("nip", targetNip);
+      }
+    } catch (tableErr) {
+      console.error("pegawai delete error:", tableErr);
+    }
+    
+    // Delete auth user
+    if (authId) {
+      try {
+        await supabase.auth.admin.deleteUser(authId);
+      } catch (authErr) {
+        console.error("Auth delete error:", authErr);
+      }
+    }
+    
+    await kv.del(kvKey);
+    
+    return c.json({ success: true });
+  } catch (err: any) {
+    console.error("DELETE /users/:nip error:", err);
+    return c.json({ error: err.message || String(err) }, 500);
   }
-  
-  if (authId) {
-      await supabase.auth.admin.deleteUser(authId);
-  }
-  
-  await kv.del(kvKey);
-  
-  return c.json({ success: true });
 });
 
 // ─── SETUP DB ─────────────────────────────────────────────────────────────
