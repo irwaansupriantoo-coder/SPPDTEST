@@ -14,7 +14,7 @@ interface UserData {
   bidang: string;
 }
 
-const ROLES = ['KPA', 'PPTK', 'BENDAHARA', 'PENGELOLA', 'PEGAWAI', 'ADMIN'];
+const ROLES = ['KPA', 'PPTK', 'BENDAHARA', 'PENGELOLA'];
 const BIDANGS = [
   'Bidang Industri', 
   'Bidang Koperasi dan UMKM', 
@@ -38,7 +38,7 @@ export default function ManajemenUser() {
     nip: '',
     pangkat: '',
     jabatan: '',
-    role: 'PENGELOLA',
+    role: 'PEGAWAI',
     bidang: 'Bidang Industri',
   });
   
@@ -79,7 +79,7 @@ export default function ManajemenUser() {
         nip: '',
         pangkat: '',
         jabatan: '',
-        role: 'PENGELOLA',
+        role: 'PEGAWAI',
         bidang: 'Bidang Industri',
       });
     }
@@ -317,13 +317,13 @@ export default function ManajemenUser() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-sm font-bold text-slate-700">Role User <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-bold text-slate-700">Role User (Semua Otomatis Pegawai)</label>
                     <select
-                      required
-                      value={formData.role}
-                      onChange={e => setFormData({...formData, role: e.target.value})}
+                      value={formData.role === 'PEGAWAI' ? '' : formData.role}
+                      onChange={e => setFormData({...formData, role: e.target.value || 'PEGAWAI'})}
                       className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00475e] text-sm bg-white"
                     >
+                      <option value="">- Tidak Ada Role Tambahan -</option>
                       {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </div>
