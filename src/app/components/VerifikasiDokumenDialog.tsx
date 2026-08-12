@@ -12,6 +12,7 @@ import { FilePreviewModal } from "./FilePreviewModal";
 import { getBuktiPembayaran } from "../utils/supabaseDataStore";
 import { get } from 'idb-keyval';
 import { reapplyBarcodes } from '../utils/barcodeReapplier';
+import { useAuth } from '../context/AuthContext';
 
 interface VerifikasiDokumenDialogProps {
   isOpen: boolean;
@@ -22,6 +23,8 @@ interface VerifikasiDokumenDialogProps {
 }
 
 export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, footerActions }: VerifikasiDokumenDialogProps) {
+  const { user } = useAuth();
+  const hideDownloadButtons = ['bendahara', 'pptk', 'kpa', 'admin'].includes(user?.role || '');
   const [isKwitansiPreviewOpen, setIsKwitansiPreviewOpen] = useState(false);
   const [isRincianPreviewOpen, setIsRincianPreviewOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -409,7 +412,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                         <span className="text-xs font-bold">{uploadedFiles[doc.docId] ? 'Ganti File' : 'Unggah'}</span>
                       </button>
                     )}
-                    {doc.docId === 'rincian' && (
+                    {doc.docId === 'rincian' && !hideDownloadButtons && (
                       <button
                         onClick={handleDownloadRincian}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#00475e] hover:bg-[#003344] text-white rounded-lg transition-colors"
@@ -418,7 +421,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                         <span className="text-xs font-bold">Unduh</span>
                       </button>
                     )}
-                    {doc.docId === 'kwitansi' && (
+                    {doc.docId === 'kwitansi' && !hideDownloadButtons && (
                       <button
                         onClick={handleDownloadKwitansi}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#00475e] hover:bg-[#003344] text-white rounded-lg transition-colors"
