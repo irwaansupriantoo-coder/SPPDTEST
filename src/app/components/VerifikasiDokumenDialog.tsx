@@ -46,7 +46,8 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
           { id: 'sppd', key: `sppd_tervisum_${data.noSppd}` },
           { id: 'laporan', key: `sppd_laporan_${data.noSppd}` },
           { id: 'dokumentasi', key: `sppd_dokumentasi_${data.noSppd}` },
-          { id: 'bukti_pembayaran', key: `sppd_bukti_pembayaran_${data.noSppd}` }
+          { id: 'bukti_pembayaran', key: `sppd_bukti_pembayaran_${data.noSppd}` },
+          { id: 'tbp', key: `sppd_tbp_${data.noSppd}` }
         ];
 
         const newUploadedFiles: Record<string, string> = {};
@@ -139,7 +140,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
   ];
 
   const documents = buktiPembayaran 
-    ? [...baseDocuments, { name: "Bukti Pembayaran / Pindah Buku", icon: Wallet, docId: "bukti_pembayaran" }]
+    ? [...baseDocuments, { name: "Bukti Pembayaran / Pindah Buku", icon: Wallet, docId: "bukti_pembayaran" }, { name: "Tanda Bukti Pembayaran (TBP)", icon: Wallet, docId: "tbp" }]
     : baseDocuments;
 
   const getGolongan = (nama: string, p: any) => {
@@ -168,6 +169,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
     else if (docId === 'rincian') key = `sppd_rincian_${data.noSppd}`;
     else if (docId === 'sppd') key = `sppd_tervisum_${data.noSppd}`;
     else if (docId === 'bukti_pembayaran') key = `sppd_bukti_pembayaran_${data.noSppd}`;
+    else if (docId === 'tbp') key = `sppd_tbp_${data.noSppd}`;
     else if (['penginapan', 'transportasi', 'pesawat_pergi', 'pesawat_pulang', 'kereta_api', 'taxi_pergi', 'taxi_pulang', 'biaya_tol', 'representatif'].includes(docId)) {
       let filePrefix = '';
       if (docId === 'penginapan') filePrefix = 'hotel';
@@ -206,6 +208,8 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
     else if (docId === 'sppd') key = `sppd_tervisum_${data.noSppd}`;
     else if (docId === 'laporan') key = `sppd_laporan_${data.noSppd}`;
     else if (docId === 'dokumentasi') key = `sppd_dokumentasi_${data.noSppd}`;
+    else if (docId === 'bukti_pembayaran') key = `sppd_bukti_pembayaran_${data.noSppd}`;
+    else if (docId === 'tbp') key = `sppd_tbp_${data.noSppd}`;
     
     if (key) {
       try {
@@ -312,7 +316,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
     if (isDalamDaerah) return true;
     if (uploadedFiles[doc.docId]) return true;
     if (!isEditable) return false;
-    const canUploadHere = ['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId);
+    const canUploadHere = ['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran', 'tbp'].includes(doc.docId);
     return canUploadHere;
   });
 
@@ -403,7 +407,7 @@ export function VerifikasiDokumenDialog({ isOpen, onClose, data, onSubmitUlang, 
                       }}
                       className="hidden"
                     />
-                    {['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran'].includes(doc.docId) && isEditable && (
+                    {['kwitansi', 'rincian', 'sppd', 'bukti_pembayaran', 'tbp'].includes(doc.docId) && isEditable && (
                       <button 
                         onClick={() => fileInputRefs.current[doc.docId]?.click()}
                         className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-[#00475e] rounded-lg transition-colors border border-[#00475e]"
