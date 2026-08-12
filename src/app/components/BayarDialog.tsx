@@ -5,13 +5,15 @@ import { toast } from 'sonner';
 interface BayarDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (file: File) => void;
+  onConfirm: (buktiFile: File, tbpFile: File) => void;
   data: any;
 }
 
 export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogProps) {
   const [buktiFile, setBuktiFile] = useState<File | null>(null);
+  const [tbpFile, setTbpFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const tbpRef = useRef<HTMLInputElement | null>(null);
 
   if (!isOpen) return null;
 
@@ -20,7 +22,11 @@ export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogPro
       toast.error('Mohon unggah bukti pembayaran atau pindah buku terlebih dahulu');
       return;
     }
-    onConfirm(buktiFile);
+    if (!tbpFile) {
+      toast.error('Mohon unggah Tanda Bukti Pembayaran (TBP) terlebih dahulu');
+      return;
+    }
+    onConfirm(buktiFile, tbpFile);
   };
 
   return (
@@ -49,7 +55,7 @@ export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogPro
         </div>
 
         {/* Form Content */}
-        <div className="p-6">
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
           <div className="mb-6">
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center gap-4 mb-6">
               <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
@@ -79,7 +85,7 @@ export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogPro
             />
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 hover:border-emerald-500/50 bg-[#f2f4f6] hover:bg-emerald-50 p-6 rounded-xl transition-all group"
+              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 hover:border-emerald-500/50 bg-[#f2f4f6] hover:bg-emerald-50 p-6 rounded-xl transition-all group mb-4"
             >
               {buktiFile ? (
                 <div className="flex flex-col items-center gap-2">
@@ -93,6 +99,42 @@ export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogPro
                   <Upload className="w-8 h-8 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                   <span className="text-sm font-bold text-slate-500 group-hover:text-emerald-600 tracking-tight">
                     Klik untuk upload dokumen
+                  </span>
+                  <span className="text-[10px] text-slate-400">PDF, JPG, PNG (Max. 5MB)</span>
+                </div>
+              )}
+            </button>
+
+            <label className="text-sm font-bold text-[#191c1e] block mb-3">
+              Tanda Bukti Pembayaran (TBP)
+            </label>
+            <input
+              ref={tbpRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={(e) => {
+                if (e.target.files?.[0]) {
+                  setTbpFile(e.target.files[0]);
+                }
+              }}
+              className="hidden"
+            />
+            <button
+              onClick={() => tbpRef.current?.click()}
+              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 hover:border-emerald-500/50 bg-[#f2f4f6] hover:bg-emerald-50 p-6 rounded-xl transition-all group"
+            >
+              {tbpFile ? (
+                <div className="flex flex-col items-center gap-2">
+                  <CheckCircle className="w-8 h-8 text-emerald-600" />
+                  <span className="text-sm font-bold text-emerald-600 tracking-tight truncate max-w-[200px]">
+                    {tbpFile.name}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <Upload className="w-8 h-8 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                  <span className="text-sm font-bold text-slate-500 group-hover:text-emerald-600 tracking-tight">
+                    Klik untuk upload TBP
                   </span>
                   <span className="text-[10px] text-slate-400">PDF, JPG, PNG (Max. 5MB)</span>
                 </div>
@@ -120,3 +162,4 @@ export function BayarDialog({ isOpen, onClose, onConfirm, data }: BayarDialogPro
     </div>
   );
 }
+

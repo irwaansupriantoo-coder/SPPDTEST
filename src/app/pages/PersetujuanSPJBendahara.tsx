@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router";
 import { Header } from "../components/Header";
 import { Sidebar } from "../components/Sidebar";
@@ -275,7 +275,7 @@ export default function PersetujuanSPJBendahara() {
     }
   };
 
-  const handleConfirmBayar = async (file: File) => {
+  const handleConfirmBayar = async (buktiFile: File, tbpFile: File) => {
     if (!selectedLaporanToBayar) return;
     const item = selectedLaporanToBayar;
     
@@ -295,8 +295,9 @@ export default function PersetujuanSPJBendahara() {
     
     try {
       await setLaporanStatus(item.noSppd, "selesai");
-      await setBuktiPembayaran(item.noSppd, file.name);
-      saveFile(`sppd_bukti_pembayaran_${item.noSppd}`, file).catch(console.error);
+      await setBuktiPembayaran(item.noSppd, buktiFile.name);
+      saveFile(`sppd_bukti_pembayaran_${item.noSppd}`, buktiFile).catch(console.error);
+      saveFile(`sppd_tbp_${item.noSppd}`, tbpFile).catch(console.error);
     } catch(e) {}
 
     // Optimistically update backend
