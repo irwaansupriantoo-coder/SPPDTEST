@@ -182,34 +182,91 @@ app.post("/auth/login-nip", async (c) => {
     const { nip, password } = await c.req.json();
     if (!nip || !password) return c.json({ error: "NIP dan password wajib diisi" }, 400);
 
-    // Find the account
-    const account = DEMO_ACCOUNTS[nip];
-    if (!account) return c.json({ error: "NIP tidak terdaftar" }, 404);
-    if (account.password !== password) return c.json({ error: "Password salah" }, 401);
-
     const supabase = db();
-    const email = account.email;
-    const metadata = { nama: account.nama, nip, role: account.role };
+    let email: string | null = null;
+    let expectedPassword: string | null = null;
+    let metadata: any = { nip };
 
-    // Also check KV for enriched profile data
-    const kvData = await kv.get(`user_nip:${nip}`);
-    const kvProfile = kvData ? (typeof kvData === "string" ? JSON.parse(kvData) : kvData) : null;
-    if (kvProfile) {
-      if (kvProfile.nama) metadata.nama = kvProfile.nama;
-      if (kvProfile.pangkat) (metadata as any).pangkat = kvProfile.pangkat;
-      if (kvProfile.jabatan) (metadata as any).jabatan = kvProfile.jabatan;
-      if (kvProfile.bidang) (metadata as any).bidang = kvProfile.bidang;
+    // Source 1: Check hardcoded DEMO_ACCOUNTS
+    const demoAccount = DEMO_ACCOUNTS[nip];
+    if (demoAccount) {
+      email = demoAccount.email;
+      expectedPassword = demoAccount.password;
+      metadata = { nama: demoAccount.nama, nip, role: demoAccount.role };
     }
 
-    // Try to sign in
+    // Source 2: Check KV store for dynamically-created users
+    if (!email) {
+      const kvData = await kv.get(`user_nip:${nip}`);
+      const kvProfile = kvData ? (typeof kvData === "string" ? JSON.parse(kvData) : kvData) : null;
+      if (kvProfile && kvProfile.email) {
+        email = kvProfile.email;
+        expectedPassword = 'Diskoperindag123'; // default password for admin-created users
+        metadata = {
+          nama: kvProfile.nama || nip,
+          nip,
+          role: kvProfile.role || 'pegawai',
+          pangkat: kvProfile.pangkat || '',
+          jabatan: kvProfile.jabatan || '',
+          bidang: kvProfile.bidang || '',
+        };
+      }
+    }
+
+    // Source 3: Check pegawai table
+    if (!email) {
+      try {
+        const useTable = await tableExists("pegawai");
+        if (useTable) {
+          const { data } = await supabase.from("pegawai").select("*").eq("nip", nip).maybeSingle();
+          if (data) {
+            email = data.email || `${nip.replace(/[\s\-\.]/g, '').toLowerCase()}@berau.go.id`;
+            expectedPassword = 'Diskoperindag123';
+            metadata = {
+              nama: data.nama || nip,
+              nip,
+              role: data.role || 'pegawai',
+              pangkat: data.pangkat || '',
+              jabatan: data.jabatan || '',
+              bidang: data.bidang || '',
+            };
+          }
+        }
+      } catch (e) {
+        console.error("pegawai lookup error:", e);
+      }
+    }
+
+    // Not found anywhere
+    if (!email) return c.json({ error: "NIP tidak terdaftar" }, 404);
+
+    // Verify password
+    if (expectedPassword && password !== expectedPassword) {
+      return c.json({ error: "Password salah" }, 401);
+    }
+
+    // Enrich metadata from KV if we found demo account
+    if (demoAccount) {
+      const kvData = await kv.get(`user_nip:${nip}`);
+      const kvProfile = kvData ? (typeof kvData === "string" ? JSON.parse(kvData) : kvData) : null;
+      if (kvProfile) {
+        if (kvProfile.nama) metadata.nama = kvProfile.nama;
+        if (kvProfile.pangkat) metadata.pangkat = kvProfile.pangkat;
+        if (kvProfile.jabatan) metadata.jabatan = kvProfile.jabatan;
+        if (kvProfile.bidang) metadata.bidang = kvProfile.bidang;
+      }
+    }
+
+    // Try to sign in with Supabase Auth
     let session: any = null;
-    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+    const loginPassword = expectedPassword || password;
+    const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
     
     if (signInErr) {
-      // User doesn't exist yet — create them
+      // User doesn't exist yet in Auth — create them
       const { data: createData, error: createErr } = await supabase.auth.admin.createUser({
         email,
-        password: account.password,
+        password: loginPassword,
         user_metadata: metadata,
         email_confirm: true,
       });
@@ -219,9 +276,8 @@ app.post("/auth/login-nip", async (c) => {
         const { data: list } = await supabase.auth.admin.listUsers();
         const found = list?.users?.find((u: any) => u.email === email);
         if (found) {
-          await supabase.auth.admin.updateUserById(found.id, { password: account.password, user_metadata: metadata });
-          // Try sign in again
-          const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+          await supabase.auth.admin.updateUserById(found.id, { password: loginPassword, user_metadata: metadata });
+          const { data: retryData, error: retryErr } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
           if (retryErr) return c.json({ error: `Login gagal: ${retryErr.message}` }, 500);
           session = retryData.session;
         } else {
@@ -229,7 +285,7 @@ app.post("/auth/login-nip", async (c) => {
         }
       } else {
         // Created successfully, now sign in
-        const { data: newSignIn, error: newSignInErr } = await supabase.auth.signInWithPassword({ email, password: account.password });
+        const { data: newSignIn, error: newSignInErr } = await supabase.auth.signInWithPassword({ email, password: loginPassword });
         if (newSignInErr) return c.json({ error: `Login gagal setelah pembuatan akun: ${newSignInErr.message}` }, 500);
         session = newSignIn.session;
       }

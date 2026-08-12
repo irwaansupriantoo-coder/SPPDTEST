@@ -64,31 +64,11 @@ export default function Login() {
       return;
     }
 
-    // Validate NIP + password locally first â€” no network needed
-    const localUser = DEMO_ACCOUNTS.find(a => a.nip === nip);
-    if (!localUser) {
-      toast.error('NIP tidak terdaftar dalam sistem');
-      return;
-    }
-    if (localUser.password !== password) {
-      toast.error('Password yang Anda masukkan salah!');
-      return;
-    }
-
     setIsLoading(true);
 
-    // Fetch saved profile from Supabase
-    const existingProfile = await getUserProfile(nip) || {};
+    const localUser = DEMO_ACCOUNTS.find(a => a.nip === nip);
 
-    const sessionUser = {
-      nama: existingProfile.nama || localUser.nama,
-      nip,
-      role: localUser.role,
-      pangkat: existingProfile.pangkat,
-      profilePicture: existingProfile.profilePicture
-    };
-
-    // â”€â”€ Layer 1: server endpoint (creates Auth user if needed + returns session) â”€â”€
+    // ── Layer 1: server endpoint (handles BOTH demo + dynamically-created users) ──
     try {
       const result = await apiRequest<{
         session: { access_token: string; refresh_token: string };
@@ -103,33 +83,71 @@ export default function Login() {
         refresh_token: result.session.refresh_token,
       });
 
-      const serverUser = { ...result.user, ...sessionUser, nama: sessionUser.nama || result.user.nama };
-      await getSupabaseClient().auth.updateUser({ data: serverUser }); // Push metadata to Supabase
+      const existingProfile = await getUserProfile(nip) || {};
+      const serverUser = {
+        ...result.user,
+        nama: existingProfile.nama || result.user.nama,
+        nip,
+        role: result.user.role,
+        pangkat: existingProfile.pangkat || (result.user as any).pangkat,
+        profilePicture: existingProfile.profilePicture
+      };
+      await getSupabaseClient().auth.updateUser({ data: serverUser });
 
       logLogin(serverUser);
       toast.success(`Selamat datang, ${serverUser.nama}!`);
       setTimeout(() => navigate('/dashboard'), 800);
       return;
-    } catch (_) {
-      // server unreachable or not deployed â€” continue to next layer
+    } catch (serverErr: any) {
+      const errMsg = serverErr?.message || '';
+      if (errMsg.includes('NIP tidak terdaftar')) {
+        if (!localUser) {
+          toast.error('NIP tidak terdaftar dalam sistem');
+          setIsLoading(false);
+          return;
+        }
+      } else if (errMsg.includes('Password salah')) {
+        toast.error('Password yang Anda masukkan salah!');
+        setIsLoading(false);
+        return;
+      }
+      console.log('Server login failed, trying local fallback:', errMsg);
     }
 
-    // â”€â”€ Layer 2: direct Supabase Auth (user already exists from a prior login) â”€â”€
+    // ── Layer 2: Local fallback (only for demo accounts when server is unreachable) ──
+    if (!localUser) {
+      toast.error('NIP tidak terdaftar dalam sistem');
+      setIsLoading(false);
+      return;
+    }
+    if (localUser.password !== password) {
+      toast.error('Password yang Anda masukkan salah!');
+      setIsLoading(false);
+      return;
+    }
+
+    const existingProfile = await getUserProfile(nip) || {};
+
+    const sessionUser = {
+      nama: existingProfile.nama || localUser.nama,
+      nip,
+      role: localUser.role,
+      pangkat: existingProfile.pangkat,
+      profilePicture: existingProfile.profilePicture
+    };
+
     let email = EMAIL_MAP[nip] || `${nip.toLowerCase()}@berau.go.id`;
     let sbPassword = password;
 
-    // Special bypass for admin account to avoid Supabase signup/rate limits
-    // We use a known existing user's token but set the local session to admin.
     if (nip === 'admin') {
-      email = 'irwan@berau.go.id';
-      sbPassword = 'Diskoperindag123';
+      email = 'admin@berau.go.id';
+      sbPassword = 'admin';
     }
 
     if (email) {
       try {
         let { data, error } = await getSupabaseClient().auth.signInWithPassword({ email, password: sbPassword });
 
-        // Auto-signup if it fails (maybe the user hasn't been created yet)
         if (error && error.message.includes('Invalid login credentials')) {
           const { data: signUpData, error: signUpError } = await getSupabaseClient().auth.signUp({
             email,
@@ -146,7 +164,6 @@ export default function Login() {
             data = signUpData as any;
             error = null;
           } else {
-            // Sign up succeeded but no session (likely email confirmation required)
             toast.error('Akun berhasil dibuat tetapi membutuhkan verifikasi email. Matikan "Confirm email" di pengaturan Supabase Auth Anda.');
             setIsLoading(false);
             return;
@@ -154,12 +171,7 @@ export default function Login() {
         }
 
         if (!error && data.session) {
-          if (nip === 'admin') {
-            // For admin bypass, push the fake admin metadata instead of overwriting Irwan's
-            await getSupabaseClient().auth.updateUser({ data: sessionUser });
-          } else {
-            await getSupabaseClient().auth.updateUser({ data: sessionUser });
-          }
+          await getSupabaseClient().auth.updateUser({ data: sessionUser });
 
           logLogin(sessionUser);
           toast.success(`Selamat datang, ${sessionUser.nama}!`);
@@ -182,8 +194,6 @@ export default function Login() {
     setIsLoading(false);
     toast.error('Gagal masuk ke sistem. Pastikan koneksi internet stabil atau cek konfigurasi database.');
   };
-
-
 
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-white">
