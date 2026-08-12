@@ -287,24 +287,49 @@ app.get("/users", async (c) => {
     const user = await getUser(c.req.header("Authorization"));
     if (!user) return c.json({ error: "Unauthorized" }, 401);
 
-    // Try pegawai table first
+    // Collect users from BOTH sources and merge by NIP
+    const usersByNip = new Map<string, any>();
+
+    // Source 1: KV store (always available)
+    try {
+      const items = await kv.getByPrefix("user_nip:");
+      for (const v of items) {
+        try {
+          const parsed = typeof v === "string" ? JSON.parse(v) : v;
+          if (parsed && parsed.nip) {
+            usersByNip.set(parsed.nip, parsed);
+          }
+        } catch { /* skip unparseable */ }
+      }
+    } catch (e) {
+      console.error("KV getByPrefix error:", e);
+    }
+
+    // Source 2: pegawai table (overrides KV data if available)
     try {
       const useTable = await tableExists("pegawai");
       if (useTable) {
         const { data, error } = await db().from("pegawai").select("*").order("nama");
-        if (!error && data) return c.json(data);
+        if (!error && data) {
+          for (const row of data) {
+            if (row.nip) {
+              // Merge: table data takes priority, but keep KV extra fields
+              const existing = usersByNip.get(row.nip) || {};
+              usersByNip.set(row.nip, { ...existing, ...row });
+            }
+          }
+        }
         if (error) console.error("pegawai select error:", error.message);
       }
     } catch (e) {
       console.error("pegawai table check error:", e);
     }
 
-    // Fallback KV (get all users)
-    const items = await kv.getByPrefix("user_nip:");
-    const users = items.map((v: any) => {
-      try { return typeof v === "string" ? JSON.parse(v) : v; } catch { return null; }
-    }).filter(Boolean);
-    return c.json(users);
+    // Convert map to sorted array
+    const allUsers = Array.from(usersByNip.values())
+      .sort((a: any, b: any) => (a.nama || '').localeCompare(b.nama || ''));
+
+    return c.json(allUsers);
   } catch (err: any) {
     console.error("GET /users error:", err);
     return c.json({ error: err.message || "Gagal mengambil data user" }, 500);
@@ -373,13 +398,15 @@ app.post("/users", async (c) => {
     // Save to pegawai table if it exists
     try {
       const useTable = await tableExists("pegawai");
-      if (useTable && authId) {
+      if (useTable) {
+        const insertAuthId = authId || crypto.randomUUID();
         const { error: insertErr } = await supabase.from("pegawai").insert({
-          auth_id: authId, nip, nama, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '', email: userEmail,
+          auth_id: insertAuthId, nip, nama, pangkat: pangkat || '', jabatan: jabatan || '', role: userRole, bidang: bidang || '', email: userEmail,
         });
         if (insertErr && insertErr.code !== "23505") {
           console.log(`pegawai insert error for ${nip}: ${insertErr.message}`);
         }
+        if (!authId) authId = insertAuthId;
       }
     } catch (tableErr) {
       console.error("pegawai table insert error:", tableErr);
