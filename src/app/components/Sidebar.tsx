@@ -1,4 +1,4 @@
-import { Building2, LayoutDashboard, FileText, ClipboardCheck, LogOut, Archive, X } from 'lucide-react';
+import { Building2, LayoutDashboard, FileText, ClipboardCheck, LogOut, Archive, X, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState, useEffect } from 'react';
 import { getSupabaseClient } from '../utils/supabaseClient';
@@ -63,6 +63,7 @@ export function Sidebar() {
   } else if (user?.role === 'admin') {
     menuItems = [
       { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { path: '/manajemen-user', icon: Users, label: 'Manajemen User' },
       { path: '/daftar-pengajuan', icon: FileText, label: 'Daftar Pengajuan (Semua)' },
       { path: '/persetujuan-sppd', icon: FileText, label: 'Persetujuan SPPD (Semua)' },
       { path: '/persetujuan-spj', icon: ClipboardCheck, label: 'Persetujuan SPJ (Semua)' },

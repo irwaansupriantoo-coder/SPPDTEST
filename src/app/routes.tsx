@@ -7,6 +7,7 @@ import Laporan from "./pages/Laporan";
 import Anggaran from "./pages/Anggaran";
 import Panduan from "./pages/Panduan";
 import Pengaturan from "./pages/Pengaturan";
+import ManajemenUser from "./pages/ManajemenUser";
 import Login from "./pages/Login";
 import PersetujuanSPPDKPA from "./pages/PersetujuanSPPDKPA";
 import PersetujuanSPJKPA from "./pages/PersetujuanSPJKPA";
@@ -44,4 +45,5 @@ export const router = createBrowserRouter([
   { path: "/bendahara/arsip-spj", element: protect(<ArsipSPJBendahara />, ['bendahara', 'admin']) },
   { path: "/pegawai/persetujuan-spj", element: protect(<PersetujuanSPJPegawai />, ['pegawai', 'admin', 'kpa', 'pptk', 'bendahara', 'pengelola']) },
   { path: "/pegawai/arsip-spj", element: protect(<ArsipSPJPegawai />, ['pegawai', 'admin', 'kpa', 'pptk', 'bendahara', 'pengelola']) },
+  { path: "/manajemen-user", element: protect(<ManajemenUser />, ['admin']) },
 ]);

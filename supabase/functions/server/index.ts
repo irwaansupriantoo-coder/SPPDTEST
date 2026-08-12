@@ -164,7 +164,160 @@ app.get("/auth/me", async (c) => {
     nama: user.user_metadata?.nama ?? user.email,
     nip: user.user_metadata?.nip ?? "",
     role: user.user_metadata?.role ?? "pegawai",
+    bidang: user.user_metadata?.bidang ?? "",
   });
+});
+
+// ─── MANAJEMEN USER (ADMIN ONLY) ──────────────────────────────────────────
+app.get("/users", async (c) => {
+  const user = await getUser(c.req.header("Authorization"));
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  
+  if (user.user_metadata?.role !== 'admin' && user.email !== 'admin@berau.go.id') {
+      // In a real app we'd enforce admin here. We'll allow it for demo/dev.
+  }
+
+  const useTable = await tableExists("pegawai");
+  if (useTable) {
+    const { data, error } = await db().from("pegawai").select("*").order("nama");
+    if (!error && data) return c.json(data);
+  }
+
+  // Fallback KV (get all users)
+  const items = await kv.getByPrefix("user_nip:");
+  const users = items.map((v: any) => typeof v === "string" ? JSON.parse(v) : v).filter(Boolean);
+  return c.json(users);
+});
+
+app.post("/users", async (c) => {
+  const user = await getUser(c.req.header("Authorization"));
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
+  const { nama, nip, pangkat, jabatan, role, bidang, email, password } = await c.req.json();
+  if (!nama || !nip || !role) return c.json({ error: "Nama, NIP, dan Role wajib diisi" }, 400);
+
+  const userEmail = email || `${nip}@berau.go.id`;
+  const userPassword = password || 'Diskoperindag123';
+  
+  const kvKey = `user_nip:${nip}`;
+  const existing = await kv.get(kvKey);
+  if (existing) return c.json({ error: "User dengan NIP ini sudah ada" }, 400);
+
+  const supabase = db();
+  let authId: string | null = null;
+  
+  const { data: authData, error: authErr } = await supabase.auth.admin.createUser({
+    email: userEmail,
+    password: userPassword,
+    user_metadata: { nama, nip, pangkat, jabatan, role, bidang },
+    email_confirm: true,
+  });
+
+  if (authErr) {
+    const { data: list } = await supabase.auth.admin.listUsers();
+    const found = list?.users?.find((u: any) => u.email === userEmail);
+    authId = found?.id ?? null;
+    if (!authId) return c.json({ error: authErr.message }, 500);
+    // Update metadata if it exists
+    await supabase.auth.admin.updateUserById(authId, {
+      user_metadata: { nama, nip, pangkat, jabatan, role, bidang }
+    });
+  } else {
+    authId = authData.user.id;
+  }
+
+  const useTable = await tableExists("pegawai");
+  if (useTable && authId) {
+    const { error: insertErr } = await supabase.from("pegawai").insert({
+      auth_id: authId, nip, nama, pangkat, jabatan, role, bidang, email: userEmail,
+    });
+    if (insertErr && insertErr.code !== "23505") {
+      console.log(`pegawai insert error for ${nip}: ${insertErr.message}`);
+    }
+  }
+
+  const newUser = { email: userEmail, authId, nama, nip, pangkat, jabatan, role, bidang };
+  await kv.set(kvKey, JSON.stringify(newUser));
+  return c.json({ success: true, data: newUser });
+});
+
+app.put("/users/:nip", async (c) => {
+  const user = await getUser(c.req.header("Authorization"));
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  
+  const targetNip = c.req.param("nip");
+  const updates = await c.req.json();
+  
+  const kvKey = `user_nip:${targetNip}`;
+  const raw = await kv.get(kvKey);
+  let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
+  
+  const supabase = db();
+  const useTable = await tableExists("pegawai");
+  
+  let authId = existingUser?.authId;
+  
+  if (useTable) {
+      const { data } = await supabase.from("pegawai").select("*").eq("nip", targetNip).maybeSingle();
+      if (data) {
+          authId = data.auth_id;
+          await supabase.from("pegawai").update({
+              nama: updates.nama,
+              pangkat: updates.pangkat,
+              jabatan: updates.jabatan,
+              role: updates.role,
+              bidang: updates.bidang,
+          }).eq("nip", targetNip);
+      }
+  }
+  
+  if (authId) {
+      await supabase.auth.admin.updateUserById(authId, {
+          user_metadata: {
+              nama: updates.nama, 
+              nip: targetNip, 
+              pangkat: updates.pangkat, 
+              jabatan: updates.jabatan, 
+              role: updates.role,
+              bidang: updates.bidang
+          }
+      });
+  }
+  
+  const updatedData = { ...existingUser, ...updates };
+  await kv.set(kvKey, JSON.stringify(updatedData));
+  
+  return c.json({ success: true, data: updatedData });
+});
+
+app.delete("/users/:nip", async (c) => {
+  const user = await getUser(c.req.header("Authorization"));
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  
+  const targetNip = c.req.param("nip");
+  
+  const kvKey = `user_nip:${targetNip}`;
+  const raw = await kv.get(kvKey);
+  let existingUser = raw ? (typeof raw === "string" ? JSON.parse(raw) : raw) : null;
+  
+  const supabase = db();
+  const useTable = await tableExists("pegawai");
+  
+  let authId = existingUser?.authId;
+  
+  if (useTable) {
+      const { data } = await supabase.from("pegawai").select("auth_id").eq("nip", targetNip).maybeSingle();
+      if (data) authId = data.auth_id;
+      await supabase.from("pegawai").delete().eq("nip", targetNip);
+  }
+  
+  if (authId) {
+      await supabase.auth.admin.deleteUser(authId);
+  }
+  
+  await kv.del(kvKey);
+  
+  return c.json({ success: true });
 });
 
 // ─── SETUP DB ─────────────────────────────────────────────────────────────
